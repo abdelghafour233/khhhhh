@@ -4,83 +4,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر النخبة - للتجارة الإلكترونية</title>
-    <!-- Tailwind CSS for styling -->
+    <title>متجر النخبة - تسوق بأمان 🇲🇦</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Arabic Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
             scroll-behavior: smooth;
+            background-color: #fcfdfe;
         }
         .loading-bar {
-            height: 3px;
+            height: 4px;
             width: 0;
-            background: #2563eb;
+            background: linear-gradient(90deg, #2563eb, #818cf8);
             position: fixed;
             top: 0;
             left: 0;
             z-index: 9999;
-            transition: width 0.3s ease;
+            transition: width 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
         }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0"
+    "react": "https://esm.sh/react@^19.2.3"
   }
 }
 </script>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="text-gray-900">
     <div id="loading" class="loading-bar"></div>
     
-    <!-- Navigation Bar -->
-    <nav id="main-nav" class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center space-x-8 space-x-reverse">
-                    <a href="#/" class="text-2xl font-bold text-blue-600 flex items-center">
-                        <span class="ml-2">🏪</span>
-                        متجر النخبة
-                    </a>
-                    <div class="hidden md:flex space-x-6 space-x-reverse text-gray-600">
-                        <a href="#/category/إلكترونيات" class="hover:text-blue-600 transition">إلكترونيات</a>
-                        <a href="#/category/منزل" class="hover:text-blue-600 transition">منزل</a>
-                        <a href="#/category/سيارات" class="hover:text-blue-600 transition">سيارات</a>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4 space-x-reverse">
-                    <a href="#/cart" class="relative p-2 text-gray-600 hover:text-blue-600">
-                        <span class="text-xl">🛒</span>
-                        <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
-                    </a>
-                    <a href="#/dashboard" class="bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
-                        لوحة التحكم
-                    </a>
-                </div>
+    <!-- Navigation -->
+    <nav id="main-nav" class="bg-white/80 backdrop-blur-xl sticky top-0 z-50 border-b border-gray-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="#/" class="text-2xl font-black text-gray-900 flex items-center gap-2">
+                <span class="bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded-2xl shadow-lg shadow-blue-100">E</span>
+                متجر <span class="text-blue-600">النخبة</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="#/cart" class="relative p-3 bg-gray-50 rounded-2xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition group">
+                    <span class="text-2xl">🛒</span>
+                    <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center shadow-lg border-2 border-white">0</span>
+                </a>
+                <a href="#/dashboard" class="hidden md:flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl text-sm font-black hover:bg-gray-800 transition shadow-xl shadow-gray-200">
+                    🔐 الإدارة
+                </a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content Rendering Area -->
-    <main id="app-root" class="min-h-screen"></main>
+    <!-- Main Content -->
+    <main id="app-root"></main>
 
     <!-- Footer -->
-    <footer id="main-footer" class="bg-white border-t py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-gray-500">© 2024 متجر النخبة المغربي. جميع الحقوق محفوظة.</p>
-            <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
-                <a href="#" class="text-sm text-gray-400">سياسة الخصوصية</a>
-                <a href="#" class="text-sm text-gray-400">شروط الاستخدام</a>
+    <footer id="main-footer" class="bg-white py-20 border-t border-gray-50">
+        <div class="max-w-7xl mx-auto px-6 text-center space-y-8">
+            <div class="text-3xl font-black">🏪 متجر النخبة</div>
+            <p class="text-gray-400 font-medium max-w-md mx-auto">نحن نؤمن بأن الجودة لا يجب أن تكون باهظة الثمن. متجر النخبة المغربي وجهتك الأولى للتسوق الموثوق.</p>
+            <div class="flex justify-center gap-8 text-sm font-black text-gray-400">
+                <a href="#" class="hover:text-blue-600">سياسة الإستبدال</a>
+                <a href="#" class="hover:text-blue-600">الشحن والتوصيل</a>
+                <a href="#" class="hover:text-blue-600">اتصل بنا</a>
             </div>
+            <div class="text-xs text-gray-300 font-bold uppercase tracking-widest pt-8">© 2024 ELITE STORE MOROCCO. MADE WITH ❤️ FOR YOU.</div>
         </div>
     </footer>
 
-    <!-- The application logic -->
     <script src="index.tsx" type="module"></script>
 </body>
 </html>
