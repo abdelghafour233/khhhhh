@@ -69,6 +69,13 @@ const injectPixels = () => {
     }
 };
 
+// --- Helper Functions ---
+(window as any).togglePassword = (inputId: string) => {
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+    input.setAttribute('type', type);
+};
+
 // --- Components ---
 const renderWhatsAppButton = () => `
     <a href="https://wa.me/212${state.settings.whatsappNumber.startsWith('0') ? state.settings.whatsappNumber.substring(1) : state.settings.whatsappNumber}" target="_blank" class="fixed bottom-8 left-8 z-[100] bg-green-500 text-white p-5 rounded-full shadow-[0_10px_25px_rgba(34,197,94,0.4)] hover:bg-green-600 transition duration-300 transform hover:scale-110 flex items-center justify-center animate-bounce" title="تواصل معنا عبر واتساب">
@@ -80,14 +87,19 @@ const renderWhatsAppButton = () => `
 
 const renderDashboardLogin = () => `
     <div class="min-h-screen flex items-center justify-center bg-[#f8fafc] p-6">
-        <div class="bg-white p-10 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border w-full max-w-md space-y-8">
+        <div class="bg-white p-10 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border w-full max-w-md space-y-8 animate-fadeIn">
             <div class="text-center space-y-4">
                 <div class="text-7xl">⚡</div>
                 <h1 class="text-4xl font-black text-gray-900">نظام الإدارة</h1>
                 <p class="text-gray-400 font-medium">أدخل كلمة المرور السرية للمتابعة</p>
             </div>
-            <div class="space-y-4">
-                <input id="dash-pass-input" type="password" class="w-full p-6 border-none rounded-[1.5rem] text-center text-3xl tracking-[1em] outline-none ring-2 ring-gray-100 focus:ring-4 focus:ring-blue-100 transition-all bg-gray-50 font-bold" placeholder="••••">
+            <div class="space-y-6">
+                <div class="relative group">
+                    <input id="dash-pass-input" type="password" class="w-full p-6 border-none rounded-[1.5rem] text-center text-3xl tracking-[0.2em] outline-none ring-2 ring-gray-100 focus:ring-4 focus:ring-blue-100 transition-all bg-gray-50 font-bold" placeholder="••••">
+                    <button onclick="togglePassword('dash-pass-input')" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
                 <button onclick="checkDashboardAuth()" class="w-full py-6 bg-blue-600 text-white rounded-[1.5rem] font-black text-xl hover:bg-blue-700 transition shadow-xl shadow-blue-200 active:scale-95">فتح اللوحة</button>
             </div>
             <div class="text-center">
@@ -170,7 +182,7 @@ const renderHome = () => `
 
 const renderProductDetail = (id: string) => {
     const product = state.products.find((p: any) => p.id === id);
-    if (!product) return `<div class="text-center py-20 font-black">المنتج غير موجود</div>`;
+    if (!product) return `<div class="text-center py-20 font-black text-gray-400">المنتج غير موجود</div>`;
     return `
         <div class="max-w-6xl mx-auto px-6 py-20">
             <div class="flex flex-col lg:flex-row gap-16 items-start">
@@ -215,10 +227,9 @@ const renderProductDetail = (id: string) => {
     `;
 };
 
-// --- Added renderCart function to fix "Cannot find name 'renderCart'" error ---
 const renderCart = () => {
     const subtotal = state.cart.reduce((sum: number, i: any) => sum + (i.price * i.quantity), 0);
-    if (state.cart.length === 0) return `<div class="text-center py-40 space-y-6"> <div class="text-7xl">🛒</div> <h2 class="text-3xl font-black">سلة المشتريات فارغة</h2> <a href="#/" class="inline-block bg-blue-600 text-white px-10 py-4 rounded-full font-black">ابدأ التسوق</a> </div>`;
+    if (state.cart.length === 0) return `<div class="text-center py-40 space-y-6"> <div class="text-7xl">🛒</div> <h2 class="text-3xl font-black text-gray-400">سلة المشتريات فارغة</h2> <a href="#/" class="inline-block bg-blue-600 text-white px-10 py-4 rounded-full font-black">ابدأ التسوق</a> </div>`;
     
     return `
         <div class="max-w-4xl mx-auto px-6 py-20 space-y-10">
@@ -267,7 +278,7 @@ const renderCheckout = () => {
     if (state.directBuyProduct) { itemsToBuy = [{ ...state.directBuyProduct, quantity: 1 }]; subtotal = state.directBuyProduct.price; }
     else { itemsToBuy = state.cart; subtotal = state.cart.reduce((sum: number, i: any) => sum + (i.price * i.quantity), 0); }
     const total = subtotal + state.settings.shippingFee;
-    if (itemsToBuy.length === 0) return `<div class="text-center py-40 space-y-6"> <div class="text-7xl">🛒</div> <h2 class="text-3xl font-black">لا توجد منتجات للطلب</h2> <a href="#/" class="inline-block bg-blue-600 text-white px-10 py-4 rounded-full font-black">ابدأ التسوق</a> </div>`;
+    if (itemsToBuy.length === 0) return `<div class="text-center py-40 space-y-6"> <div class="text-7xl">🛒</div> <h2 class="text-3xl font-black text-gray-400">لا توجد منتجات للطلب</h2> <a href="#/" class="inline-block bg-blue-600 text-white px-10 py-4 rounded-full font-black">ابدأ التسوق</a> </div>`;
     return `
         <div class="max-w-6xl mx-auto px-6 py-20 flex flex-col lg:flex-row gap-16">
             <div class="flex-grow order-2 lg:order-1">
@@ -410,9 +421,14 @@ const renderDashboard = () => {
             <div class="space-y-12 max-w-2xl">
                 <h2 class="text-4xl font-black text-gray-900">إعدادات المتجر</h2>
                 <div class="bg-white p-12 rounded-[3rem] border border-gray-50 shadow-xl space-y-8">
-                    <div class="space-y-2">
-                        <label class="block mr-4 font-black text-gray-400 text-xs uppercase">كلمة السر للوحة التحكم</label>
-                        <input id="s-pass" type="text" class="w-full p-5 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-100 font-bold" value="${state.settings.dashPassword}">
+                    <div class="space-y-4">
+                        <label class="block mr-4 font-black text-gray-400 text-xs uppercase">إدارة كلمة السر</label>
+                        <div class="relative">
+                            <input id="s-pass" type="password" class="w-full p-5 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-100 font-bold" value="${state.settings.dashPassword}" placeholder="تغيير كلمة السر">
+                            <button onclick="togglePassword('s-pass')" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="space-y-2">
                         <label class="block mr-4 font-black text-gray-400 text-xs uppercase">رقم واتساب المبيعات</label>
@@ -432,7 +448,7 @@ const renderDashboard = () => {
         `;
     }
 
-    return `<div class="min-h-screen bg-[#fcfdfe] flex font-tajawal">${sidebar}<div class="flex-grow lg:mr-72 p-6 md:p-16 pb-40">${content}</div></div>`;
+    return `<div class="min-h-screen bg-[#fcfdfe] flex font-tajawal animate-fadeIn">${sidebar}<div class="flex-grow lg:mr-72 p-6 md:p-16 pb-40">${content}</div></div>`;
 };
 
 // --- Actions ---
