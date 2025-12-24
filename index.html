@@ -4,46 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر النخبة - تسوق بأمان 🇲🇦</title>
+    <title>حلال للخدمات الرقمية - برمجة وتطوير المواقع 🇲🇦</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-            scroll-behavior: smooth;
-            background-color: #fcfdfe;
-        }
-        .loading-bar {
-            height: 4px;
-            width: 0;
-            background: linear-gradient(90deg, #2563eb, #818cf8);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 9999;
-            transition: width 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
+        body { font-family: 'Tajawal', sans-serif; background-color: #fcfdfe; scroll-behavior: smooth; }
+        .loading-bar { height: 4px; width: 0; background: #2563eb; position: fixed; top: 0; left: 0; z-index: 9999; transition: width 0.4s; }
+        .text-outline { -webkit-text-stroke: 1px #2563eb; color: transparent; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.8s ease-out forwards; }
     </style>
 <script type="importmap">
 {
   "imports": {
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0"
+    "react": "https://esm.sh/react@^19.2.3"
   }
 }
 </script>
@@ -53,19 +29,23 @@
     
     <!-- Navigation -->
     <nav id="main-nav" class="bg-white/80 backdrop-blur-xl sticky top-0 z-50 border-b border-gray-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <a href="#/" class="text-2xl font-black text-gray-900 flex items-center gap-2">
-                <span class="bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded-2xl shadow-lg shadow-blue-100">E</span>
-                متجر <span class="text-blue-600">النخبة</span>
+        <div class="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center">
+            <a href="#/" class="text-2xl font-black flex items-center gap-3">
+                <span class="w-12 h-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl shadow-xl shadow-blue-200">H</span>
+                <div>
+                    <div class="text-gray-900">حلال <span class="text-blue-600">ديجيتال</span></div>
+                    <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Web Solutions & Design</div>
+                </div>
             </a>
-            <div class="flex items-center gap-6">
-                <a href="#/cart" class="relative p-3 bg-gray-50 rounded-2xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition group">
-                    <span class="text-2xl">🛒</span>
-                    <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center shadow-lg border-2 border-white">0</span>
-                </a>
-                <a href="#/dashboard" class="hidden md:flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl text-sm font-black hover:bg-gray-800 transition shadow-xl shadow-gray-200">
-                    🔐 الإدارة
-                </a>
+            <div class="hidden lg:flex items-center gap-10 font-black text-gray-500 text-sm">
+                <a href="#/" class="hover:text-blue-600 transition">الرئيسية</a>
+                <a href="#/request" class="hover:text-blue-600 transition">طلب مشروع</a>
+                <a href="#portfolio" class="hover:text-blue-600 transition">أعمالنا</a>
+                <a href="mailto:abdelghaforbahaddou@gmail.com" class="hover:text-blue-600 transition">تواصل معنا</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#/dashboard" class="p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition">🔐</a>
+                <a href="#/request" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition">ابدأ مشروعك</a>
             </div>
         </div>
     </nav>
@@ -74,16 +54,31 @@
     <main id="app-root"></main>
 
     <!-- Footer -->
-    <footer id="main-footer" class="bg-white py-20 border-t border-gray-50">
-        <div class="max-w-7xl mx-auto px-6 text-center space-y-8">
-            <div class="text-3xl font-black">🏪 متجر النخبة</div>
-            <p class="text-gray-400 font-medium max-w-md mx-auto">نحن نؤمن بأن الجودة لا يجب أن تكون باهظة الثمن. متجر النخبة المغربي وجهتك الأولى للتسوق الموثوق.</p>
-            <div class="flex justify-center gap-8 text-sm font-black text-gray-400">
-                <a href="#" class="hover:text-blue-600">سياسة الإستبدال</a>
-                <a href="#" class="hover:text-blue-600">الشحن والتوصيل</a>
-                <a href="#" class="hover:text-blue-600">اتصل بنا</a>
+    <footer id="main-footer" class="bg-gray-900 text-white py-24 mt-20">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16 border-b border-white/5 pb-20">
+            <div class="space-y-6">
+                <div class="text-3xl font-black">حلال <span class="text-blue-500">ديجيتال</span></div>
+                <p class="text-gray-400 leading-relaxed font-medium">نحن نسعى لتمكين الشركات والأفراد في المغرب والعالم العربي من امتلاك حضور رقمي قوي واحترافي من خلال حلولنا المبتكرة.</p>
             </div>
-            <div class="text-xs text-gray-300 font-bold uppercase tracking-widest pt-8">© 2024 ELITE STORE MOROCCO. MADE WITH ❤️ FOR YOU.</div>
+            <div class="space-y-6">
+                <h4 class="text-xl font-black">معلومات التواصل</h4>
+                <div class="space-y-4 text-gray-400 font-bold">
+                    <div class="flex items-center gap-3"><span>📞</span> 0649075664</div>
+                    <div class="flex items-center gap-3"><span>📧</span> abdelghaforbahaddou@gmail.com</div>
+                    <div class="flex items-center gap-3"><span>📍</span> المغرب - الدار البيضاء</div>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <h4 class="text-xl font-black">روابط سريعة</h4>
+                <div class="flex flex-col gap-4 text-gray-400 font-bold">
+                    <a href="#/request" class="hover:text-blue-500 transition">طلب استشارة مجانية</a>
+                    <a href="#portfolio" class="hover:text-blue-500 transition">معرض الأعمال</a>
+                    <a href="#" class="hover:text-blue-500 transition">الشروط والأحكام</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 pt-10 text-center text-gray-500 text-xs font-bold uppercase tracking-widest">
+            © 2024 HALAL DIGITAL SOLUTIONS. ALL RIGHTS RESERVED.
         </div>
     </footer>
 
