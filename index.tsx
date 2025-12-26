@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.6
- * Fix: Article Visibility on Mobile & Data Sync
+ * Halal Digital Services - Version 3.7
+ * Security Update: Hide credentials and reset tools from UI
  */
 
 // --- Constants & Data ---
@@ -123,8 +123,9 @@ const saveState = () => {
     if (btn) btn.innerHTML = isPassword ? '🙈' : '👁️';
 };
 
+// Function remains for admin console usage if needed, but removed from UI
 (window as any).hardResetSite = () => {
-    if (confirm('⚠️ هل أنت متأكد؟ سيتم مسح كافة البيانات وإعادة تحميل مقال السيو الافتراضي بكلمة السر halal2025')) {
+    if (confirm('⚠️ هل أنت متأكد؟ سيتم مسح كافة البيانات وإعادة تحميل الإعدادات الافتراضية.')) {
         localStorage.clear();
         sessionStorage.clear();
         window.location.reload();
@@ -331,7 +332,7 @@ const renderDashboard = () => `
         saveState();
         router();
     } else {
-        alert('كلمة السر خاطئة! تأكد من كتابة: halal2025');
+        alert('كلمة السر خاطئة!');
     }
 };
 
@@ -353,7 +354,6 @@ const router = () => {
     const isDashboard = hash.startsWith('#/dashboard');
     const isArticle = hash.startsWith('#/article/');
     
-    // UI visibility logic
     const header = document.querySelector('header');
     const footer = document.getElementById('main-footer');
     if (header) header.style.display = isDashboard ? 'none' : 'block';
@@ -370,7 +370,6 @@ const router = () => {
                         <div class="w-16 h-16 bg-blue-600 text-white flex items-center justify-center rounded-2xl mx-auto text-2xl font-black shadow-lg">H</div>
                         <div class="space-y-2">
                             <h2 class="text-2xl font-black dark:text-white">تسجيل دخول المشرف</h2>
-                            <p class="text-gray-400 dark:text-gray-500 text-sm font-bold">كلمة السر: <span class="text-blue-600 select-all">halal2025</span></p>
                         </div>
                         <div class="space-y-4">
                             <div class="relative">
@@ -379,8 +378,7 @@ const router = () => {
                             </div>
                             <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-100 hover:bg-blue-700 transition">دخول آمن</button>
                         </div>
-                        <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                             <button onclick="hardResetSite()" class="text-xs text-red-400 font-bold hover:underline">⚠️ إعادة الضبط</button>
+                        <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center">
                              <button onclick="toggleDarkMode()" class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg dark-toggle-icon">${state.isDarkMode ? '☀️' : '🌙'}</button>
                         </div>
                     </div>
@@ -392,7 +390,6 @@ const router = () => {
         }
     }
     
-    // Close mobile menu on route change
     state.isMobileMenuOpen = false;
     const menu = document.getElementById('mobile-menu');
     if (menu) menu.classList.add('hidden');
