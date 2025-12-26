@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.1
- * Added Password Visibility Toggle (Eye Icon) for Dashboard & Settings
+ * Halal Digital Services - Version 3.2
+ * Updated Default Password to 'halal2025'
  */
 
 // --- Constants & Data ---
@@ -51,7 +51,7 @@ const INITIAL_ARTICLES = [
 ];
 
 const INITIAL_SETTINGS = {
-    dashPassword: '1234',
+    dashPassword: 'halal2025',
     whatsappNumber: '0649075664',
     email: 'abdelghaforbahaddou@gmail.com',
     adsHeader: '',
