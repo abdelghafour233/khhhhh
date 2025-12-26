@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.0
- * Fixed Images & SEO Article Content
+ * Halal Digital Services - Version 3.1
+ * Added Password Visibility Toggle (Eye Icon) for Dashboard & Settings
  */
 
 // --- Constants & Data ---
@@ -47,14 +47,6 @@ const INITIAL_ARTICLES = [
 ابدأ بالبحث عن الكلمات المفتاحية، ثم قم ببرمجة موقعك بشكل نظيف (وهو ما نقوم به في حلال ديجيتال)، وأخيراً استمر في نشر محتوى تعليمي مفيد لجمهورك.`,
         image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?auto=format&fit=crop&q=80&w=1200',
         date: new Date().toISOString()
-    },
-    {
-        id: 'art1',
-        title: 'أهمية السيو للمقاولات في 2024',
-        excerpt: 'تعرف على كيف يمكن لتحسين محركات البحث أن يضاعف مبيعات شركتك.',
-        content: 'يعتبر السيو المحرك الأساسي للنمو الرقمي... السيو ليس مجرد كلمات مفتاحية بل هو تجربة مستخدم كاملة.',
-        image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800',
-        date: new Date().toISOString()
     }
 ];
 
@@ -85,6 +77,15 @@ const saveState = () => {
 };
 
 // --- Helpers ---
+(window as any).togglePassword = (inputId: string) => {
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    const btn = document.getElementById(inputId + '-btn');
+    if (!input) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    if (btn) btn.innerHTML = isPassword ? '🙈' : '👁️';
+};
+
 (window as any).shareOnWhatsApp = (title: string) => {
     const url = window.location.href;
     window.open(`https://wa.me/?text=${encodeURIComponent(title + ' : ' + url)}`, '_blank');
@@ -134,7 +135,7 @@ const renderHome = () => `
             <div class="absolute inset-0 opacity-10">
                 <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover">
             </div>
-            <div class="max-w-7xl mx-auto relative z-10 w-full py-16 md:py-20">
+            <div class="max-w-7xl mx-auto relative z-10 w-full py-16 md:py-20 text-right">
                 <div class="max-w-4xl space-y-6 md:space-y-10">
                     <h1 class="text-4xl md:text-7xl lg:text-8xl font-black leading-tight">حوّل أفكارك إلى <br class="hidden md:block"><span class="text-blue-500">واقع رقمي</span></h1>
                     <p class="text-lg md:text-2xl text-gray-400 font-medium leading-relaxed max-w-2xl">وكالة حلال ديجيتال المتخصصة في بناء وتطوير المشاريع الأكثر مبيعاً في المغرب 🇲🇦.</p>
@@ -159,27 +160,12 @@ const renderHome = () => `
                         <div class="h-56 md:h-64 overflow-hidden bg-gray-100">
                             <img src="${a.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
                         </div>
-                        <div class="p-6 md:p-8 space-y-3 md:space-y-4">
+                        <div class="p-6 md:p-8 space-y-3 md:space-y-4 text-right">
                             <h3 class="text-xl md:text-2xl font-black group-hover:text-blue-600 transition">${a.title}</h3>
                             <p class="text-gray-500 font-medium line-clamp-2 text-sm md:text-base">${a.excerpt}</p>
                             <div class="text-sm font-black text-blue-500 uppercase">اقرأ المزيد +</div>
                         </div>
                     </article>
-                `).join('')}
-            </div>
-        </section>
-        
-        <section id="portfolio" class="max-w-7xl mx-auto px-4 md:px-6">
-            <h2 class="text-3xl md:text-5xl font-black text-gray-900 text-center mb-10 md:mb-20">آخر المشاريع</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-                ${state.projects.map((p: any) => `
-                    <div class="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-50 shadow-sm">
-                        <img src="${p.image}" class="w-full h-56 md:h-64 object-cover" onerror="this.src='https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800'">
-                        <div class="p-6 md:p-8">
-                            <div class="text-blue-600 text-[10px] font-black uppercase tracking-widest mb-2">${p.category}</div>
-                            <h3 class="text-xl md:text-2xl font-black">${p.name}</h3>
-                        </div>
-                    </div>
                 `).join('')}
             </div>
         </section>
@@ -198,8 +184,8 @@ const renderBlog = () => `
                 <article class="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition cursor-pointer" onclick="window.location.hash='#/article/${a.id}'">
                     <img src="${a.image}" class="h-56 md:h-64 w-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
                     <div class="p-6 md:p-8 space-y-4">
-                        <h3 class="text-xl md:text-2xl font-black">${a.title}</h3>
-                        <p class="text-gray-500 text-sm md:text-base">${a.excerpt}</p>
+                        <h3 class="text-xl md:text-2xl font-black text-right">${a.title}</h3>
+                        <p class="text-gray-500 text-sm md:text-base text-right">${a.excerpt}</p>
                     </div>
                 </article>
             `).join('')}
@@ -256,36 +242,9 @@ const renderArticleDetail = (id: string) => {
             </div>
             
             ${renderAdUnit('adsBottom', 'إعلان نهاية المقال')}
-
-            <div class="mt-16 p-8 md:p-12 bg-blue-600 rounded-[2rem] md:rounded-[3rem] text-white flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-right">
-                <div class="space-y-2">
-                    <h3 class="text-2xl font-black">هل أعجبك المحتوى؟</h3>
-                    <p class="text-blue-100 font-bold opacity-80">يمكننا مساعدتك في تصدر نتائج البحث بمثل هذا المحتوى الاحترافي.</p>
-                </div>
-                <a href="#/request" class="bg-white text-blue-600 px-8 py-4 rounded-xl font-black text-lg">اطلب خدمة السيو</a>
-            </div>
         </div>
     `;
 };
-
-const renderRequestForm = () => `
-    <div class="max-w-3xl mx-auto px-4 py-12 md:py-24 animate-fadeIn text-right">
-        <div class="bg-white p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-xl border border-gray-50 space-y-8">
-            <h1 class="text-3xl md:text-4xl font-black text-center">اطلب خدمتك الآن</h1>
-            <form onsubmit="handleRequest(event)" class="space-y-6">
-                <input id="req-name" required class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 font-bold" placeholder="الاسم الكامل">
-                <input id="req-phone" required type="tel" class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 font-bold text-left" dir="ltr" placeholder="06XXXXXXXX">
-                <select id="req-type" class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none font-bold text-right">
-                    <option>متجر إلكتروني احترافي</option>
-                    <option>موقع تعريفي للشركة</option>
-                    <option>تحسين السيو AdSense</option>
-                </select>
-                <textarea id="req-desc" required class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none h-32 font-bold" placeholder="وصف سريع لمشروعك..."></textarea>
-                <button type="submit" class="w-full py-5 md:py-6 bg-blue-600 text-white rounded-2xl md:rounded-3xl font-black text-xl shadow-xl shadow-blue-100">إرسال الطلب</button>
-            </form>
-        </div>
-    </div>
-`;
 
 const renderDashboard = () => `
     <div class="min-h-screen bg-gray-50 flex flex-col md:flex-row animate-fadeIn text-right">
@@ -294,13 +253,12 @@ const renderDashboard = () => `
             <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-4 md:pb-0 scrollbar-hide">
                 <button onclick="switchTab('requests')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">📊 الطلبات</button>
                 <button onclick="switchTab('articles')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">✍️ المدونة</button>
-                <button onclick="switchTab('projects')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">📁 المشاريع</button>
                 <button onclick="switchTab('settings')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">⚙️ الإعدادات</button>
             </nav>
             <button onclick="logout()" class="p-4 bg-red-500/10 text-red-400 rounded-xl font-black mt-auto hidden md:block">خروج</button>
         </aside>
         <main class="flex-1 p-4 md:p-16 overflow-y-auto">
-            <div id="dash-content" class="max-w-5xl mx-auto space-y-8 md:space-y-12"></div>
+            <div id="dash-content" class="max-w-5xl mx-auto space-y-8 md:space-y-12 text-right"></div>
             <button onclick="logout()" class="w-full p-4 bg-red-500 text-white rounded-xl font-black mt-8 md:hidden">تسجيل الخروج</button>
         </main>
     </div>
@@ -311,78 +269,96 @@ const renderDashboard = () => `
     if (!container) return;
     if (tab === 'settings') {
         container.innerHTML = `
-            <h2 class="text-3xl md:text-4xl font-black mb-8">الإعدادات والربح</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 text-right">
+            <h2 class="text-3xl md:text-4xl font-black mb-8">إعدادات الإدارة</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-right">
                 <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-100 space-y-6">
-                    <h3 class="text-xl font-black text-blue-600">المعلومات الأساسية</h3>
+                    <h3 class="text-xl font-black text-blue-600">تغيير كلمة السر</h3>
                     <div class="space-y-4">
-                        <label class="block font-black text-xs text-gray-400">رقم الواتساب</label>
-                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold">
-                    </div>
-                    <div class="space-y-4">
-                        <label class="block font-black text-xs text-gray-400">كلمة سر الإدارة</label>
-                        <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold">
+                        <label class="block font-black text-xs text-gray-400 uppercase">كلمة السر الحالية</label>
+                        <div class="relative">
+                            <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold text-center">
+                            <button id="set-pass-btn" onclick="togglePassword('set-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl">👁️</button>
+                        </div>
                     </div>
                 </div>
                 <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-100 space-y-6">
-                    <h3 class="text-xl font-black text-green-600">أكواد AdSense</h3>
-                    <div class="space-y-4 text-left">
-                        <textarea id="set-ads-h" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-mono text-[10px] h-20" dir="ltr" placeholder="Header Ad Code">${state.settings.adsHeader || ''}</textarea>
-                        <textarea id="set-ads-m" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-mono text-[10px] h-20" dir="ltr" placeholder="Middle Ad Code">${state.settings.adsMiddle || ''}</textarea>
-                        <textarea id="set-ads-b" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-mono text-[10px] h-20" dir="ltr" placeholder="Bottom Ad Code">${state.settings.adsBottom || ''}</textarea>
+                    <h3 class="text-xl font-black text-green-600">إعدادات التواصل</h3>
+                    <div class="space-y-4">
+                        <label class="block font-black text-xs text-gray-400 uppercase">رقم الواتساب</label>
+                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold text-center" dir="ltr">
                     </div>
                 </div>
             </div>
-            <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8">حفظ الإعدادات</button>
+            <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8">حفظ كافة الإعدادات</button>
         `;
     } else if (tab === 'requests') {
-        container.innerHTML = `<h2 class="text-3xl font-black mb-8">الطلبات (${state.requests.length})</h2><div class="space-y-4">${state.requests.map((r: any) => `<div class="bg-white p-6 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-4 text-right"><div class="font-black text-lg">${r.name} - ${r.type}</div><div class="text-blue-600 text-sm font-bold" dir="ltr">${r.phone}</div></div>`).join('')}</div>`;
+        container.innerHTML = `<h2 class="text-3xl font-black mb-8">طلبات التواصل (${state.requests.length})</h2><div class="space-y-4">${state.requests.map((r: any) => `<div class="bg-white p-6 rounded-2xl border flex justify-between items-center text-right"><div class="font-black">${r.name}</div><div class="text-blue-600 font-bold" dir="ltr">${r.phone}</div></div>`).join('')}</div>`;
     } else if (tab === 'articles') {
-        container.innerHTML = `<div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black">المدونة</h2><button onclick="addArticle()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-black">جديد +</button></div><div class="space-y-4">${state.articles.map((a: any) => `<div class="bg-white p-6 rounded-2xl border flex justify-between items-center gap-4"><span class="font-black truncate max-w-xs md:max-w-md">${a.title}</span><button onclick="deleteArticle('${a.id}')" class="text-red-500 font-bold shrink-0">حذف</button></div>`).join('')}</div>`;
-    } else if (tab === 'projects') {
-        container.innerHTML = `<h2 class="text-3xl font-black mb-8">المشاريع</h2><button onclick="addProject()" class="bg-blue-600 text-white p-4 rounded-xl w-full">أضف مشروع جديد</button>`;
+        container.innerHTML = `<div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black">المدونة</h2></div><div class="space-y-4">${state.articles.map((a: any) => `<div class="bg-white p-6 rounded-2xl border flex justify-between items-center"><span class="font-black">${a.title}</span><button onclick="deleteArticle('${a.id}')" class="text-red-500 font-bold">حذف</button></div>`).join('')}</div>`;
     }
 };
 
 (window as any).updateSettings = () => {
     state.settings.whatsappNumber = (document.getElementById('set-wa') as HTMLInputElement).value;
     state.settings.dashPassword = (document.getElementById('set-pass') as HTMLInputElement).value;
-    state.settings.adsHeader = (document.getElementById('set-ads-h') as HTMLTextAreaElement).value;
-    state.settings.adsMiddle = (document.getElementById('set-ads-m') as HTMLTextAreaElement).value;
-    state.settings.adsBottom = (document.getElementById('set-ads-b') as HTMLTextAreaElement).value;
     saveState();
-    alert('✅ تم الحفظ');
+    alert('✅ تم تحديث الإعدادات بنجاح');
 };
 
-(window as any).handleRequest = (e: Event) => {
-    e.preventDefault();
-    const req = { id: Date.now().toString(), name: (document.getElementById('req-name') as HTMLInputElement).value, phone: (document.getElementById('req-phone') as HTMLInputElement).value, type: (document.getElementById('req-type') as HTMLSelectElement).value, desc: (document.getElementById('req-desc') as HTMLTextAreaElement).value, createdAt: new Date().toISOString() };
-    state.requests.unshift(req); saveState(); alert('✅ شكراً لك!'); window.location.hash = '#/';
+(window as any).login = () => {
+    const pass = (document.getElementById('dash-pass') as HTMLInputElement).value;
+    if (pass === state.settings.dashPassword) {
+        state.isAuthenticated = true;
+        sessionStorage.setItem('isAdmin', 'true');
+        router();
+    } else {
+        alert('كلمة السر خاطئة، حاول مرة أخرى.');
+    }
 };
 
-(window as any).login = () => { const pass = (document.getElementById('dash-pass') as HTMLInputElement).value; if (pass === state.settings.dashPassword) { state.isAuthenticated = true; sessionStorage.setItem('isAdmin', 'true'); router(); } else { alert('خطأ'); } };
-(window as any).logout = () => { state.isAuthenticated = false; sessionStorage.removeItem('isAdmin'); window.location.hash = '#/'; };
-(window as any).deleteArticle = (id: string) => { state.articles = state.articles.filter((a: any) => a.id !== id); saveState(); (window as any).switchTab('articles'); };
+(window as any).logout = () => {
+    state.isAuthenticated = false;
+    sessionStorage.removeItem('isAdmin');
+    window.location.hash = '#/';
+};
 
 const router = () => {
     const hash = window.location.hash || '#/';
     const root = document.getElementById('app-root');
     const loading = document.getElementById('loading');
     if (!root || !loading) return;
-    loading.style.width = '100%'; setTimeout(() => loading.style.width = '0', 400);
+    loading.style.width = '100%';
+    setTimeout(() => loading.style.width = '0', 400);
+
     const isDashboard = hash.startsWith('#/dashboard');
     const isArticle = hash.startsWith('#/article/');
+    
     document.querySelector('header')!.style.display = isDashboard ? 'none' : 'block';
     document.getElementById('main-footer')!.style.display = isDashboard ? 'none' : 'block';
+
     if (hash === '#/') root.innerHTML = renderHome();
     else if (hash === '#/blog') root.innerHTML = renderBlog();
-    else if (hash === '#/request') root.innerHTML = renderRequestForm();
     else if (isArticle) root.innerHTML = renderArticleDetail(hash.replace('#/article/', ''));
     else if (isDashboard) {
         if (sessionStorage.getItem('isAdmin') !== 'true') {
-            root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-gray-50 p-4"><div class="bg-white p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md"><h2 class="text-3xl font-black">الإدارة</h2><input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 rounded-2xl text-center text-2xl" placeholder="••••"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black">دخول</button></div></div>`;
+            root.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+                    <div class="bg-white p-10 md:p-16 rounded-[2.5rem] shadow-xl text-center space-y-10 w-full max-w-md animate-fadeIn">
+                        <div class="w-20 h-20 bg-blue-600 text-white flex items-center justify-center rounded-3xl mx-auto text-3xl font-black shadow-lg">H</div>
+                        <h2 class="text-3xl font-black">تسجيل الدخول للإدارة</h2>
+                        <div class="space-y-4">
+                            <div class="relative">
+                                <input type="password" id="dash-pass" class="w-full p-6 bg-gray-50 rounded-2xl text-center text-2xl font-bold outline-none border-2 border-transparent focus:border-blue-100 transition" placeholder="••••">
+                                <button id="dash-pass-btn" onclick="togglePassword('dash-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">👁️</button>
+                            </div>
+                            <button onclick="login()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black text-xl shadow-xl shadow-blue-100 hover:bg-blue-700 transition">دخول آمن</button>
+                        </div>
+                    </div>
+                </div>
+            `;
         } else {
-            root.innerHTML = renderDashboard(); (window as any).switchTab('requests');
+            root.innerHTML = renderDashboard();
+            (window as any).switchTab('requests');
         }
     }
 };
