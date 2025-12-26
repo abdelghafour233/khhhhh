@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 2.8
- * Fully Responsive UI, Mobile Menu, & AdSense Integration
+ * Halal Digital Services - Version 3.0
+ * Fixed Images & SEO Article Content
  */
 
 // --- Constants & Data ---
@@ -24,10 +24,35 @@ const INITIAL_PROJECTS = [
 
 const INITIAL_ARTICLES = [
     {
+        id: 'seo-guide-2024',
+        title: 'الدليل الشامل للسيو (SEO): كيف تتصدر نتائج البحث في المغرب؟',
+        excerpt: 'تعلم استراتيجيات تحسين محركات البحث لتحويل موقعك إلى مغناطيس للزبناء بدون إعلانات مدفوعة.',
+        content: `ما هو السيو (SEO) ولماذا هو ضروري لعملك؟
+السيو هو اختصار لـ Search Engine Optimization، وهو عملية تحسين موقعك الإلكتروني لزيادة ظهوره في نتائج محركات البحث مثل جوجل. في السوق المغربي المتزايد التنافسية، لم يعد امتلاك موقع كافياً، بل يجب أن يكون هذا الموقع قابلاً للإيجاد من طرف الزبناء المحتملين.
+
+أهمية السيو للأعمال والمقاولات:
+1. حركة مرور مجانية ومستدامة: على عكس الإعلانات المدفوعة التي تتوقف بمجرد انتهاء ميزانيتك، السيو يوفر لك زواراً بشكل مستمر ومجاني على المدى الطويل.
+2. بناء الثقة والمصداقية: المستخدمون يثقون في المواقع التي تظهر في النتائج الأولى بشكل طبيعي أكثر من الإعلانات الممولة.
+3. فهم سلوك الزبون المغربي: السيو يعتمد على الكلمات المفتاحية التي يبحث عنها المغاربة، مما يجعلك تقدم بالضبط ما يبحثون عنه.
+
+الركائز الأساسية للسيو الناجح:
+أولاً: السيو التقني (Technical SEO)
+يتعلق الأمر بسرعة الموقع، التوافق مع الهواتف الذكية، وتأمين الموقع بشهادة SSL. جوجل يفضل المواقع السريعة والآمنة.
+ثانياً: المحتوى (Content Marketing)
+يقول الخبراء "المحتوى هو الملك". كتابة مقالات مفيدة تجيب على أسئلة زوارك تجعل جوجل يرفع من ترتيب موقعك.
+ثالثاً: الروابط الخارجية (Backlinks)
+عندما تشير مواقع أخرى إلى موقعك، فإنها تعطي إشارة لجوجل بأن محتواك ذو قيمة عالية وموثوق.
+
+كيف نبدأ في تحسين موقعنا؟
+ابدأ بالبحث عن الكلمات المفتاحية، ثم قم ببرمجة موقعك بشكل نظيف (وهو ما نقوم به في حلال ديجيتال)، وأخيراً استمر في نشر محتوى تعليمي مفيد لجمهورك.`,
+        image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?auto=format&fit=crop&q=80&w=1200',
+        date: new Date().toISOString()
+    },
+    {
         id: 'art1',
-        title: 'أهمية السيو (SEO) للمقاولات المغربية في 2024',
-        excerpt: 'تعرف على كيف يمكن لتحسين محركات البحث أن يضاعف مبيعات شركتك دون دفع سنت واحد للإعلانات.',
-        content: 'يعتبر السيو المحرك الأساسي للنمو الرقمي... (يمكنك تعديل هذا النص لاحقاً من لوحة التحكم)',
+        title: 'أهمية السيو للمقاولات في 2024',
+        excerpt: 'تعرف على كيف يمكن لتحسين محركات البحث أن يضاعف مبيعات شركتك.',
+        content: 'يعتبر السيو المحرك الأساسي للنمو الرقمي... السيو ليس مجرد كلمات مفتاحية بل هو تجربة مستخدم كاملة.',
         image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800',
         date: new Date().toISOString()
     }
@@ -60,6 +85,25 @@ const saveState = () => {
 };
 
 // --- Helpers ---
+(window as any).shareOnWhatsApp = (title: string) => {
+    const url = window.location.href;
+    window.open(`https://wa.me/?text=${encodeURIComponent(title + ' : ' + url)}`, '_blank');
+};
+
+(window as any).shareOnFacebook = () => {
+    const url = window.location.href;
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+};
+
+(window as any).shareOnTwitter = (title: string) => {
+    const url = window.location.href;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, '_blank');
+};
+
+(window as any).copyArticleLink = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => alert('📋 تم نسخ رابط المقال!'));
+};
+
 (window as any).toggleMobileMenu = () => {
     state.isMobileMenuOpen = !state.isMobileMenuOpen;
     const menu = document.getElementById('mobile-menu');
@@ -67,14 +111,6 @@ const saveState = () => {
         menu.classList.toggle('hidden', !state.isMobileMenuOpen);
         menu.classList.toggle('flex', state.isMobileMenuOpen);
     }
-};
-
-(window as any).togglePassword = (inputId: string) => {
-    const input = document.getElementById(inputId) as HTMLInputElement;
-    const btn = document.getElementById(inputId + '-btn');
-    if (!input) return;
-    input.type = input.type === 'password' ? 'text' : 'password';
-    if (btn) btn.innerHTML = input.type === 'password' ? '👁️' : '🔒';
 };
 
 // --- AdSense Renderer ---
@@ -93,27 +129,24 @@ const renderAdUnit = (type: 'adsHeader' | 'adsMiddle' | 'adsBottom', label: stri
 
 // --- Public Renderers ---
 const renderHome = () => `
-    <div class="space-y-16 md:space-y-32 animate-fadeIn pb-10">
-        <!-- Hero Section -->
+    <div class="space-y-16 md:space-y-32 animate-fadeIn pb-10 text-right">
         <section class="relative min-h-[500px] md:min-h-[600px] flex items-center bg-gray-950 text-white overflow-hidden px-4">
             <div class="absolute inset-0 opacity-10">
                 <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover">
             </div>
-            <div class="max-w-7xl mx-auto relative z-10 w-full py-16 md:py-20 text-center md:text-right">
+            <div class="max-w-7xl mx-auto relative z-10 w-full py-16 md:py-20">
                 <div class="max-w-4xl space-y-6 md:space-y-10">
                     <h1 class="text-4xl md:text-7xl lg:text-8xl font-black leading-tight">حوّل أفكارك إلى <br class="hidden md:block"><span class="text-blue-500">واقع رقمي</span></h1>
-                    <p class="text-lg md:text-2xl text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto md:mx-0">وكالة حلال ديجيتال المتخصصة في بناء وتطوير المشاريع الأكثر مبيعاً في المغرب 🇲🇦.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <p class="text-lg md:text-2xl text-gray-400 font-medium leading-relaxed max-w-2xl">وكالة حلال ديجيتال المتخصصة في بناء وتطوير المشاريع الأكثر مبيعاً في المغرب 🇲🇦.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
                         <button onclick="document.getElementById('portfolio').scrollIntoView({behavior:'smooth'})" class="bg-blue-600 hover:bg-blue-700 text-white px-8 md:px-12 py-4 md:py-6 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl transition-all shadow-xl shadow-blue-600/20">تصفح أعمالنا</button>
-                        <a href="https://wa.me/212${state.settings.whatsappNumber.substring(1)}" class="bg-white/5 hover:bg-white/10 text-white px-8 md:px-12 py-4 md:py-6 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl border border-white/10">واتساب 💬</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Latest Articles -->
         <section class="max-w-7xl mx-auto px-4 md:px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-10 md:mb-16 gap-6 text-center md:text-right">
+            <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-10 md:mb-16 gap-6">
                 <div class="space-y-2 md:space-y-4">
                     <h2 class="text-3xl md:text-5xl font-black text-gray-900">نصائح الخبراء</h2>
                     <p class="text-gray-400 text-lg md:text-xl font-medium">مقالات تعليمية في تطوير المواقع، التصميم، وخدمات السيو.</p>
@@ -123,8 +156,8 @@ const renderHome = () => `
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                 ${state.articles.slice(0, 3).map((a: any) => `
                     <article class="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 group cursor-pointer shadow-sm hover:shadow-lg transition" onclick="window.location.hash='#/article/${a.id}'">
-                        <div class="h-56 md:h-64 overflow-hidden">
-                            <img src="${a.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="h-56 md:h-64 overflow-hidden bg-gray-100">
+                            <img src="${a.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
                         </div>
                         <div class="p-6 md:p-8 space-y-3 md:space-y-4">
                             <h3 class="text-xl md:text-2xl font-black group-hover:text-blue-600 transition">${a.title}</h3>
@@ -135,14 +168,13 @@ const renderHome = () => `
                 `).join('')}
             </div>
         </section>
-
-        <!-- Portfolio Section -->
+        
         <section id="portfolio" class="max-w-7xl mx-auto px-4 md:px-6">
             <h2 class="text-3xl md:text-5xl font-black text-gray-900 text-center mb-10 md:mb-20">آخر المشاريع</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                 ${state.projects.map((p: any) => `
                     <div class="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-50 shadow-sm">
-                        <img src="${p.image}" class="w-full h-56 md:h-64 object-cover">
+                        <img src="${p.image}" class="w-full h-56 md:h-64 object-cover" onerror="this.src='https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800'">
                         <div class="p-6 md:p-8">
                             <div class="text-blue-600 text-[10px] font-black uppercase tracking-widest mb-2">${p.category}</div>
                             <h3 class="text-xl md:text-2xl font-black">${p.name}</h3>
@@ -164,7 +196,7 @@ const renderBlog = () => `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 text-right">
             ${state.articles.map((a: any) => `
                 <article class="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition cursor-pointer" onclick="window.location.hash='#/article/${a.id}'">
-                    <img src="${a.image}" class="h-56 md:h-64 w-full object-cover">
+                    <img src="${a.image}" class="h-56 md:h-64 w-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
                     <div class="p-6 md:p-8 space-y-4">
                         <h3 class="text-xl md:text-2xl font-black">${a.title}</h3>
                         <p class="text-gray-500 text-sm md:text-base">${a.excerpt}</p>
@@ -181,45 +213,69 @@ const renderArticleDetail = (id: string) => {
     if (!article) return `<div class="text-center py-40 font-black text-3xl">المقال غير موجود</div>`;
 
     return `
-        <div class="max-w-4xl mx-auto px-4 md:px-6 py-10 md:py-20 animate-fadeIn">
+        <div class="max-w-4xl mx-auto px-4 md:px-6 py-10 md:py-20 animate-fadeIn text-right">
             <nav class="flex gap-2 text-xs md:text-sm font-bold text-gray-400 mb-8">
                 <a href="#/" class="hover:text-blue-600">الرئيسية</a> / 
                 <a href="#/blog" class="hover:text-blue-600">المدونة</a>
             </nav>
-            <h1 class="text-3xl md:text-6xl font-black leading-tight mb-8 md:mb-12">${article.title}</h1>
+            <h1 class="text-3xl md:text-6xl font-black leading-tight mb-8 md:mb-12 text-gray-900">${article.title}</h1>
             
             ${renderAdUnit('adsHeader', 'إعلان بداية المقال')}
             
-            <img src="${article.image}" class="w-full h-[300px] md:h-[500px] object-cover rounded-[2rem] md:rounded-[4rem] mb-8 md:mb-12 shadow-xl">
+            <div class="w-full bg-gray-100 rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-xl mb-8 md:mb-12">
+                <img src="${article.image}" class="w-full h-auto min-h-[300px] object-cover" onerror="this.src='https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?w=1200'">
+            </div>
             
-            <div class="prose prose-lg md:prose-2xl text-gray-700 font-medium leading-relaxed space-y-6 md:space-y-8">
+            <div class="prose prose-lg md:prose-2xl text-gray-800 font-medium leading-relaxed space-y-6 md:space-y-8">
                 ${article.content.split('\n').map((p: string, i: number) => `
                     <p>${p}</p>
                     ${i === 1 ? renderAdUnit('adsMiddle', 'إعلان وسط المحتوى') : ''}
                 `).join('')}
+            </div>
+
+            <div class="mt-16 border-t border-gray-100 pt-10">
+                <h4 class="text-xl font-black mb-6 text-gray-400">شارك هذا المقال مع أصدقائك:</h4>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="shareOnWhatsApp('${article.title}')" class="flex-1 min-w-[120px] py-4 bg-green-500 text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-green-600 transition">
+                        <span>واتساب</span>
+                        <span class="text-xl">💬</span>
+                    </button>
+                    <button onclick="shareOnFacebook()" class="flex-1 min-w-[120px] py-4 bg-blue-700 text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-blue-800 transition">
+                        <span>فيسبوك</span>
+                        <span class="text-xl">🌐</span>
+                    </button>
+                    <button onclick="shareOnTwitter('${article.title}')" class="flex-1 min-w-[120px] py-4 bg-gray-900 text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-black transition">
+                        <span>تويتر</span>
+                        <span class="text-xl">𝕏</span>
+                    </button>
+                    <button onclick="copyArticleLink()" class="flex-1 min-w-[120px] py-4 bg-gray-100 text-gray-800 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-gray-200 transition">
+                        <span>نسخ الرابط</span>
+                        <span class="text-xl">🔗</span>
+                    </button>
+                </div>
             </div>
             
             ${renderAdUnit('adsBottom', 'إعلان نهاية المقال')}
 
             <div class="mt-16 p-8 md:p-12 bg-blue-600 rounded-[2rem] md:rounded-[3rem] text-white flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-right">
                 <div class="space-y-2">
-                    <h3 class="text-2xl font-black">جاهز لإطلاق مشروعك؟</h3>
-                    <p class="text-blue-100 font-bold opacity-80">دعنا نساعدك في تصميم موقع أحلامك اليوم.</p>
+                    <h3 class="text-2xl font-black">هل أعجبك المحتوى؟</h3>
+                    <p class="text-blue-100 font-bold opacity-80">يمكننا مساعدتك في تصدر نتائج البحث بمثل هذا المحتوى الاحترافي.</p>
                 </div>
-                <a href="#/request" class="bg-white text-blue-600 px-8 py-4 rounded-xl font-black text-lg">طلب استشارة مجانية</a>
+                <a href="#/request" class="bg-white text-blue-600 px-8 py-4 rounded-xl font-black text-lg">اطلب خدمة السيو</a>
             </div>
         </div>
     `;
 };
 
 const renderRequestForm = () => `
-    <div class="max-w-3xl mx-auto px-4 py-12 md:py-24 animate-fadeIn">
-        <div class="bg-white p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-xl border border-gray-50 space-y-8 md:space-y-12">
+    <div class="max-w-3xl mx-auto px-4 py-12 md:py-24 animate-fadeIn text-right">
+        <div class="bg-white p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-xl border border-gray-50 space-y-8">
             <h1 class="text-3xl md:text-4xl font-black text-center">اطلب خدمتك الآن</h1>
             <form onsubmit="handleRequest(event)" class="space-y-6">
                 <input id="req-name" required class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 font-bold" placeholder="الاسم الكامل">
                 <input id="req-phone" required type="tel" class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 font-bold text-left" dir="ltr" placeholder="06XXXXXXXX">
-                <select id="req-type" class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none font-bold">
+                <select id="req-type" class="w-full p-5 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl outline-none font-bold text-right">
                     <option>متجر إلكتروني احترافي</option>
                     <option>موقع تعريفي للشركة</option>
                     <option>تحسين السيو AdSense</option>
@@ -231,17 +287,15 @@ const renderRequestForm = () => `
     </div>
 `;
 
-// --- Dashboard ---
 const renderDashboard = () => `
-    <div class="min-h-screen bg-gray-50 flex flex-col md:flex-row animate-fadeIn">
-        <!-- Dashboard Sidebar (Responsive: top bar on mobile) -->
+    <div class="min-h-screen bg-gray-50 flex flex-col md:flex-row animate-fadeIn text-right">
         <aside class="w-full md:w-80 bg-gray-900 text-white p-6 md:p-10 flex flex-col">
-            <div class="text-2xl font-black mb-6 md:mb-12 text-center md:text-right">حلال <span class="text-blue-500">ADMIN</span></div>
+            <div class="text-2xl font-black mb-6 md:mb-12">حلال <span class="text-blue-500">ADMIN</span></div>
             <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-4 md:pb-0 scrollbar-hide">
-                <button onclick="switchTab('requests')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm md:text-base">📊 الطلبات</button>
-                <button onclick="switchTab('articles')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm md:text-base">✍️ المدونة</button>
-                <button onclick="switchTab('projects')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm md:text-base">📁 المشاريع</button>
-                <button onclick="switchTab('settings')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm md:text-base">⚙️ الإعدادات</button>
+                <button onclick="switchTab('requests')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">📊 الطلبات</button>
+                <button onclick="switchTab('articles')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">✍️ المدونة</button>
+                <button onclick="switchTab('projects')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">📁 المشاريع</button>
+                <button onclick="switchTab('settings')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">⚙️ الإعدادات</button>
             </nav>
             <button onclick="logout()" class="p-4 bg-red-500/10 text-red-400 rounded-xl font-black mt-auto hidden md:block">خروج</button>
         </aside>
@@ -252,27 +306,22 @@ const renderDashboard = () => `
     </div>
 `;
 
-// --- Actions ---
 (window as any).switchTab = (tab: string) => {
     const container = document.getElementById('dash-content');
     if (!container) return;
-
     if (tab === 'settings') {
         container.innerHTML = `
             <h2 class="text-3xl md:text-4xl font-black mb-8">الإعدادات والربح</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 text-right">
                 <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-100 space-y-6">
                     <h3 class="text-xl font-black text-blue-600">المعلومات الأساسية</h3>
                     <div class="space-y-4">
-                        <label class="block font-black text-xs text-gray-400">رقم الواتساب (06...)</label>
+                        <label class="block font-black text-xs text-gray-400">رقم الواتساب</label>
                         <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold">
                     </div>
                     <div class="space-y-4">
                         <label class="block font-black text-xs text-gray-400">كلمة سر الإدارة</label>
-                        <div class="relative">
-                            <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold">
-                            <button id="set-pass-btn" onclick="togglePassword('set-pass')" class="absolute left-4 top-1/2 -translate-y-1/2">👁️</button>
-                        </div>
+                        <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold">
                     </div>
                 </div>
                 <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-100 space-y-6">
@@ -287,35 +336,9 @@ const renderDashboard = () => `
             <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8">حفظ الإعدادات</button>
         `;
     } else if (tab === 'requests') {
-        container.innerHTML = `
-            <h2 class="text-3xl md:text-4xl font-black mb-8">الطلبات (${state.requests.length})</h2>
-            <div class="space-y-4">
-                ${state.requests.map((r: any) => `
-                    <div class="bg-white p-6 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div class="text-center sm:text-right">
-                            <div class="font-black text-lg">${r.name}</div>
-                            <div class="text-blue-600 text-sm font-bold" dir="ltr">${r.phone}</div>
-                        </div>
-                        <div class="flex gap-2">
-                            <a href="https://wa.me/212${r.phone.substring(1)}" target="_blank" class="bg-green-50 text-green-600 px-4 py-2 rounded-lg font-black text-xs">واتساب</a>
-                            <button onclick="deleteRequest('${r.id}')" class="bg-red-50 text-red-500 px-4 py-2 rounded-lg font-black text-xs">حذف</button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
+        container.innerHTML = `<h2 class="text-3xl font-black mb-8">الطلبات (${state.requests.length})</h2><div class="space-y-4">${state.requests.map((r: any) => `<div class="bg-white p-6 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-4 text-right"><div class="font-black text-lg">${r.name} - ${r.type}</div><div class="text-blue-600 text-sm font-bold" dir="ltr">${r.phone}</div></div>`).join('')}</div>`;
     } else if (tab === 'articles') {
-        container.innerHTML = `
-            <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black">المدونة</h2><button onclick="addArticle()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-black">جديد +</button></div>
-            <div class="space-y-4">
-                ${state.articles.map((a: any) => `
-                    <div class="bg-white p-6 rounded-2xl border flex justify-between items-center gap-4">
-                        <span class="font-black truncate max-w-xs md:max-w-md">${a.title}</span>
-                        <button onclick="deleteArticle('${a.id}')" class="text-red-500 font-bold shrink-0">حذف</button>
-                    </div>
-                `).join('')}
-            </div>
-        `;
+        container.innerHTML = `<div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black">المدونة</h2><button onclick="addArticle()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-black">جديد +</button></div><div class="space-y-4">${state.articles.map((a: any) => `<div class="bg-white p-6 rounded-2xl border flex justify-between items-center gap-4"><span class="font-black truncate max-w-xs md:max-w-md">${a.title}</span><button onclick="deleteArticle('${a.id}')" class="text-red-500 font-bold shrink-0">حذف</button></div>`).join('')}</div>`;
     } else if (tab === 'projects') {
         container.innerHTML = `<h2 class="text-3xl font-black mb-8">المشاريع</h2><button onclick="addProject()" class="bg-blue-600 text-white p-4 rounded-xl w-full">أضف مشروع جديد</button>`;
     }
@@ -333,90 +356,33 @@ const renderDashboard = () => `
 
 (window as any).handleRequest = (e: Event) => {
     e.preventDefault();
-    const req = {
-        id: Date.now().toString(),
-        name: (document.getElementById('req-name') as HTMLInputElement).value,
-        phone: (document.getElementById('req-phone') as HTMLInputElement).value,
-        type: (document.getElementById('req-type') as HTMLSelectElement).value,
-        desc: (document.getElementById('req-desc') as HTMLTextAreaElement).value,
-        createdAt: new Date().toISOString()
-    };
-    state.requests.unshift(req);
-    saveState();
-    alert('✅ شكراً لك! سنتواصل معك قريباً.');
-    window.location.hash = '#/';
+    const req = { id: Date.now().toString(), name: (document.getElementById('req-name') as HTMLInputElement).value, phone: (document.getElementById('req-phone') as HTMLInputElement).value, type: (document.getElementById('req-type') as HTMLSelectElement).value, desc: (document.getElementById('req-desc') as HTMLTextAreaElement).value, createdAt: new Date().toISOString() };
+    state.requests.unshift(req); saveState(); alert('✅ شكراً لك!'); window.location.hash = '#/';
 };
 
-(window as any).login = () => {
-    const pass = (document.getElementById('dash-pass') as HTMLInputElement).value;
-    if (pass === state.settings.dashPassword) {
-        state.isAuthenticated = true;
-        sessionStorage.setItem('isAdmin', 'true');
-        router();
-    } else { alert('كلمة السر خاطئة'); }
-};
+(window as any).login = () => { const pass = (document.getElementById('dash-pass') as HTMLInputElement).value; if (pass === state.settings.dashPassword) { state.isAuthenticated = true; sessionStorage.setItem('isAdmin', 'true'); router(); } else { alert('خطأ'); } };
+(window as any).logout = () => { state.isAuthenticated = false; sessionStorage.removeItem('isAdmin'); window.location.hash = '#/'; };
+(window as any).deleteArticle = (id: string) => { state.articles = state.articles.filter((a: any) => a.id !== id); saveState(); (window as any).switchTab('articles'); };
 
-(window as any).logout = () => {
-    state.isAuthenticated = false;
-    sessionStorage.removeItem('isAdmin');
-    window.location.hash = '#/';
-};
-
-(window as any).deleteRequest = (id: string) => {
-    state.requests = state.requests.filter((r: any) => r.id !== id);
-    saveState();
-    (window as any).switchTab('requests');
-};
-
-(window as any).deleteArticle = (id: string) => {
-    state.articles = state.articles.filter((a: any) => a.id !== id);
-    saveState();
-    (window as any).switchTab('articles');
-};
-
-// --- Router ---
 const router = () => {
     const hash = window.location.hash || '#/';
     const root = document.getElementById('app-root');
     const loading = document.getElementById('loading');
     if (!root || !loading) return;
-
-    // Reset UI states
-    state.isMobileMenuOpen = false;
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenu) mobileMenu.classList.add('hidden');
-
-    loading.style.width = '100%';
-    setTimeout(() => loading.style.width = '0', 400);
-
+    loading.style.width = '100%'; setTimeout(() => loading.style.width = '0', 400);
     const isDashboard = hash.startsWith('#/dashboard');
     const isArticle = hash.startsWith('#/article/');
-    
     document.querySelector('header')!.style.display = isDashboard ? 'none' : 'block';
     document.getElementById('main-footer')!.style.display = isDashboard ? 'none' : 'block';
-
-    if (hash === '#/') {
-        root.innerHTML = renderHome();
-    } else if (hash === '#/blog') {
-        root.innerHTML = renderBlog();
-    } else if (hash === '#/request') {
-        root.innerHTML = renderRequestForm();
-    } else if (isArticle) {
-        root.innerHTML = renderArticleDetail(hash.replace('#/article/', ''));
-    } else if (isDashboard) {
+    if (hash === '#/') root.innerHTML = renderHome();
+    else if (hash === '#/blog') root.innerHTML = renderBlog();
+    else if (hash === '#/request') root.innerHTML = renderRequestForm();
+    else if (isArticle) root.innerHTML = renderArticleDetail(hash.replace('#/article/', ''));
+    else if (isDashboard) {
         if (sessionStorage.getItem('isAdmin') !== 'true') {
-            root.innerHTML = `
-                <div class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-                    <div class="bg-white p-10 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-xl text-center space-y-8 w-full max-w-md">
-                        <h2 class="text-3xl font-black">الإدارة</h2>
-                        <input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 rounded-2xl text-center text-2xl" placeholder="••••">
-                        <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black">دخول</button>
-                    </div>
-                </div>
-            `;
+            root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-gray-50 p-4"><div class="bg-white p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md"><h2 class="text-3xl font-black">الإدارة</h2><input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 rounded-2xl text-center text-2xl" placeholder="••••"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black">دخول</button></div></div>`;
         } else {
-            root.innerHTML = renderDashboard();
-            (window as any).switchTab('requests');
+            root.innerHTML = renderDashboard(); (window as any).switchTab('requests');
         }
     }
 };
