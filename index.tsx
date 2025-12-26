@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.7
- * Security Update: Hide credentials and reset tools from UI
+ * Halal Digital Services - Version 3.8
+ * Feature: AdSense Management in Dashboard
  */
 
 // --- Constants & Data ---
@@ -123,7 +123,6 @@ const saveState = () => {
     if (btn) btn.innerHTML = isPassword ? '🙈' : '👁️';
 };
 
-// Function remains for admin console usage if needed, but removed from UI
 (window as any).hardResetSite = () => {
     if (confirm('⚠️ هل أنت متأكد؟ سيتم مسح كافة البيانات وإعادة تحميل الإعدادات الافتراضية.')) {
         localStorage.clear();
@@ -150,11 +149,12 @@ const saveState = () => {
 const renderAdUnit = (type: 'adsHeader' | 'adsMiddle' | 'adsBottom', label: string) => {
     const adCode = state.settings[type];
     if (adCode && adCode.trim() !== '') {
-        return `<div class="my-6 md:my-10 overflow-hidden flex justify-center max-w-full">${adCode}</div>`;
+        return `<div class="my-6 md:my-10 overflow-hidden flex justify-center max-w-full ad-container">${adCode}</div>`;
     }
     return `
         <div class="my-6 md:my-10 p-6 md:p-8 bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl md:rounded-[2rem] text-center text-gray-300 dark:text-gray-700 text-xs font-bold">
             <div class="mb-1">AdSense [ ${label} ]</div>
+            <div class="text-[9px] opacity-50">يظهر الكود هنا بعد تفعيله من لوحة التحكم</div>
         </div>
     `;
 };
@@ -260,8 +260,8 @@ const renderArticleDetail = (id: string) => {
 };
 
 const renderDashboard = () => `
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row animate-fadeIn text-right">
-        <aside class="w-full md:w-80 bg-gray-900 dark:bg-black text-white p-6 md:p-10 flex flex-col">
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row animate-fadeIn text-right transition-colors">
+        <aside class="w-full md:w-80 bg-gray-900 dark:bg-black text-white p-6 md:p-10 flex flex-col border-l border-white/5">
             <div class="flex justify-between items-center mb-6 md:mb-12">
                 <div class="text-2xl font-black">حلال <span class="text-blue-500">ADMIN</span></div>
                 <button onclick="toggleDarkMode()" class="p-2 bg-white/10 rounded-lg dark-toggle-icon">${state.isDarkMode ? '☀️' : '🌙'}</button>
@@ -285,27 +285,57 @@ const renderDashboard = () => `
     if (!container) return;
     if (tab === 'settings') {
         container.innerHTML = `
-            <h2 class="text-3xl md:text-4xl font-black mb-8 dark:text-white text-right">إعدادات الإدارة</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-right">
-                <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
-                    <h3 class="text-xl font-black text-blue-600">تغيير كلمة السر</h3>
-                    <div class="space-y-4">
-                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كلمة السر الجديدة</label>
-                        <div class="relative">
-                            <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center">
-                            <button id="set-pass-btn" onclick="togglePassword('set-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl">👁️</button>
+            <h2 class="text-3xl md:text-4xl font-black mb-8 dark:text-white text-right">إعدادات الموقع</h2>
+            
+            <div class="grid grid-cols-1 gap-8 text-right">
+                <!-- Auth & Contact Settings -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
+                        <h3 class="text-xl font-black text-blue-600">تغيير كلمة السر</h3>
+                        <div class="space-y-4">
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كلمة السر الجديدة</label>
+                            <div class="relative">
+                                <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center">
+                                <button id="set-pass-btn" onclick="togglePassword('set-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
+                        <h3 class="text-xl font-black text-green-600">إعدادات التواصل</h3>
+                        <div class="space-y-4">
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رقم الواتساب (بدون رمز الدولة)</label>
+                            <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center" dir="ltr">
                         </div>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
-                    <h3 class="text-xl font-black text-green-600">إعدادات التواصل</h3>
-                    <div class="space-y-4">
-                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رقم الواتساب</label>
-                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center" dir="ltr">
+
+                <!-- AdSense Settings Section -->
+                <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-8">
+                    <div class="flex justify-between items-center">
+                         <h3 class="text-xl font-black text-orange-500">إعدادات أدسنس (AdSense)</h3>
+                         <span class="text-[10px] bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold">تحديث فوري</span>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان العلوي (Header Ad)</label>
+                            <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition" placeholder="ألصق كود أدسنس هنا...">${state.settings.adsHeader || ''}</textarea>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان الأوسط (Middle Content Ad)</label>
+                            <textarea id="set-ads-middle" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition" placeholder="ألصق كود أدسنس هنا...">${state.settings.adsMiddle || ''}</textarea>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان السفلي (Footer Ad)</label>
+                            <textarea id="set-ads-bottom" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition" placeholder="ألصق كود أدسنس هنا...">${state.settings.adsBottom || ''}</textarea>
+                        </div>
                     </div>
                 </div>
             </div>
-            <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8">حفظ الإعدادات</button>
+            
+            <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8 hover:bg-blue-700 transition">حفظ جميع الإعدادات ✅</button>
         `;
     } else if (tab === 'requests') {
         container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right dark:text-white">الطلبات الواردة</h2><div class="text-gray-400">لا توجد طلبات حالياً</div>`;
@@ -317,8 +347,18 @@ const renderDashboard = () => `
 (window as any).updateSettings = () => {
     state.settings.whatsappNumber = (document.getElementById('set-wa') as HTMLInputElement).value;
     state.settings.dashPassword = (document.getElementById('set-pass') as HTMLInputElement).value;
+    
+    // Capture AdSense inputs
+    const headerAd = document.getElementById('set-ads-header') as HTMLTextAreaElement;
+    const middleAd = document.getElementById('set-ads-middle') as HTMLTextAreaElement;
+    const bottomAd = document.getElementById('set-ads-bottom') as HTMLTextAreaElement;
+    
+    if (headerAd) state.settings.adsHeader = headerAd.value;
+    if (middleAd) state.settings.adsMiddle = middleAd.value;
+    if (bottomAd) state.settings.adsBottom = bottomAd.value;
+    
     saveState();
-    alert('✅ تم الحفظ بنجاح');
+    alert('✅ تم حفظ التغييرات بنجاح');
 };
 
 (window as any).login = () => {
@@ -393,6 +433,7 @@ const router = () => {
     state.isMobileMenuOpen = false;
     const menu = document.getElementById('mobile-menu');
     if (menu) menu.classList.add('hidden');
+    window.scrollTo({top: 0, behavior: 'smooth'});
 };
 
 window.addEventListener('hashchange', router);
