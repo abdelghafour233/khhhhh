@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.9
- * Feature: Social Sharing Buttons & Copy Link
+ * Halal Digital Services - Version 4.0
+ * Feature: Full Article Management (CRUD) in Dashboard
  */
 
 // --- Constants & Data ---
@@ -301,6 +301,7 @@ const renderArticleDetail = (id: string) => {
     `;
 };
 
+// --- Dashboard Component ---
 const renderDashboard = () => `
     <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row animate-fadeIn text-right transition-colors">
         <aside class="w-full md:w-80 bg-gray-900 dark:bg-black text-white p-6 md:p-10 flex flex-col border-l border-white/5">
@@ -322,15 +323,37 @@ const renderDashboard = () => `
     </div>
 `;
 
+// --- Admin Helper Functions ---
 (window as any).switchTab = (tab: string) => {
     const container = document.getElementById('dash-content');
     if (!container) return;
-    if (tab === 'settings') {
+    
+    if (tab === 'articles') {
+        container.innerHTML = `
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+                <h2 class="text-3xl font-black dark:text-white">إدارة المدونة</h2>
+                <button onclick="openArticleForm()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black shadow-lg hover:bg-blue-700 transition">+ إضافة مقال جديد</button>
+            </div>
+            <div class="grid grid-cols-1 gap-4">
+                ${state.articles.map((a: any) => `
+                    <div class="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-4">
+                        <img src="${a.image}" class="w-20 h-20 rounded-xl object-cover shrink-0" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200'">
+                        <div class="flex-grow">
+                            <h4 class="font-black text-lg dark:text-white line-clamp-1">${a.title}</h4>
+                            <p class="text-xs text-gray-400 font-bold uppercase">${new Date(a.date).toLocaleDateString('ar-MA')}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openArticleForm('${a.id}')" class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl hover:bg-blue-100 transition">تعديل</button>
+                            <button onclick="deleteArticle('${a.id}')" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl hover:bg-red-100 transition">حذف</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else if (tab === 'settings') {
         container.innerHTML = `
             <h2 class="text-3xl md:text-4xl font-black mb-8 dark:text-white text-right">إعدادات الموقع</h2>
-            
             <div class="grid grid-cols-1 gap-8 text-right">
-                <!-- Auth & Contact Settings -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
                         <h3 class="text-xl font-black text-blue-600">تغيير كلمة السر</h3>
@@ -350,39 +373,102 @@ const renderDashboard = () => `
                         </div>
                     </div>
                 </div>
-
-                <!-- AdSense Settings Section -->
                 <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-8">
-                    <div class="flex justify-between items-center">
-                         <h3 class="text-xl font-black text-orange-500">إعدادات أدسنس (AdSense)</h3>
-                         <span class="text-[10px] bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold">تحديث فوري</span>
-                    </div>
-                    
+                    <h3 class="text-xl font-black text-orange-500">إعدادات أدسنس (AdSense)</h3>
                     <div class="space-y-6">
                         <div class="space-y-2">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان العلوي (Header Ad)</label>
-                            <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition" placeholder="ألصق كود أدسنس هنا...">${state.settings.adsHeader || ''}</textarea>
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان العلوي</label>
+                            <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition">${state.settings.adsHeader || ''}</textarea>
                         </div>
-                        
                         <div class="space-y-2">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان الأوسط (Middle Content Ad)</label>
-                            <textarea id="set-ads-middle" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition" placeholder="ألصق كود أدسنس هنا...">${state.settings.adsMiddle || ''}</textarea>
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان الأوسط</label>
+                            <textarea id="set-ads-middle" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition">${state.settings.adsMiddle || ''}</textarea>
                         </div>
-                        
                         <div class="space-y-2">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان السفلي (Footer Ad)</label>
-                            <textarea id="set-ads-bottom" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition" placeholder="ألصق كود أدسنس هنا...">${state.settings.adsBottom || ''}</textarea>
+                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان السفلي</label>
+                            <textarea id="set-ads-bottom" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition">${state.settings.adsBottom || ''}</textarea>
                         </div>
                     </div>
                 </div>
             </div>
-            
             <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8 hover:bg-blue-700 transition">حفظ جميع الإعدادات ✅</button>
         `;
     } else if (tab === 'requests') {
-        container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right dark:text-white">الطلبات الواردة</h2><div class="text-gray-400">لا توجد طلبات حالياً</div>`;
-    } else if (tab === 'articles') {
-        container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right dark:text-white">إدارة المقالات</h2><div class="text-gray-400">قائمة المقالات فارغة أو قيد التطوير</div>`;
+        container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right dark:text-white">الطلبات الواردة</h2><div class="text-gray-400 font-bold py-10 text-center">لا توجد طلبات جديدة حالياً</div>`;
+    }
+};
+
+(window as any).openArticleForm = (id?: string) => {
+    const container = document.getElementById('dash-content');
+    if (!container) return;
+    const article = id ? state.articles.find((a: any) => a.id === id) : null;
+
+    container.innerHTML = `
+        <div class="flex items-center gap-4 mb-8">
+            <button onclick="switchTab('articles')" class="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl font-black">← رجوع</button>
+            <h2 class="text-3xl font-black dark:text-white">${id ? 'تعديل المقال' : 'إضافة مقال جديد'}</h2>
+        </div>
+        <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
+            <input type="hidden" id="edit-id" value="${id || ''}">
+            <div class="space-y-2">
+                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">عنوان المقال</label>
+                <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-black">
+            </div>
+            <div class="space-y-2">
+                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">وصف مختصر (Excerpt)</label>
+                <textarea id="edit-excerpt" class="w-full h-24 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold">${article ? article.excerpt : ''}</textarea>
+            </div>
+            <div class="space-y-2">
+                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رابط الصورة المميزة</label>
+                <input id="edit-image" value="${article ? article.image : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold" dir="ltr" placeholder="https://...">
+            </div>
+            <div class="space-y-2">
+                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">المحتوى الكامل (يدعم الأسطر)</label>
+                <textarea id="edit-content" class="w-full h-96 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-medium leading-relaxed">${article ? article.content : ''}</textarea>
+            </div>
+            <button onclick="saveArticle()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl hover:bg-blue-700 transition">نشر وحفظ المقال ✅</button>
+        </div>
+    `;
+};
+
+(window as any).saveArticle = () => {
+    const id = (document.getElementById('edit-id') as HTMLInputElement).value;
+    const title = (document.getElementById('edit-title') as HTMLInputElement).value;
+    const excerpt = (document.getElementById('edit-excerpt') as HTMLTextAreaElement).value;
+    const image = (document.getElementById('edit-image') as HTMLInputElement).value;
+    const content = (document.getElementById('edit-content') as HTMLTextAreaElement).value;
+
+    if (!title || !content) return alert('يرجى كتابة العنوان والمحتوى على الأقل');
+
+    if (id) {
+        // Edit existing
+        const index = state.articles.findIndex((a: any) => a.id === id);
+        if (index !== -1) {
+            state.articles[index] = { ...state.articles[index], title, excerpt, image, content };
+        }
+    } else {
+        // Add new
+        const newArticle = {
+            id: 'art-' + Date.now(),
+            title,
+            excerpt,
+            image: image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
+            content,
+            date: new Date().toISOString()
+        };
+        state.articles.unshift(newArticle);
+    }
+
+    saveState();
+    alert('✅ تم الحفظ بنجاح');
+    (window as any).switchTab('articles');
+};
+
+(window as any).deleteArticle = (id: string) => {
+    if (confirm('هل أنت متأكد من حذف هذا المقال نهائياً؟')) {
+        state.articles = state.articles.filter((a: any) => a.id !== id);
+        saveState();
+        (window as any).switchTab('articles');
     }
 };
 
@@ -390,14 +476,13 @@ const renderDashboard = () => `
     state.settings.whatsappNumber = (document.getElementById('set-wa') as HTMLInputElement).value;
     state.settings.dashPassword = (document.getElementById('set-pass') as HTMLInputElement).value;
     
-    // Capture AdSense inputs
-    const headerAd = document.getElementById('set-ads-header') as HTMLTextAreaElement;
-    const middleAd = document.getElementById('set-ads-middle') as HTMLTextAreaElement;
-    const bottomAd = document.getElementById('set-ads-bottom') as HTMLTextAreaElement;
+    const hAd = document.getElementById('set-ads-header') as HTMLTextAreaElement;
+    const mAd = document.getElementById('set-ads-middle') as HTMLTextAreaElement;
+    const bAd = document.getElementById('set-ads-bottom') as HTMLTextAreaElement;
     
-    if (headerAd) state.settings.adsHeader = headerAd.value;
-    if (middleAd) state.settings.adsMiddle = middleAd.value;
-    if (bottomAd) state.settings.adsBottom = bottomAd.value;
+    if (hAd) state.settings.adsHeader = hAd.value;
+    if (mAd) state.settings.adsMiddle = mAd.value;
+    if (bAd) state.settings.adsBottom = bAd.value;
     
     saveState();
     alert('✅ تم حفظ التغييرات بنجاح');
@@ -406,7 +491,6 @@ const renderDashboard = () => `
 (window as any).login = () => {
     const rawInput = (document.getElementById('dash-pass') as HTMLInputElement).value;
     const inputPass = rawInput.trim();
-    
     if (inputPass === DEFAULT_PASS || inputPass === state.settings.dashPassword) {
         state.isAuthenticated = true;
         sessionStorage.setItem('isAdmin', 'true');
@@ -450,9 +534,7 @@ const router = () => {
                 <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4 text-right transition-colors">
                     <div class="bg-white dark:bg-gray-900 p-10 md:p-16 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md animate-fadeIn">
                         <div class="w-16 h-16 bg-blue-600 text-white flex items-center justify-center rounded-2xl mx-auto text-2xl font-black shadow-lg">H</div>
-                        <div class="space-y-2">
-                            <h2 class="text-2xl font-black dark:text-white">تسجيل دخول المشرف</h2>
-                        </div>
+                        <h2 class="text-2xl font-black dark:text-white">تسجيل دخول المشرف</h2>
                         <div class="space-y-4">
                             <div class="relative">
                                 <input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center text-xl font-bold outline-none border-2 border-transparent focus:border-blue-200 transition" placeholder="••••••••">
