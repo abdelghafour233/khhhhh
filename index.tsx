@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.4
- * Bulletproof Authentication & Reset Logic
+ * Halal Digital Services - Version 3.5
+ * Night Mode (Dark Mode) Integration
  */
 
 // --- Constants & Data ---
@@ -64,13 +64,17 @@ const INITIAL_SETTINGS = {
 // --- App State ---
 const loadState = () => {
     try {
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        if (isDark) document.documentElement.classList.add('dark');
+        
         return {
             projects: JSON.parse(localStorage.getItem('projects') || 'null') || INITIAL_PROJECTS,
             articles: JSON.parse(localStorage.getItem('articles') || 'null') || INITIAL_ARTICLES,
             requests: JSON.parse(localStorage.getItem('requests') || '[]'),
             settings: JSON.parse(localStorage.getItem('settings') || 'null') || INITIAL_SETTINGS,
             isAuthenticated: sessionStorage.getItem('isAdmin') === 'true',
-            isMobileMenuOpen: false
+            isMobileMenuOpen: false,
+            isDarkMode: isDark
         };
     } catch (e) {
         return {
@@ -79,27 +83,34 @@ const loadState = () => {
             requests: [],
             settings: INITIAL_SETTINGS,
             isAuthenticated: false,
-            isMobileMenuOpen: false
+            isMobileMenuOpen: false,
+            isDarkMode: false
         };
     }
 };
 
 let state = loadState();
 
-// Force Fix if settings are broken or password is old
-if (!state.settings || state.settings.dashPassword === '1234') {
-    state.settings = { ...INITIAL_SETTINGS, dashPassword: DEFAULT_PASS };
-    localStorage.setItem('settings', JSON.stringify(state.settings));
-}
-
 const saveState = () => {
     localStorage.setItem('projects', JSON.stringify(state.projects));
     localStorage.setItem('articles', JSON.stringify(state.articles));
     localStorage.setItem('requests', JSON.stringify(state.requests));
     localStorage.setItem('settings', JSON.stringify(state.settings));
+    localStorage.setItem('darkMode', state.isDarkMode.toString());
 };
 
 // --- Helpers ---
+(window as any).toggleDarkMode = () => {
+    state.isDarkMode = !state.isDarkMode;
+    document.documentElement.classList.toggle('dark', state.isDarkMode);
+    saveState();
+    // Update icons in UI manually to avoid full re-render if possible, or just re-render
+    const darkIcons = document.querySelectorAll('.dark-toggle-icon');
+    darkIcons.forEach(icon => {
+        icon.innerHTML = state.isDarkMode ? '☀️' : '🌙';
+    });
+};
+
 (window as any).togglePassword = (inputId: string) => {
     const input = document.getElementById(inputId) as HTMLInputElement;
     const btn = document.getElementById(inputId + '-btn');
@@ -122,10 +133,6 @@ const saveState = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(title + ' : ' + url)}`, '_blank');
 };
 
-(window as any).copyArticleLink = () => {
-    navigator.clipboard.writeText(window.location.href).then(() => alert('📋 تم نسخ رابط المقال!'));
-};
-
 (window as any).toggleMobileMenu = () => {
     state.isMobileMenuOpen = !state.isMobileMenuOpen;
     const menu = document.getElementById('mobile-menu');
@@ -142,7 +149,7 @@ const renderAdUnit = (type: 'adsHeader' | 'adsMiddle' | 'adsBottom', label: stri
         return `<div class="my-6 md:my-10 overflow-hidden flex justify-center max-w-full">${adCode}</div>`;
     }
     return `
-        <div class="my-6 md:my-10 p-6 md:p-8 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl md:rounded-[2rem] text-center text-gray-300 text-xs font-bold">
+        <div class="my-6 md:my-10 p-6 md:p-8 bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl md:rounded-[2rem] text-center text-gray-300 dark:text-gray-700 text-xs font-bold">
             <div class="mb-1">AdSense [ ${label} ]</div>
             <div class="text-[10px]">يظهر هنا كود أدسنس</div>
         </div>
@@ -151,7 +158,7 @@ const renderAdUnit = (type: 'adsHeader' | 'adsMiddle' | 'adsBottom', label: stri
 
 // --- Public Renderers ---
 const renderHome = () => `
-    <div class="space-y-16 md:space-y-32 animate-fadeIn pb-10 text-right">
+    <div class="space-y-16 md:space-y-32 animate-fadeIn pb-10 text-right dark:bg-gray-950">
         <section class="relative min-h-[500px] md:min-h-[600px] flex items-center bg-gray-950 text-white overflow-hidden px-4">
             <div class="absolute inset-0 opacity-10">
                 <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1600" class="w-full h-full object-cover">
@@ -170,20 +177,20 @@ const renderHome = () => `
         <section class="max-w-7xl mx-auto px-4 md:px-6" id="portfolio">
             <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-10 md:mb-16 gap-6">
                 <div class="space-y-2 md:space-y-4 text-center md:text-right">
-                    <h2 class="text-3xl md:text-5xl font-black text-gray-900">نصائح الخبراء</h2>
-                    <p class="text-gray-400 text-lg md:text-xl font-medium">مقالات تعليمية في تطوير المواقع، التصميم، وخدمات السيو.</p>
+                    <h2 class="text-3xl md:text-5xl font-black text-gray-900 dark:text-white">نصائح الخبراء</h2>
+                    <p class="text-gray-400 dark:text-gray-500 text-lg md:text-xl font-medium">مقالات تعليمية في تطوير المواقع، التصميم، وخدمات السيو.</p>
                 </div>
-                <a href="#/blog" class="bg-gray-100 px-6 md:px-8 py-3 rounded-xl md:rounded-2xl font-black text-gray-800 hover:bg-gray-200 transition text-sm md:text-base">جميع المقالات ←</a>
+                <a href="#/blog" class="bg-gray-100 dark:bg-gray-900 px-6 md:px-8 py-3 rounded-xl md:rounded-2xl font-black text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800 transition text-sm md:text-base">جميع المقالات ←</a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                 ${state.articles.slice(0, 3).map((a: any) => `
-                    <article class="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 group cursor-pointer shadow-sm hover:shadow-lg transition" onclick="window.location.hash='#/article/${a.id}'">
-                        <div class="h-56 md:h-64 overflow-hidden bg-gray-100">
+                    <article class="bg-white dark:bg-gray-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 group cursor-pointer shadow-sm hover:shadow-lg transition" onclick="window.location.hash='#/article/${a.id}'">
+                        <div class="h-56 md:h-64 overflow-hidden bg-gray-100 dark:bg-gray-800">
                             <img src="${a.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
                         </div>
                         <div class="p-6 md:p-8 space-y-3 md:space-y-4 text-right">
-                            <h3 class="text-xl md:text-2xl font-black group-hover:text-blue-600 transition">${a.title}</h3>
-                            <p class="text-gray-500 font-medium line-clamp-2 text-sm md:text-base">${a.excerpt}</p>
+                            <h3 class="text-xl md:text-2xl font-black group-hover:text-blue-600 dark:text-white transition">${a.title}</h3>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium line-clamp-2 text-sm md:text-base">${a.excerpt}</p>
                             <div class="text-sm font-black text-blue-500 uppercase">اقرأ المزيد +</div>
                         </div>
                     </article>
@@ -194,19 +201,19 @@ const renderHome = () => `
 `;
 
 const renderBlog = () => `
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20 animate-fadeIn space-y-12 md:space-y-16 text-center">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20 animate-fadeIn space-y-12 md:space-y-16 text-center text-gray-900 dark:text-white">
         <h1 class="text-4xl md:text-6xl font-black">المدونة التقنية</h1>
-        <p class="text-gray-400 text-lg md:text-xl">دليلك الكامل للنجاح الرقمي وتطوير أعمالك في المغرب.</p>
+        <p class="text-gray-400 dark:text-gray-500 text-lg md:text-xl">دليلك الكامل للنجاح الرقمي وتطوير أعمالك في المغرب.</p>
         
         ${renderAdUnit('adsHeader', 'إعلان أعلى المدونة')}
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 text-right">
             ${state.articles.map((a: any) => `
-                <article class="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition cursor-pointer" onclick="window.location.hash='#/article/${a.id}'">
+                <article class="bg-white dark:bg-gray-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition cursor-pointer" onclick="window.location.hash='#/article/${a.id}'">
                     <img src="${a.image}" class="h-56 md:h-64 w-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
                     <div class="p-6 md:p-8 space-y-4">
                         <h3 class="text-xl md:text-2xl font-black text-right">${a.title}</h3>
-                        <p class="text-gray-500 text-sm md:text-base text-right">${a.excerpt}</p>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm md:text-base text-right">${a.excerpt}</p>
                     </div>
                 </article>
             `).join('')}
@@ -217,23 +224,23 @@ const renderBlog = () => `
 
 const renderArticleDetail = (id: string) => {
     const article = state.articles.find((a: any) => a.id === id);
-    if (!article) return `<div class="text-center py-40 font-black text-3xl">المقال غير موجود</div>`;
+    if (!article) return `<div class="text-center py-40 font-black text-3xl dark:text-white">المقال غير موجود</div>`;
 
     return `
-        <div class="max-w-4xl mx-auto px-4 md:px-6 py-10 md:py-20 animate-fadeIn text-right">
-            <nav class="flex gap-2 text-xs md:text-sm font-bold text-gray-400 mb-8">
+        <div class="max-w-4xl mx-auto px-4 md:px-6 py-10 md:py-20 animate-fadeIn text-right text-gray-900 dark:text-white">
+            <nav class="flex gap-2 text-xs md:text-sm font-bold text-gray-400 dark:text-gray-600 mb-8">
                 <a href="#/" class="hover:text-blue-600">الرئيسية</a> / 
                 <a href="#/blog" class="hover:text-blue-600">المدونة</a>
             </nav>
-            <h1 class="text-3xl md:text-6xl font-black leading-tight mb-8 md:mb-12 text-gray-900">${article.title}</h1>
+            <h1 class="text-3xl md:text-6xl font-black leading-tight mb-8 md:mb-12 text-gray-900 dark:text-white">${article.title}</h1>
             
             ${renderAdUnit('adsHeader', 'إعلان بداية المقال')}
             
-            <div class="w-full bg-gray-100 rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-xl mb-8 md:mb-12">
+            <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-xl mb-8 md:mb-12">
                 <img src="${article.image}" class="w-full h-auto min-h-[300px] object-cover" onerror="this.src='https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?w=1200'">
             </div>
             
-            <div class="prose prose-lg md:prose-2xl text-gray-800 font-medium leading-relaxed space-y-6 md:space-y-8">
+            <div class="prose prose-lg md:prose-2xl dark:prose-invert text-gray-800 dark:text-gray-300 font-medium leading-relaxed space-y-6 md:space-y-8">
                 ${article.content.split('\n').map((p: string, i: number) => `
                     <p>${p}</p>
                     ${i === 1 ? renderAdUnit('adsMiddle', 'إعلان وسط المحتوى') : ''}
@@ -245,9 +252,12 @@ const renderArticleDetail = (id: string) => {
 };
 
 const renderDashboard = () => `
-    <div class="min-h-screen bg-gray-50 flex flex-col md:flex-row animate-fadeIn text-right">
-        <aside class="w-full md:w-80 bg-gray-900 text-white p-6 md:p-10 flex flex-col">
-            <div class="text-2xl font-black mb-6 md:mb-12">حلال <span class="text-blue-500">ADMIN</span></div>
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row animate-fadeIn text-right">
+        <aside class="w-full md:w-80 bg-gray-900 dark:bg-black text-white p-6 md:p-10 flex flex-col">
+            <div class="flex justify-between items-center mb-6 md:mb-12">
+                <div class="text-2xl font-black">حلال <span class="text-blue-500">ADMIN</span></div>
+                <button onclick="toggleDarkMode()" class="p-2 bg-white/10 rounded-lg dark-toggle-icon">${state.isDarkMode ? '☀️' : '🌙'}</button>
+            </div>
             <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-4 md:pb-0 scrollbar-hide">
                 <button onclick="switchTab('requests')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">📊 الطلبات</button>
                 <button onclick="switchTab('articles')" class="whitespace-nowrap flex items-center gap-3 p-4 rounded-xl hover:bg-white/5 font-black text-sm">✍️ المدونة</button>
@@ -267,32 +277,32 @@ const renderDashboard = () => `
     if (!container) return;
     if (tab === 'settings') {
         container.innerHTML = `
-            <h2 class="text-3xl md:text-4xl font-black mb-8">إعدادات الإدارة</h2>
+            <h2 class="text-3xl md:text-4xl font-black mb-8 dark:text-white">إعدادات الإدارة</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-right">
-                <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-100 space-y-6">
+                <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
                     <h3 class="text-xl font-black text-blue-600">تغيير كلمة السر</h3>
                     <div class="space-y-4">
-                        <label class="block font-black text-xs text-gray-400 uppercase">كلمة السر الجديدة</label>
+                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كلمة السر الجديدة</label>
                         <div class="relative">
-                            <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold text-center">
+                            <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center">
                             <button id="set-pass-btn" onclick="togglePassword('set-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl">👁️</button>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-100 space-y-6">
+                <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
                     <h3 class="text-xl font-black text-green-600">إعدادات التواصل</h3>
                     <div class="space-y-4">
-                        <label class="block font-black text-xs text-gray-400 uppercase">رقم الواتساب</label>
-                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 rounded-xl outline-none font-bold text-center" dir="ltr">
+                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رقم الواتساب</label>
+                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center" dir="ltr">
                     </div>
                 </div>
             </div>
             <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8">حفظ الإعدادات</button>
         `;
     } else if (tab === 'requests') {
-        container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right">الطلبات الواردة</h2><div class="text-gray-400">لا توجد طلبات حالياً</div>`;
+        container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right dark:text-white">الطلبات الواردة</h2><div class="text-gray-400">لا توجد طلبات حالياً</div>`;
     } else if (tab === 'articles') {
-        container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right">إدارة المقالات</h2><div class="text-gray-400">قائمة المقالات فارغة أو قيد التطوير</div>`;
+        container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right dark:text-white">إدارة المقالات</h2><div class="text-gray-400">قائمة المقالات فارغة أو قيد التطوير</div>`;
     }
 };
 
@@ -307,11 +317,9 @@ const renderDashboard = () => `
     const rawInput = (document.getElementById('dash-pass') as HTMLInputElement).value;
     const inputPass = rawInput.trim();
     
-    // Hard check against halal2025 and state
     if (inputPass === DEFAULT_PASS || inputPass === state.settings.dashPassword) {
         state.isAuthenticated = true;
         sessionStorage.setItem('isAdmin', 'true');
-        // Final Sync
         state.settings.dashPassword = inputPass;
         saveState();
         router();
@@ -346,22 +354,23 @@ const router = () => {
     else if (isDashboard) {
         if (sessionStorage.getItem('isAdmin') !== 'true') {
             root.innerHTML = `
-                <div class="min-h-screen flex items-center justify-center bg-gray-50 p-4 text-right">
-                    <div class="bg-white p-10 md:p-16 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md animate-fadeIn">
+                <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4 text-right transition-colors">
+                    <div class="bg-white dark:bg-gray-900 p-10 md:p-16 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md animate-fadeIn">
                         <div class="w-16 h-16 bg-blue-600 text-white flex items-center justify-center rounded-2xl mx-auto text-2xl font-black shadow-lg">H</div>
                         <div class="space-y-2">
-                            <h2 class="text-2xl font-black">تسجيل دخول المشرف</h2>
-                            <p class="text-gray-400 text-sm font-bold">كلمة السر الافتراضية: <span class="text-blue-600 select-all">halal2025</span></p>
+                            <h2 class="text-2xl font-black dark:text-white">تسجيل دخول المشرف</h2>
+                            <p class="text-gray-400 dark:text-gray-500 text-sm font-bold">كلمة السر الافتراضية: <span class="text-blue-600 select-all">halal2025</span></p>
                         </div>
                         <div class="space-y-4">
                             <div class="relative">
-                                <input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 rounded-2xl text-center text-xl font-bold outline-none border-2 border-transparent focus:border-blue-200 transition" placeholder="••••••••">
+                                <input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center text-xl font-bold outline-none border-2 border-transparent focus:border-blue-200 transition" placeholder="••••••••">
                                 <button id="dash-pass-btn" onclick="togglePassword('dash-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition">👁️</button>
                             </div>
                             <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-100 hover:bg-blue-700 transition">دخول آمن</button>
                         </div>
-                        <div class="pt-6 border-t border-gray-100">
-                             <button onclick="hardResetSite()" class="text-xs text-red-400 font-bold hover:underline">⚠️ هل تواجه مشكلة؟ اضغط هنا لإعادة الضبط</button>
+                        <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                             <button onclick="hardResetSite()" class="text-xs text-red-400 font-bold hover:underline">⚠️ إعادة الضبط</button>
+                             <button onclick="toggleDarkMode()" class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg dark-toggle-icon">${state.isDarkMode ? '☀️' : '🌙'}</button>
                         </div>
                     </div>
                 </div>
