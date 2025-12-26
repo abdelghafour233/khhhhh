@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.5
- * Night Mode (Dark Mode) Integration
+ * Halal Digital Services - Version 3.6
+ * Fix: Article Visibility on Mobile & Data Sync
  */
 
 // --- Constants & Data ---
@@ -67,11 +67,15 @@ const loadState = () => {
         const isDark = localStorage.getItem('darkMode') === 'true';
         if (isDark) document.documentElement.classList.add('dark');
         
+        const savedProjects = JSON.parse(localStorage.getItem('projects') || 'null');
+        const savedArticles = JSON.parse(localStorage.getItem('articles') || 'null');
+        const savedSettings = JSON.parse(localStorage.getItem('settings') || 'null');
+
         return {
-            projects: JSON.parse(localStorage.getItem('projects') || 'null') || INITIAL_PROJECTS,
-            articles: JSON.parse(localStorage.getItem('articles') || 'null') || INITIAL_ARTICLES,
+            projects: (savedProjects && savedProjects.length > 0) ? savedProjects : INITIAL_PROJECTS,
+            articles: (savedArticles && savedArticles.length > 0) ? savedArticles : INITIAL_ARTICLES,
             requests: JSON.parse(localStorage.getItem('requests') || '[]'),
-            settings: JSON.parse(localStorage.getItem('settings') || 'null') || INITIAL_SETTINGS,
+            settings: savedSettings || INITIAL_SETTINGS,
             isAuthenticated: sessionStorage.getItem('isAdmin') === 'true',
             isMobileMenuOpen: false,
             isDarkMode: isDark
@@ -104,7 +108,6 @@ const saveState = () => {
     state.isDarkMode = !state.isDarkMode;
     document.documentElement.classList.toggle('dark', state.isDarkMode);
     saveState();
-    // Update icons in UI manually to avoid full re-render if possible, or just re-render
     const darkIcons = document.querySelectorAll('.dark-toggle-icon');
     darkIcons.forEach(icon => {
         icon.innerHTML = state.isDarkMode ? '☀️' : '🌙';
@@ -121,7 +124,7 @@ const saveState = () => {
 };
 
 (window as any).hardResetSite = () => {
-    if (confirm('⚠️ هل أنت متأكد؟ سيتم مسح كافة البيانات المخزنة وإعادة ضبط الموقع للوضع الافتراضي بكلمة السر halal2025')) {
+    if (confirm('⚠️ هل أنت متأكد؟ سيتم مسح كافة البيانات وإعادة تحميل مقال السيو الافتراضي بكلمة السر halal2025')) {
         localStorage.clear();
         sessionStorage.clear();
         window.location.reload();
@@ -151,7 +154,6 @@ const renderAdUnit = (type: 'adsHeader' | 'adsMiddle' | 'adsBottom', label: stri
     return `
         <div class="my-6 md:my-10 p-6 md:p-8 bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl md:rounded-[2rem] text-center text-gray-300 dark:text-gray-700 text-xs font-bold">
             <div class="mb-1">AdSense [ ${label} ]</div>
-            <div class="text-[10px]">يظهر هنا كود أدسنس</div>
         </div>
     `;
 };
@@ -182,19 +184,20 @@ const renderHome = () => `
                 </div>
                 <a href="#/blog" class="bg-gray-100 dark:bg-gray-900 px-6 md:px-8 py-3 rounded-xl md:rounded-2xl font-black text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800 transition text-sm md:text-base">جميع المقالات ←</a>
             </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-                ${state.articles.slice(0, 3).map((a: any) => `
-                    <article class="bg-white dark:bg-gray-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 group cursor-pointer shadow-sm hover:shadow-lg transition" onclick="window.location.hash='#/article/${a.id}'">
-                        <div class="h-56 md:h-64 overflow-hidden bg-gray-100 dark:bg-gray-800">
+                ${state.articles.length > 0 ? state.articles.slice(0, 3).map((a: any) => `
+                    <article class="bg-white dark:bg-gray-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 group cursor-pointer shadow-sm hover:shadow-lg transition flex flex-col" onclick="window.location.hash='#/article/${a.id}'">
+                        <div class="h-56 md:h-64 overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0">
                             <img src="${a.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
                         </div>
-                        <div class="p-6 md:p-8 space-y-3 md:space-y-4 text-right">
-                            <h3 class="text-xl md:text-2xl font-black group-hover:text-blue-600 dark:text-white transition">${a.title}</h3>
+                        <div class="p-6 md:p-8 space-y-3 md:space-y-4 text-right flex-grow">
+                            <h3 class="text-xl md:text-2xl font-black group-hover:text-blue-600 dark:text-white transition line-clamp-2">${a.title}</h3>
                             <p class="text-gray-500 dark:text-gray-400 font-medium line-clamp-2 text-sm md:text-base">${a.excerpt}</p>
-                            <div class="text-sm font-black text-blue-500 uppercase">اقرأ المزيد +</div>
+                            <div class="text-sm font-black text-blue-500 uppercase pt-2">اقرأ المزيد +</div>
                         </div>
                     </article>
-                `).join('')}
+                `).join('') : '<div class="col-span-full py-20 text-center text-gray-400 font-bold">لا توجد مقالات حالياً</div>'}
             </div>
         </section>
     </div>
@@ -209,11 +212,11 @@ const renderBlog = () => `
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 text-right">
             ${state.articles.map((a: any) => `
-                <article class="bg-white dark:bg-gray-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition cursor-pointer" onclick="window.location.hash='#/article/${a.id}'">
-                    <img src="${a.image}" class="h-56 md:h-64 w-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
-                    <div class="p-6 md:p-8 space-y-4">
-                        <h3 class="text-xl md:text-2xl font-black text-right">${a.title}</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm md:text-base text-right">${a.excerpt}</p>
+                <article class="bg-white dark:bg-gray-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition cursor-pointer flex flex-col" onclick="window.location.hash='#/article/${a.id}'">
+                    <img src="${a.image}" class="h-56 md:h-64 w-full object-cover shrink-0" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
+                    <div class="p-6 md:p-8 space-y-4 flex-grow">
+                        <h3 class="text-xl md:text-2xl font-black text-right line-clamp-2">${a.title}</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm md:text-base text-right line-clamp-3">${a.excerpt}</p>
                     </div>
                 </article>
             `).join('')}
@@ -228,23 +231,27 @@ const renderArticleDetail = (id: string) => {
 
     return `
         <div class="max-w-4xl mx-auto px-4 md:px-6 py-10 md:py-20 animate-fadeIn text-right text-gray-900 dark:text-white">
-            <nav class="flex gap-2 text-xs md:text-sm font-bold text-gray-400 dark:text-gray-600 mb-8">
+            <nav class="flex gap-2 text-xs md:text-sm font-bold text-gray-400 dark:text-gray-600 mb-8 overflow-x-auto whitespace-nowrap">
                 <a href="#/" class="hover:text-blue-600">الرئيسية</a> / 
-                <a href="#/blog" class="hover:text-blue-600">المدونة</a>
+                <a href="#/blog" class="hover:text-blue-600">المدونة</a> / 
+                <span class="text-gray-300 dark:text-gray-700">${article.title.substring(0, 20)}...</span>
             </nav>
             <h1 class="text-3xl md:text-6xl font-black leading-tight mb-8 md:mb-12 text-gray-900 dark:text-white">${article.title}</h1>
             
             ${renderAdUnit('adsHeader', 'إعلان بداية المقال')}
             
             <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-xl mb-8 md:mb-12">
-                <img src="${article.image}" class="w-full h-auto min-h-[300px] object-cover" onerror="this.src='https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?w=1200'">
+                <img src="${article.image}" class="w-full h-auto min-h-[250px] object-cover" onerror="this.src='https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?w=1200'">
             </div>
             
-            <div class="prose prose-lg md:prose-2xl dark:prose-invert text-gray-800 dark:text-gray-300 font-medium leading-relaxed space-y-6 md:space-y-8">
-                ${article.content.split('\n').map((p: string, i: number) => `
-                    <p>${p}</p>
-                    ${i === 1 ? renderAdUnit('adsMiddle', 'إعلان وسط المحتوى') : ''}
-                `).join('')}
+            <div class="prose prose-lg md:prose-2xl dark:prose-invert text-gray-800 dark:text-gray-300 font-medium leading-relaxed space-y-6 md:space-y-8 max-w-none">
+                ${article.content.split('\n').map((p: string, i: number) => {
+                    if (p.trim() === '') return '';
+                    return `
+                        <p>${p}</p>
+                        ${i === 1 ? renderAdUnit('adsMiddle', 'إعلان وسط المحتوى') : ''}
+                    `;
+                }).join('')}
             </div>
             ${renderAdUnit('adsBottom', 'إعلان نهاية المقال')}
         </div>
@@ -277,7 +284,7 @@ const renderDashboard = () => `
     if (!container) return;
     if (tab === 'settings') {
         container.innerHTML = `
-            <h2 class="text-3xl md:text-4xl font-black mb-8 dark:text-white">إعدادات الإدارة</h2>
+            <h2 class="text-3xl md:text-4xl font-black mb-8 dark:text-white text-right">إعدادات الإدارة</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-right">
                 <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
                     <h3 class="text-xl font-black text-blue-600">تغيير كلمة السر</h3>
@@ -339,14 +346,18 @@ const router = () => {
     const root = document.getElementById('app-root');
     const loading = document.getElementById('loading');
     if (!root || !loading) return;
+    
     loading.style.width = '100%';
     setTimeout(() => loading.style.width = '0', 400);
 
     const isDashboard = hash.startsWith('#/dashboard');
     const isArticle = hash.startsWith('#/article/');
     
-    document.querySelector('header')!.style.display = isDashboard ? 'none' : 'block';
-    document.getElementById('main-footer')!.style.display = isDashboard ? 'none' : 'block';
+    // UI visibility logic
+    const header = document.querySelector('header');
+    const footer = document.getElementById('main-footer');
+    if (header) header.style.display = isDashboard ? 'none' : 'block';
+    if (footer) footer.style.display = isDashboard ? 'none' : 'block';
 
     if (hash === '#/') root.innerHTML = renderHome();
     else if (hash === '#/blog') root.innerHTML = renderBlog();
@@ -359,7 +370,7 @@ const router = () => {
                         <div class="w-16 h-16 bg-blue-600 text-white flex items-center justify-center rounded-2xl mx-auto text-2xl font-black shadow-lg">H</div>
                         <div class="space-y-2">
                             <h2 class="text-2xl font-black dark:text-white">تسجيل دخول المشرف</h2>
-                            <p class="text-gray-400 dark:text-gray-500 text-sm font-bold">كلمة السر الافتراضية: <span class="text-blue-600 select-all">halal2025</span></p>
+                            <p class="text-gray-400 dark:text-gray-500 text-sm font-bold">كلمة السر: <span class="text-blue-600 select-all">halal2025</span></p>
                         </div>
                         <div class="space-y-4">
                             <div class="relative">
@@ -380,6 +391,11 @@ const router = () => {
             (window as any).switchTab('requests');
         }
     }
+    
+    // Close mobile menu on route change
+    state.isMobileMenuOpen = false;
+    const menu = document.getElementById('mobile-menu');
+    if (menu) menu.classList.add('hidden');
 };
 
 window.addEventListener('hashchange', router);
