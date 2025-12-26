@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 3.8
- * Feature: AdSense Management in Dashboard
+ * Halal Digital Services - Version 3.9
+ * Feature: Social Sharing Buttons & Copy Link
  */
 
 // --- Constants & Data ---
@@ -54,7 +54,7 @@ const DEFAULT_PASS = 'halal2025';
 
 const INITIAL_SETTINGS = {
     dashPassword: DEFAULT_PASS,
-    whatsappNumber: '0649075664',
+    whatsappNumber: '212649075664',
     email: 'abdelghaforbahaddou@gmail.com',
     adsHeader: '',
     adsMiddle: '',
@@ -123,17 +123,25 @@ const saveState = () => {
     if (btn) btn.innerHTML = isPassword ? '🙈' : '👁️';
 };
 
-(window as any).hardResetSite = () => {
-    if (confirm('⚠️ هل أنت متأكد؟ سيتم مسح كافة البيانات وإعادة تحميل الإعدادات الافتراضية.')) {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.reload();
-    }
-};
-
 (window as any).shareOnWhatsApp = (title: string) => {
     const url = window.location.href;
     window.open(`https://wa.me/?text=${encodeURIComponent(title + ' : ' + url)}`, '_blank');
+};
+
+(window as any).shareOnFacebook = () => {
+    const url = window.location.href;
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+};
+
+(window as any).shareOnTwitter = (title: string) => {
+    const url = window.location.href;
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+};
+
+(window as any).copyArticleLink = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('✅ تم نسخ رابط المقال بنجاح!');
+    });
 };
 
 (window as any).toggleMobileMenu = () => {
@@ -237,7 +245,7 @@ const renderArticleDetail = (id: string) => {
                 <a href="#/blog" class="hover:text-blue-600">المدونة</a> / 
                 <span class="text-gray-300 dark:text-gray-700">${article.title.substring(0, 20)}...</span>
             </nav>
-            <h1 class="text-3xl md:text-6xl font-black leading-tight mb-8 md:mb-12 text-gray-900 dark:text-white">${article.title}</h1>
+            <h1 class="text-3xl md:text-5xl lg:text-6xl font-black leading-tight mb-8 md:mb-12 text-gray-900 dark:text-white">${article.title}</h1>
             
             ${renderAdUnit('adsHeader', 'إعلان بداية المقال')}
             
@@ -254,6 +262,40 @@ const renderArticleDetail = (id: string) => {
                     `;
                 }).join('')}
             </div>
+
+            <!-- Social Sharing Tools -->
+            <div class="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800 space-y-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h3 class="text-2xl font-black mb-2">شارك الفائدة مع أصدقائك</h3>
+                        <p class="text-gray-400 dark:text-gray-500 text-sm font-bold">إذا أعجبك المقال، لا تتردد في مشاركته لتعم الفائدة.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="shareOnWhatsApp('${article.title}')" class="flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg shadow-green-500/20">
+                            <span>واتساب</span>
+                        </button>
+                        <button onclick="shareOnFacebook()" class="flex items-center gap-2 px-6 py-3 bg-[#1877F2] text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg shadow-blue-500/20">
+                            <span>فيسبوك</span>
+                        </button>
+                        <button onclick="shareOnTwitter('${article.title}')" class="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg">
+                            <span>تويتر</span>
+                        </button>
+                        <button onclick="copyArticleLink()" class="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl font-black text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                            <span>نسخ الرابط</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="bg-blue-50 dark:bg-blue-900/10 p-6 md:p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="text-center md:text-right">
+                        <h4 class="text-xl font-black text-blue-600 mb-1">هل لديك مشروع ترغب في تطويره؟</h4>
+                        <p class="text-gray-500 dark:text-blue-200/50 text-sm font-bold">نحن هنا لمساعدتك في بناء حضورك الرقمي باحترافية.</p>
+                    </div>
+                    <a href="https://wa.me/${state.settings.whatsappNumber}" target="_blank" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition">تواصل معنا الآن</a>
+                </div>
+            </div>
+
             ${renderAdUnit('adsBottom', 'إعلان نهاية المقال')}
         </div>
     `;
