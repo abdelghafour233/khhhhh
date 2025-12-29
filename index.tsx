@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 4.0
- * Feature: Full Article Management (CRUD) in Dashboard
+ * Halal Digital Services - Version 4.2
+ * Feature: Live Image Preview in Article Editor
  */
 
 // --- Constants & Data ---
@@ -23,6 +23,42 @@ const INITIAL_PROJECTS = [
 ];
 
 const INITIAL_ARTICLES = [
+    {
+        id: 'hosting-guide-2024',
+        title: 'أنواع استضافة المواقع: دليلك الشامل لاختيار الخيار الأفضل لمشروعك',
+        excerpt: 'تعرف على الفرق بين الاستضافة المشتركة، الـ VPS، والسيرفرات الخاصة، واكتشف المعايير التي تحدد نجاح موقعك.',
+        content: `اختيار الاستضافة المناسبة هو حجر الأساس لأي مشروع رقمي ناجح. فكما تختار موقعاً متميزاً لمحلك التجاري على أرض الواقع، يجب أن تختار مساحة رقمية تتسم بالسرعة، الأمان، والاستقرار لموقعك الإلكتروني.
+
+أولاً: الاستضافة المشتركة (Shared Hosting)
+تعتبر الخيار الأكثر شعبية للمبتدئين وأصحاب المشاريع الصغيرة. في هذا النوع، يتشارك مئات المستخدمين نفس السيرفر والموارد (المعالج، الرام).
+المميزات: تكلفة منخفضة جداً، سهولة الإعداد، لا تحتاج لخبرة تقنية.
+العيوب: تأثر سرعة موقعك بالمواقع الأخرى على نفس السيرفر، موارد محدودة.
+
+ثانياً: السيرفر الافتراضي الخاص (VPS)
+هو ترقية ذكية للاستضافة المشتركة. يتم تقسيم السيرفر فيزيائياً إلى عدة أقسام افتراضية، مما يمنحك موارد مخصصة لك لا يتشارك فيها أحد معك.
+المميزات: أداء ثابت، تحكم أكبر، أمان عالٍ.
+العيوب: أغلى قليلاً من المشتركة، يحتاج لبعض المعرفة التقنية للإدارة.
+
+ثالثاً: الاستضافة السحابية (Cloud Hosting)
+تعتمد على شبكة من السيرفرات تعمل معاً. إذا تعطل أحد السيرفرات، يقوم سيرفر آخر بالعمل مكانه فوراً.
+المميزات: مرونة عالية جداً، استقرار مذهل، تدفع مقابل ما تستهلكه فقط.
+العيوب: قد تكون تكلفتها متغيرة وغير ثابتة شهرياً.
+
+رابعاً: السيرفرات الكاملة (Dedicated Server)
+هنا تستأجر سيرفراً كاملاً لك وحدك. كل قوة المعالجة والتخزين مخصصة لموقعك فقط.
+المميزات: قوة قصوى، أمان مطلق، تحكم كامل في الإعدادات.
+العيوب: تكلفة عالية جداً، تحتاج لمتخصص لإدارتها.
+
+كيف تختار الاستضافة الأنسب لك؟
+1. حجم الزوار المتوقع: إذا كنت تبدأ بمدونة بسيطة، فالاستضافة المشتركة كافية. إذا كنت تطلق متجراً إلكترونياً ضخماً، فالـ VPS أو السحابية هي الخيار الأمثل.
+2. سرعة الاستجابة: ابحث عن استضافة توفر سيرفرات قريبة من جمهورك (مثلاً في أوروبا إذا كان جمهورك في المغرب).
+3. الدعم الفني: تأكد من أن الشركة توفر دعماً على مدار الساعة عبر الشات المباشر.
+4. النسخ الاحتياطي: لا تتنازل عن ميزة النسخ الاحتياطي التلقائي اليومي لحماية بياناتك.
+
+في "حلال ديجيتال"، نحن نساعدك على اختيار أفضل استضافة ونهتم بكافة الإعدادات التقنية لتضمن أن موقعك يعمل بسرعة البرق وأمان تام.`,
+        image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1200',
+        date: new Date().toISOString()
+    },
     {
         id: 'seo-guide-2024',
         title: 'الدليل الشامل للسيو (SEO): كيف تتصدر نتائج البحث في المغرب؟',
@@ -402,6 +438,7 @@ const renderDashboard = () => `
     const container = document.getElementById('dash-content');
     if (!container) return;
     const article = id ? state.articles.find((a: any) => a.id === id) : null;
+    const initialImage = article ? article.image : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800';
 
     container.innerHTML = `
         <div class="flex items-center gap-4 mb-8">
@@ -410,23 +447,43 @@ const renderDashboard = () => `
         </div>
         <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
             <input type="hidden" id="edit-id" value="${id || ''}">
+            
             <div class="space-y-2">
                 <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">عنوان المقال</label>
-                <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-black">
+                <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-black" placeholder="أدخل عنواناً جذاباً...">
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رابط الصورة المميزة</label>
+                        <input id="edit-image" 
+                               oninput="document.getElementById('img-preview').src = this.value" 
+                               value="${initialImage}" 
+                               class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold" 
+                               dir="ltr" 
+                               placeholder="https://...">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">وصف مختصر (Excerpt)</label>
+                        <textarea id="edit-excerpt" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold" placeholder="اكتب ملخصاً للمقال...">${article ? article.excerpt : ''}</textarea>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase text-center">معاينة الصورة</label>
+                    <div class="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-3xl overflow-hidden border-4 border-gray-50 dark:border-gray-800 shadow-inner">
+                        <img id="img-preview" src="${initialImage}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/800x450?text=Invalid+Image+URL'">
+                    </div>
+                    <p class="text-[10px] text-gray-400 dark:text-gray-600 font-bold text-center mt-2">ستظهر هذه الصورة في الواجهة الرئيسية والمدونة</p>
+                </div>
+            </div>
+
             <div class="space-y-2">
-                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">وصف مختصر (Excerpt)</label>
-                <textarea id="edit-excerpt" class="w-full h-24 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold">${article ? article.excerpt : ''}</textarea>
+                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">المحتوى الكامل للمقال</label>
+                <textarea id="edit-content" class="w-full h-96 p-6 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-[2rem] outline-none font-medium leading-relaxed" placeholder="ابدأ بكتابة تفاصيل المقال هنا...">${article ? article.content : ''}</textarea>
             </div>
-            <div class="space-y-2">
-                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رابط الصورة المميزة</label>
-                <input id="edit-image" value="${article ? article.image : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold" dir="ltr" placeholder="https://...">
-            </div>
-            <div class="space-y-2">
-                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">المحتوى الكامل (يدعم الأسطر)</label>
-                <textarea id="edit-content" class="w-full h-96 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-medium leading-relaxed">${article ? article.content : ''}</textarea>
-            </div>
-            <button onclick="saveArticle()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl hover:bg-blue-700 transition">نشر وحفظ المقال ✅</button>
+
+            <button onclick="saveArticle()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-600/20 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300">نشر وحفظ التغييرات ✅</button>
         </div>
     `;
 };
@@ -438,7 +495,7 @@ const renderDashboard = () => `
     const image = (document.getElementById('edit-image') as HTMLInputElement).value;
     const content = (document.getElementById('edit-content') as HTMLTextAreaElement).value;
 
-    if (!title || !content) return alert('يرجى كتابة العنوان والمحتوى على الأقل');
+    if (!title || !content) return alert('⚠️ يرجى كتابة العنوان والمحتوى على الأقل');
 
     if (id) {
         // Edit existing
@@ -460,12 +517,12 @@ const renderDashboard = () => `
     }
 
     saveState();
-    alert('✅ تم الحفظ بنجاح');
+    alert('✅ تم حفظ المقال وتحديث الصورة بنجاح');
     (window as any).switchTab('articles');
 };
 
 (window as any).deleteArticle = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا المقال نهائياً؟')) {
+    if (confirm('🚨 هل أنت متأكد من حذف هذا المقال نهائياً؟ لا يمكن التراجع عن هذا الإجراء.')) {
         state.articles = state.articles.filter((a: any) => a.id !== id);
         saveState();
         (window as any).switchTab('articles');
@@ -485,7 +542,7 @@ const renderDashboard = () => `
     if (bAd) state.settings.adsBottom = bAd.value;
     
     saveState();
-    alert('✅ تم حفظ التغييرات بنجاح');
+    alert('✅ تم حفظ جميع الإعدادات التقنية بنجاح');
 };
 
 (window as any).login = () => {
@@ -498,7 +555,7 @@ const renderDashboard = () => `
         saveState();
         router();
     } else {
-        alert('كلمة السر خاطئة!');
+        alert('❌ كلمة السر خاطئة! يرجى المحاولة مرة أخرى.');
     }
 };
 
