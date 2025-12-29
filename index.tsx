@@ -1,24 +1,26 @@
 
 /**
- * Halal Digital Services - Version 4.3
- * Feature: Enhanced Professional Imagery & Advanced Dashboard Preview
+ * Halal Digital Services - Version 4.4
+ * Feature: Auto-Sync Versioning & High-Res Imagery
  */
 
 // --- Constants & Data ---
+const APP_VERSION = '4.4'; // تحديث هذا الرقم سيجبر المتصفح على تحميل البيانات الجديدة
+
 const INITIAL_PROJECTS = [
     { 
         id: '1', 
         name: 'متجر "أناقة" للملابس المغربية', 
         description: 'تطوير متجر إلكتروني متكامل مع نظام دفع محلي وتصميم عصري متجاوب يزيد المبيعات بنسبة 40%.', 
         category: 'تطوير متاجر', 
-        image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=800' 
+        image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=800' 
     },
     { 
         id: '2', 
         name: 'موقع وكالة أسفار وطنية', 
         description: 'تصميم موقع سياحي احترافي يضم محرك بحث للرحلات ونظام حجز مباشر في كافة مدن المغرب.', 
         category: 'مواقع تعريفية', 
-        image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800' 
+        image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=800' 
     }
 ];
 
@@ -32,31 +34,26 @@ const INITIAL_ARTICLES = [
 أولاً: الاستضافة المشتركة (Shared Hosting)
 تعتبر الخيار الأكثر شعبية للمبتدئين وأصحاب المشاريع الصغيرة. في هذا النوع، يتشارك مئات المستخدمين نفس السيرفر والموارد (المعالج، الرام).
 المميزات: تكلفة منخفضة جداً، سهولة الإعداد، لا تحتاج لخبرة تقنية.
-العيوب: تأثر سرعة موقعك بالمواقع الأخرى على نفس السيرفر، موارد محدودة.
 
 ثانياً: السيرفر الافتراضي الخاص (VPS)
 هو ترقية ذكية للاستضافة المشتركة. يتم تقسيم السيرفر فيزيائياً إلى عدة أقسام افتراضية، مما يمنحك موارد مخصصة لك لا يتشارك فيها أحد معك.
 المميزات: أداء ثابت، تحكم أكبر، أمان عالٍ.
-العيوب: أغلى قليلاً من المشتركة، يحتاج لبعض المعرفة التقنية للإدارة.
 
 ثالثاً: الاستضافة السحابية (Cloud Hosting)
 تعتمد على شبكة من السيرفرات تعمل معاً. إذا تعطل أحد السيرفرات، يقوم سيرفر آخر بالعمل مكانه فوراً.
 المميزات: مرونة عالية جداً، استقرار مذهل، تدفع مقابل ما تستهلكه فقط.
-العيوب: قد تكون تكلفتها متغيرة وغير ثابتة شهرياً.
 
 رابعاً: السيرفرات الكاملة (Dedicated Server)
 هنا تستأجر سيرفراً كاملاً لك وحدك. كل قوة المعالجة والتخزين مخصصة لموقعك فقط.
 المميزات: قوة قصوى، أمان مطلق، تحكم كامل في الإعدادات.
-العيوب: تكلفة عالية جداً، تحتاج لمتخصص لإدارتها.
 
 كيف تختار الاستضافة الأنسب لك؟
-1. حجم الزوار المتوقع: إذا كنت تبدأ بمدونة بسيطة، فالاستضافة المشتركة كافية. إذا كنت تطلق متجراً إلكترونياً ضخماً، فالـ VPS أو السحابية هي الخيار الأمثل.
-2. سرعة الاستجابة: ابحث عن استضافة توفر سيرفرات قريبة من جمهورك (مثلاً في أوروبا إذا كان جمهورك في المغرب).
-3. الدعم الفني: تأكد من أن الشركة توفر دعماً على مدار الساعة عبر الشات المباشر.
-4. النسخ الاحتياطي: لا تتنازل عن ميزة النسخ الاحتياطي التلقائي اليومي لحماية بياناتك.
+1. حجم الزوار المتوقع: إذا كنت تبدأ بمدونة بسيطة، فالاستضافة المشتركة كافية.
+2. سرعة الاستجابة: ابحث عن استضافة توفر سيرفرات قريبة من جمهورك.
+3. الدعم الفني: تأكد من أن الشركة توفر دعماً على مدار الساعة.
 
-في "حلال ديجيتال"، نحن نساعدك على اختيار أفضل استضافة ونهتم بكافة الإعدادات التقنية لتضمن أن موقعك يعمل بسرعة البرق وأمان تام.`,
-        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200',
+في "حلال ديجيتال"، نحن نساعدك على اختيار أفضل استضافة ونهتم بكافة الإعدادات التقنية.`,
+        image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1200', // صورة سيرفرات احترافية
         date: new Date().toISOString()
     },
     {
@@ -64,24 +61,18 @@ const INITIAL_ARTICLES = [
         title: 'الدليل الشامل للسيو (SEO): كيف تتصدر نتائج البحث في المغرب؟',
         excerpt: 'تعلم استراتيجيات تحسين محركات البحث لتحويل موقعك إلى مغناطيس للزبناء بدون إعلانات مدفوعة.',
         content: `ما هو السيو (SEO) ولماذا هو ضروري لعملك؟
-السيو هو اختصار لـ Search Engine Optimization، وهو عملية تحسين موقعك الإلكتروني لزيادة ظهوره في نتائج محركات البحث مثل جوجل. في السوق المغربي المتزايد التنافسية، لم يعد امتلاك موقع كافياً، بل يجب أن يكون هذا الموقع قابلاً للإيجاد من طرف الزبناء المحتملين.
+السيو هو عملية تحسين موقعك الإلكتروني لزيادة ظهوره في نتائج محركات البحث مثل جوجل. في السوق المغربي المتزايد التنافسية، لم يعد امتلاك موقع كافياً، بل يجب أن يكون هذا الموقع قابلاً للإيجاد.
 
 أهمية السيو للأعمال والمقاولات:
-1. حركة مرور مجانية ومستدامة: على عكس الإعلانات المدفوعة التي تتوقف بمجرد انتهاء ميزانيتك، السيو يوفر لك زواراً بشكل مستمر ومجاني على المدى الطويل.
-2. بناء الثقة والمصداقية: المستخدمون يثقون في المواقع التي تظهر في النتائج الأولى بشكل طبيعي أكثر من الإعلانات الممولة.
-3. فهم سلوك الزبون المغربي: السيو يعتمد على الكلمات المفتاحية التي يبحث عنها المغاربة، مما يجعلك تقدم بالضبط ما يبحثون عنه.
+1. حركة مرور مجانية ومستدامة.
+2. بناء الثقة والمصداقية.
+3. فهم سلوك الزبون المغربي.
 
 الركائز الأساسية للسيو الناجح:
-أولاً: السيو التقني (Technical SEO)
-يتعلق الأمر بسرعة الموقع، التوافق مع الهواتف الذكية، وتأمين الموقع بشهادة SSL. جوجل يفضل المواقع السريعة والآمنة.
-ثانياً: المحتوى (Content Marketing)
-يقول الخبراء "المحتوى هو الملك". كتابة مقالات مفيدة تجيب على أسئلة زوارك تجعل جوجل يرفع من ترتيب موقعك.
-ثالثاً: الروابط الخارجية (Backlinks)
-عندما تشير مواقع أخرى إلى موقعك، فإنها تعطي إشارة لجوجل بأن محتواك ذو قيمة عالية وموثوق.
-
-كيف نبدأ في تحسين موقعنا؟
-ابدأ بالبحث عن الكلمات المفتاحية، ثم قم ببرمجة موقعك بشكل نظيف (وهو ما نقوم به في حلال ديجيتال)، وأخيراً استمر في نشر محتوى تعليمي مفيد لجمهورك.`,
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200',
+أولاً: السيو التقني (Technical SEO) يتعلق ببرمجة الموقع وسرعته.
+ثانياً: المحتوى (Content) كتابة مقالات مفيدة تجيب على أسئلة زوارك.
+ثالثاً: الروابط الخارجية (Backlinks) وهي الإشارات التي تأتي من مواقع أخرى.`,
+        image: 'https://images.unsplash.com/photo-1571721795195-a2ca2d3370a9?auto=format&fit=crop&q=80&w=1200', // صورة تحليل بيانات وسيو
         date: new Date().toISOString()
     }
 ];
@@ -103,6 +94,15 @@ const loadState = () => {
         const isDark = localStorage.getItem('darkMode') === 'true';
         if (isDark) document.documentElement.classList.add('dark');
         
+        // نظام تحديث النسخة لمزامنة الصور الجديدة والمقالات
+        const storedVersion = localStorage.getItem('app_version');
+        if (storedVersion !== APP_VERSION) {
+            localStorage.setItem('articles', JSON.stringify(INITIAL_ARTICLES));
+            localStorage.setItem('projects', JSON.stringify(INITIAL_PROJECTS));
+            localStorage.setItem('app_version', APP_VERSION);
+            // سنستمر في تحميل البيانات المحدثة الآن
+        }
+
         const savedProjects = JSON.parse(localStorage.getItem('projects') || 'null');
         const savedArticles = JSON.parse(localStorage.getItem('articles') || 'null');
         const savedSettings = JSON.parse(localStorage.getItem('settings') || 'null');
@@ -137,6 +137,7 @@ const saveState = () => {
     localStorage.setItem('requests', JSON.stringify(state.requests));
     localStorage.setItem('settings', JSON.stringify(state.settings));
     localStorage.setItem('darkMode', state.isDarkMode.toString());
+    localStorage.setItem('app_version', APP_VERSION);
 };
 
 // --- Helpers ---
@@ -286,7 +287,7 @@ const renderArticleDetail = (id: string) => {
             ${renderAdUnit('adsHeader', 'إعلان بداية المقال')}
             
             <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-xl mb-8 md:mb-12">
-                <img src="${article.image}" class="w-full h-auto min-h-[250px] object-cover" onerror="this.src='https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?w=1200'">
+                <img src="${article.image}" class="w-full h-auto min-h-[250px] object-cover" onerror="this.src='https://via.placeholder.com/1200x600?text=Image+Not+Found'">
             </div>
             
             <div class="prose prose-lg md:prose-2xl dark:prose-invert text-gray-800 dark:text-gray-300 font-medium leading-relaxed space-y-6 md:space-y-8 max-w-none">
@@ -299,7 +300,6 @@ const renderArticleDetail = (id: string) => {
                 }).join('')}
             </div>
 
-            <!-- Social Sharing Tools -->
             <div class="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800 space-y-8">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
@@ -307,28 +307,10 @@ const renderArticleDetail = (id: string) => {
                         <p class="text-gray-400 dark:text-gray-500 text-sm font-bold">إذا أعجبك المقال، لا تتردد في مشاركته لتعم الفائدة.</p>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <button onclick="shareOnWhatsApp('${article.title}')" class="flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg shadow-green-500/20">
-                            <span>واتساب</span>
-                        </button>
-                        <button onclick="shareOnFacebook()" class="flex items-center gap-2 px-6 py-3 bg-[#1877F2] text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg shadow-blue-500/20">
-                            <span>فيسبوك</span>
-                        </button>
-                        <button onclick="shareOnTwitter('${article.title}')" class="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg">
-                            <span>تويتر</span>
-                        </button>
-                        <button onclick="copyArticleLink()" class="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl font-black text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-                            <span>نسخ الرابط</span>
-                        </button>
+                        <button onclick="shareOnWhatsApp('${article.title}')" class="flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg shadow-green-500/20">واتساب</button>
+                        <button onclick="shareOnFacebook()" class="flex items-center gap-2 px-6 py-3 bg-[#1877F2] text-white rounded-2xl font-black text-sm hover:opacity-90 transition shadow-lg shadow-blue-500/20">فيسبوك</button>
+                        <button onclick="copyArticleLink()" class="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl font-black text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition">نسخ الرابط</button>
                     </div>
-                </div>
-
-                <!-- Call to Action -->
-                <div class="bg-blue-50 dark:bg-blue-900/10 p-6 md:p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div class="text-center md:text-right">
-                        <h4 class="text-xl font-black text-blue-600 mb-1">هل لديك مشروع ترغب في تطويره؟</h4>
-                        <p class="text-gray-500 dark:text-blue-200/50 text-sm font-bold">نحن هنا لمساعدتك في بناء حضورك الرقمي باحترافية.</p>
-                    </div>
-                    <a href="https://wa.me/${state.settings.whatsappNumber}" target="_blank" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition">تواصل معنا الآن</a>
                 </div>
             </div>
 
@@ -354,7 +336,6 @@ const renderDashboard = () => `
         </aside>
         <main class="flex-1 p-4 md:p-16 overflow-y-auto">
             <div id="dash-content" class="max-w-5xl mx-auto space-y-8 md:space-y-12 text-right"></div>
-            <button onclick="logout()" class="w-full p-4 bg-red-500 text-white rounded-xl font-black mt-8 md:hidden">تسجيل الخروج</button>
         </main>
     </div>
 `;
@@ -373,7 +354,7 @@ const renderDashboard = () => `
             <div class="grid grid-cols-1 gap-4">
                 ${state.articles.map((a: any) => `
                     <div class="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-4">
-                        <img src="${a.image}" class="w-20 h-20 rounded-xl object-cover shrink-0" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200'">
+                        <img src="${a.image}" class="w-20 h-20 rounded-xl object-cover shrink-0" onerror="this.src='https://via.placeholder.com/200'">
                         <div class="flex-grow">
                             <h4 class="font-black text-lg dark:text-white line-clamp-1">${a.title}</h4>
                             <p class="text-xs text-gray-400 font-bold uppercase">${new Date(a.date).toLocaleDateString('ar-MA')}</p>
@@ -389,45 +370,17 @@ const renderDashboard = () => `
     } else if (tab === 'settings') {
         container.innerHTML = `
             <h2 class="text-3xl md:text-4xl font-black mb-8 dark:text-white text-right">إعدادات الموقع</h2>
-            <div class="grid grid-cols-1 gap-8 text-right">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
-                        <h3 class="text-xl font-black text-blue-600">تغيير كلمة السر</h3>
-                        <div class="space-y-4">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كلمة السر الجديدة</label>
-                            <div class="relative">
-                                <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center">
-                                <button id="set-pass-btn" onclick="togglePassword('set-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl">👁️</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
-                        <h3 class="text-xl font-black text-green-600">إعدادات التواصل</h3>
-                        <div class="space-y-4">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رقم الواتساب (بدون رمز الدولة)</label>
-                            <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center" dir="ltr">
-                        </div>
-                    </div>
+            <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
+                <div class="space-y-4">
+                    <label class="block font-black text-xs text-gray-400 uppercase">كلمة السر الجديدة</label>
+                    <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center">
                 </div>
-                <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-8">
-                    <h3 class="text-xl font-black text-orange-500">إعدادات أدسنس (AdSense)</h3>
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان العلوي</label>
-                            <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition">${state.settings.adsHeader || ''}</textarea>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان الأوسط</label>
-                            <textarea id="set-ads-middle" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition">${state.settings.adsMiddle || ''}</textarea>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">كود الإعلان السفلي</label>
-                            <textarea id="set-ads-bottom" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs border border-transparent focus:border-orange-300 transition">${state.settings.adsBottom || ''}</textarea>
-                        </div>
-                    </div>
+                <div class="space-y-4">
+                    <label class="block font-black text-xs text-gray-400 uppercase">رقم الواتساب</label>
+                    <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-center" dir="ltr">
                 </div>
+                <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8 hover:bg-blue-700 transition">حفظ الإعدادات ✅</button>
             </div>
-            <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl mt-8 hover:bg-blue-700 transition">حفظ جميع الإعدادات ✅</button>
         `;
     } else if (tab === 'requests') {
         container.innerHTML = `<h2 class="text-3xl font-black mb-8 text-right dark:text-white">الطلبات الواردة</h2><div class="text-gray-400 font-bold py-10 text-center">لا توجد طلبات جديدة حالياً</div>`;
@@ -438,7 +391,7 @@ const renderDashboard = () => `
     const container = document.getElementById('dash-content');
     if (!container) return;
     const article = id ? state.articles.find((a: any) => a.id === id) : null;
-    const initialImage = article ? article.image : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200';
+    const initialImage = article ? article.image : 'https://via.placeholder.com/800x450';
 
     container.innerHTML = `
         <div class="flex items-center gap-4 mb-8">
@@ -447,49 +400,33 @@ const renderDashboard = () => `
         </div>
         <div class="bg-white dark:bg-gray-900 p-6 md:p-10 rounded-[2rem] border border-gray-100 dark:border-gray-800 space-y-6">
             <input type="hidden" id="edit-id" value="${id || ''}">
-            
             <div class="space-y-2">
-                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">عنوان المقال</label>
-                <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-black" placeholder="أدخل عنواناً جذاباً...">
+                <label class="block font-black text-xs text-gray-400 uppercase">عنوان المقال</label>
+                <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-black">
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div class="space-y-6">
                     <div class="space-y-2">
-                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رابط الصورة المميزة (رابط مباشر)</label>
-                        <div class="relative">
-                            <input id="edit-image" 
-                                oninput="document.getElementById('img-preview').src = this.value" 
-                                value="${initialImage}" 
-                                class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold pr-12" 
-                                dir="ltr" 
-                                placeholder="https://...">
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 opacity-30">🖼️</span>
-                        </div>
-                        <p class="text-[10px] text-gray-400 font-bold mt-1">💡 نصيحة: استخدم صوراً عالية الجودة من Unsplash لنتائج مبهرة.</p>
+                        <label class="block font-black text-xs text-gray-400 uppercase">رابط الصورة المميزة</label>
+                        <input id="edit-image" oninput="document.getElementById('img-preview').src = this.value" value="${initialImage}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold" dir="ltr">
                     </div>
                     <div class="space-y-2">
-                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">وصف مختصر (Excerpt)</label>
-                        <textarea id="edit-excerpt" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold" placeholder="اكتب ملخصاً للمقال...">${article ? article.excerpt : ''}</textarea>
+                        <label class="block font-black text-xs text-gray-400 uppercase">وصف مختصر</label>
+                        <textarea id="edit-excerpt" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold">${article ? article.excerpt : ''}</textarea>
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase text-center">معاينة الصورة الحالية</label>
-                    <div class="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-3xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl group relative">
-                        <img id="img-preview" src="${initialImage}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/800x450?text=Invalid+Image+URL'">
-                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                             <span class="text-white font-black text-xs">معاينة حية</span>
-                        </div>
+                    <label class="block font-black text-xs text-gray-400 uppercase text-center">المعاينة الحية</label>
+                    <div class="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-3xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl">
+                        <img id="img-preview" src="${initialImage}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/800x450?text=Invalid+Image'">
                     </div>
                 </div>
             </div>
-
             <div class="space-y-2">
-                <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">المحتوى الكامل للمقال</label>
-                <textarea id="edit-content" class="w-full h-96 p-6 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-[2rem] outline-none font-medium leading-relaxed" placeholder="ابدأ بكتابة تفاصيل المقال هنا...">${article ? article.content : ''}</textarea>
+                <label class="block font-black text-xs text-gray-400 uppercase">محتوى المقال</label>
+                <textarea id="edit-content" class="w-full h-96 p-6 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-[2rem] outline-none font-medium leading-relaxed">${article ? article.content : ''}</textarea>
             </div>
-
-            <button onclick="saveArticle()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-600/20 hover:bg-blue-700 hover:-translate-y-1 transition-all duration-300">نشر وحفظ التغييرات ✅</button>
+            <button onclick="saveArticle()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl hover:bg-blue-700 transition">حفظ التغييرات ✅</button>
         </div>
     `;
 };
@@ -501,34 +438,29 @@ const renderDashboard = () => `
     const image = (document.getElementById('edit-image') as HTMLInputElement).value;
     const content = (document.getElementById('edit-content') as HTMLTextAreaElement).value;
 
-    if (!title || !content) return alert('⚠️ يرجى كتابة العنوان والمحتوى على الأقل');
+    if (!title || !content) return alert('يرجى إكمال البيانات');
 
     if (id) {
-        // Edit existing
         const index = state.articles.findIndex((a: any) => a.id === id);
         if (index !== -1) {
             state.articles[index] = { ...state.articles[index], title, excerpt, image, content };
         }
     } else {
-        // Add new
         const newArticle = {
             id: 'art-' + Date.now(),
-            title,
-            excerpt,
-            image: image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200',
-            content,
+            title, excerpt, image, content,
             date: new Date().toISOString()
         };
         state.articles.unshift(newArticle);
     }
 
     saveState();
-    alert('✅ تم حفظ المقال وتحديث الصورة بنجاح');
+    alert('✅ تم الحفظ بنجاح');
     (window as any).switchTab('articles');
 };
 
 (window as any).deleteArticle = (id: string) => {
-    if (confirm('🚨 هل أنت متأكد من حذف هذا المقال نهائياً؟ لا يمكن التراجع عن هذا الإجراء.')) {
+    if (confirm('هل أنت متأكد من الحذف؟')) {
         state.articles = state.articles.filter((a: any) => a.id !== id);
         saveState();
         (window as any).switchTab('articles');
@@ -538,17 +470,8 @@ const renderDashboard = () => `
 (window as any).updateSettings = () => {
     state.settings.whatsappNumber = (document.getElementById('set-wa') as HTMLInputElement).value;
     state.settings.dashPassword = (document.getElementById('set-pass') as HTMLInputElement).value;
-    
-    const hAd = document.getElementById('set-ads-header') as HTMLTextAreaElement;
-    const mAd = document.getElementById('set-ads-middle') as HTMLTextAreaElement;
-    const bAd = document.getElementById('set-ads-bottom') as HTMLTextAreaElement;
-    
-    if (hAd) state.settings.adsHeader = hAd.value;
-    if (mAd) state.settings.adsMiddle = mAd.value;
-    if (bAd) state.settings.adsBottom = bAd.value;
-    
     saveState();
-    alert('✅ تم حفظ جميع الإعدادات التقنية بنجاح');
+    alert('✅ تم حفظ الإعدادات');
 };
 
 (window as any).login = () => {
@@ -557,11 +480,10 @@ const renderDashboard = () => `
     if (inputPass === DEFAULT_PASS || inputPass === state.settings.dashPassword) {
         state.isAuthenticated = true;
         sessionStorage.setItem('isAdmin', 'true');
-        state.settings.dashPassword = inputPass;
         saveState();
         router();
     } else {
-        alert('❌ كلمة السر خاطئة! يرجى المحاولة مرة أخرى.');
+        alert('❌ كلمة السر خاطئة!');
     }
 };
 
@@ -594,20 +516,11 @@ const router = () => {
     else if (isDashboard) {
         if (sessionStorage.getItem('isAdmin') !== 'true') {
             root.innerHTML = `
-                <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4 text-right transition-colors">
-                    <div class="bg-white dark:bg-gray-900 p-10 md:p-16 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md animate-fadeIn">
-                        <div class="w-16 h-16 bg-blue-600 text-white flex items-center justify-center rounded-2xl mx-auto text-2xl font-black shadow-lg">H</div>
-                        <h2 class="text-2xl font-black dark:text-white">تسجيل دخول المشرف</h2>
-                        <div class="space-y-4">
-                            <div class="relative">
-                                <input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center text-xl font-bold outline-none border-2 border-transparent focus:border-blue-200 transition" placeholder="••••••••">
-                                <button id="dash-pass-btn" onclick="togglePassword('dash-pass')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition">👁️</button>
-                            </div>
-                            <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-100 hover:bg-blue-700 transition">دخول آمن</button>
-                        </div>
-                        <div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center">
-                             <button onclick="toggleDarkMode()" class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg dark-toggle-icon">${state.isDarkMode ? '☀️' : '🌙'}</button>
-                        </div>
+                <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4 transition-colors">
+                    <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md">
+                        <h2 class="text-2xl font-black dark:text-white">تسجيل الدخول</h2>
+                        <input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center font-bold outline-none" placeholder="كلمة السر">
+                        <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl hover:bg-blue-700 transition">دخول آمن</button>
                     </div>
                 </div>
             `;
@@ -617,9 +530,6 @@ const router = () => {
         }
     }
     
-    state.isMobileMenuOpen = false;
-    const menu = document.getElementById('mobile-menu');
-    if (menu) menu.classList.add('hidden');
     window.scrollTo({top: 0, behavior: 'smooth'});
 };
 
