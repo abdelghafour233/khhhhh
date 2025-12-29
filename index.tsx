@@ -1,7 +1,7 @@
 
 /**
- * Halal Digital Services - Version 4.2
- * Feature: Live Image Preview in Article Editor
+ * Halal Digital Services - Version 4.3
+ * Feature: Enhanced Professional Imagery & Advanced Dashboard Preview
  */
 
 // --- Constants & Data ---
@@ -56,7 +56,7 @@ const INITIAL_ARTICLES = [
 4. النسخ الاحتياطي: لا تتنازل عن ميزة النسخ الاحتياطي التلقائي اليومي لحماية بياناتك.
 
 في "حلال ديجيتال"، نحن نساعدك على اختيار أفضل استضافة ونهتم بكافة الإعدادات التقنية لتضمن أن موقعك يعمل بسرعة البرق وأمان تام.`,
-        image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1200',
+        image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200',
         date: new Date().toISOString()
     },
     {
@@ -81,7 +81,7 @@ const INITIAL_ARTICLES = [
 
 كيف نبدأ في تحسين موقعنا؟
 ابدأ بالبحث عن الكلمات المفتاحية، ثم قم ببرمجة موقعك بشكل نظيف (وهو ما نقوم به في حلال ديجيتال)، وأخيراً استمر في نشر محتوى تعليمي مفيد لجمهورك.`,
-        image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c20a?auto=format&fit=crop&q=80&w=1200',
+        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200',
         date: new Date().toISOString()
     }
 ];
@@ -438,7 +438,7 @@ const renderDashboard = () => `
     const container = document.getElementById('dash-content');
     if (!container) return;
     const article = id ? state.articles.find((a: any) => a.id === id) : null;
-    const initialImage = article ? article.image : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800';
+    const initialImage = article ? article.image : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200';
 
     container.innerHTML = `
         <div class="flex items-center gap-4 mb-8">
@@ -453,16 +453,20 @@ const renderDashboard = () => `
                 <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-black" placeholder="أدخل عنواناً جذاباً...">
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div class="space-y-6">
                     <div class="space-y-2">
-                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رابط الصورة المميزة</label>
-                        <input id="edit-image" 
-                               oninput="document.getElementById('img-preview').src = this.value" 
-                               value="${initialImage}" 
-                               class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold" 
-                               dir="ltr" 
-                               placeholder="https://...">
+                        <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">رابط الصورة المميزة (رابط مباشر)</label>
+                        <div class="relative">
+                            <input id="edit-image" 
+                                oninput="document.getElementById('img-preview').src = this.value" 
+                                value="${initialImage}" 
+                                class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold pr-12" 
+                                dir="ltr" 
+                                placeholder="https://...">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 opacity-30">🖼️</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 font-bold mt-1">💡 نصيحة: استخدم صوراً عالية الجودة من Unsplash لنتائج مبهرة.</p>
                     </div>
                     <div class="space-y-2">
                         <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase">وصف مختصر (Excerpt)</label>
@@ -470,11 +474,13 @@ const renderDashboard = () => `
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase text-center">معاينة الصورة</label>
-                    <div class="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-3xl overflow-hidden border-4 border-gray-50 dark:border-gray-800 shadow-inner">
+                    <label class="block font-black text-xs text-gray-400 dark:text-gray-600 uppercase text-center">معاينة الصورة الحالية</label>
+                    <div class="w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-3xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl group relative">
                         <img id="img-preview" src="${initialImage}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/800x450?text=Invalid+Image+URL'">
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                             <span class="text-white font-black text-xs">معاينة حية</span>
+                        </div>
                     </div>
-                    <p class="text-[10px] text-gray-400 dark:text-gray-600 font-bold text-center mt-2">ستظهر هذه الصورة في الواجهة الرئيسية والمدونة</p>
                 </div>
             </div>
 
@@ -509,7 +515,7 @@ const renderDashboard = () => `
             id: 'art-' + Date.now(),
             title,
             excerpt,
-            image: image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
+            image: image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200',
             content,
             date: new Date().toISOString()
         };
