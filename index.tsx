@@ -1,6 +1,6 @@
 
 /**
- * Halal Digital Blog - Version 7.1 (The Eye Update 👁️)
+ * Halal Digital Blog - Version 7.3 (The Professional Eye Update 👁️)
  */
 
 // --- البيانات الافتراضية ---
@@ -39,7 +39,25 @@ const saveState = () => {
     localStorage.setItem('settings', JSON.stringify(state.settings));
 };
 
+// --- أيقونات SVG ---
+const EYE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12.a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`;
+const EYE_SLASH_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>`;
+
 // --- وظائف المساعدة ---
+(window as any).togglePassword = (inputId: string, btnId: string) => {
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    const btn = document.getElementById(btnId);
+    if (input && btn) {
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.innerHTML = EYE_SLASH_ICON;
+        } else {
+            input.type = 'password';
+            btn.innerHTML = EYE_ICON;
+        }
+    }
+};
+
 const syncUI = () => {
     const footer = document.getElementById('dynamic-footer');
     if (footer) {
@@ -78,7 +96,7 @@ const renderHome = () => {
                     ${state.articles.map((a: any) => `
                         <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition cursor-pointer group">
                             <img src="${a.image}" class="w-full h-48 object-cover group-hover:scale-105 transition">
-                            <div class="p-6">
+                            <div class="p-6 text-right">
                                 <h3 class="text-xl font-black mb-2 dark:text-white line-clamp-2">${a.title}</h3>
                                 <p class="text-slate-500 text-sm line-clamp-2">${a.excerpt}</p>
                             </div>
@@ -114,9 +132,11 @@ const renderDashboard = () => {
             <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
                 <div class="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-right border dark:border-slate-800">
                     <h2 class="text-2xl font-black mb-6 dark:text-white flex items-center gap-2 justify-center">المركز السري <span class="text-blue-500">🔐</span></h2>
-                    <div class="relative">
-                        <input type="password" id="admin-pass-input" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl mb-6 text-center focus:ring-2 focus:ring-blue-500 outline-none" placeholder="كلمة السر">
-                        <button onclick="toggleLoginPass()" class="absolute left-4 top-4 text-slate-400">👁️</button>
+                    <div class="relative mb-6">
+                        <input type="password" id="login-pass" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl text-center focus:ring-2 focus:ring-blue-500 outline-none border border-transparent dark:border-slate-700 font-bold" placeholder="كلمة السر">
+                        <button id="login-eye-btn" onclick="togglePassword('login-pass', 'login-eye-btn')" type="button" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors" title="رؤية ما أكتب">
+                            ${EYE_ICON}
+                        </button>
                     </div>
                     <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black text-lg shadow-lg hover:bg-blue-700 transition">دخول</button>
                 </div>
@@ -126,7 +146,6 @@ const renderDashboard = () => {
 
     return `
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-right">
-            <!-- Sidebar -->
             <aside class="w-full md:w-72 bg-slate-900 text-white p-8">
                 <div class="text-xl font-black text-blue-500 mb-10 italic flex items-center gap-2">المركز السري 👁️</div>
                 <nav class="flex flex-col gap-2">
@@ -134,24 +153,21 @@ const renderDashboard = () => {
                          <span>📚 المقالات</span>
                          <span class="bg-blue-600 text-[10px] px-2 rounded-full">${state.articles.length}</span>
                     </button>
-                    <button onclick="switchDashTab('adsterra')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">💰 إعلانات Adsterra</button>
+                    <button onclick="switchDashTab('adsterra')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">💰 Adsterra</button>
                     <button onclick="switchDashTab('settings')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">⚙️ الإعدادات</button>
                     <a href="#/" class="text-right p-4 rounded-xl bg-blue-600/10 text-blue-400 font-bold transition mt-4 flex items-center justify-between">
-                        <span>👁️ مشاهدة الموقع</span>
+                        <span>🏠 المعاينة</span>
                         <span>←</span>
                     </a>
                     <hr class="border-slate-800 my-4">
                     <button onclick="handleLogout()" class="text-right p-4 rounded-xl hover:bg-red-500/20 text-red-400 font-bold transition">🚪 خروج</button>
                 </nav>
             </aside>
-
-            <!-- Main Panel -->
             <main class="flex-1 p-6 md:p-12 overflow-x-hidden" id="dash-panel"></main>
         </div>
     `;
 };
 
-// --- وظائف لوحة التحكم ---
 (window as any).switchDashTab = (tab: string) => {
     const panel = document.getElementById('dash-panel');
     if (!panel) return;
@@ -160,114 +176,81 @@ const renderDashboard = () => {
         panel.innerHTML = `
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-3xl font-black dark:text-white">إدارة المقالات</h2>
-                <button onclick="openArticleModal()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition">+ مقال جديد</button>
+                <button onclick="openArticleModal()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold">+ مقال جديد</button>
             </div>
             <div class="grid gap-4">
                 ${state.articles.map((a: any) => `
                     <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 hover:shadow-md transition">
                         <div class="flex items-center gap-4 w-full md:w-auto">
-                            <img src="${a.image}" class="w-16 h-16 rounded-xl object-cover shadow-inner">
+                            <img src="${a.image}" class="w-16 h-16 rounded-xl object-cover">
                             <div>
                                 <h4 class="font-bold dark:text-white line-clamp-1">${a.title}</h4>
                                 <span class="text-xs text-slate-500">${new Date(a.date).toLocaleDateString('ar-MA')}</span>
                             </div>
                         </div>
                         <div class="flex gap-2 w-full md:w-auto">
-                            <a href="#/article/${a.id}" class="flex-1 md:flex-none text-center bg-blue-500/10 text-blue-600 px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-1 hover:bg-blue-500/20 transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                <span>معاينة</span>
+                            <a href="#/article/${a.id}" class="flex-1 md:flex-none text-center bg-blue-500/10 text-blue-600 px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-1">
+                                👁️ معاينة
                             </a>
-                            <button onclick="editArticle('${a.id}')" class="flex-1 md:flex-none bg-yellow-500/10 text-yellow-600 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500/20 transition">تعديل</button>
-                            <button onclick="deleteArticle('${a.id}')" class="flex-1 md:flex-none bg-red-500/10 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-500/20 transition">حذف</button>
+                            <button onclick="editArticle('${a.id}')" class="flex-1 md:flex-none bg-yellow-500/10 text-yellow-600 px-4 py-2 rounded-lg font-bold">تعديل</button>
+                            <button onclick="deleteArticle('${a.id}')" class="flex-1 md:flex-none bg-red-500/10 text-red-600 px-4 py-2 rounded-lg font-bold">حذف</button>
                         </div>
                     </div>
                 `).join('')}
             </div>
+            <!-- Modal remains the same but with fadeIn -->
             <div id="article-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
                 <div class="bg-white dark:bg-slate-900 w-full max-w-2xl p-8 rounded-[2rem] shadow-2xl relative animate-fadeIn">
-                    <h3 id="modal-title" class="text-2xl font-black mb-6 dark:text-white">إضافة مقال جديد</h3>
-                    <div class="space-y-4">
+                    <h3 id="modal-title" class="text-2xl font-black mb-6 dark:text-white text-right">إضافة مقال جديد</h3>
+                    <div class="space-y-4 text-right">
                         <input id="art-title" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none" placeholder="عنوان المقال">
-                        <input id="art-image" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-left" dir="ltr" placeholder="رابط صورة المقال (Unsplash URL)">
-                        <textarea id="art-excerpt" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-20 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="مقتطف قصير (يظهر في الرئيسية)"></textarea>
-                        <textarea id="art-content" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-48 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="محتوى المقال الكامل..."></textarea>
+                        <input id="art-image" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-left" dir="ltr" placeholder="رابط الصورة">
+                        <textarea id="art-excerpt" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-20 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="مقتطف"></textarea>
+                        <textarea id="art-content" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-48 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="المحتوى"></textarea>
                     </div>
                     <div class="flex gap-4 mt-8">
-                        <button onclick="saveArticle()" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">حفظ المقال</button>
-                        <button onclick="closeArticleModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 dark:text-white py-4 rounded-xl font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition">إلغاء</button>
+                        <button onclick="saveArticle()" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-bold">حفظ</button>
+                        <button onclick="closeArticleModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 dark:text-white py-4 rounded-xl font-bold">إلغاء</button>
                     </div>
                 </div>
             </div>
         `;
     } else if (tab === 'adsterra') {
         panel.innerHTML = `
-            <div class="flex items-center gap-4 mb-8">
-                 <h2 class="text-3xl font-black dark:text-white">إعدادات Adsterra</h2>
-                 <span class="bg-green-500/10 text-green-500 text-xs px-2 py-1 rounded-lg">إعلانات نشطة</span>
-            </div>
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6 shadow-sm">
-                <div>
-                    <label class="block font-bold mb-2 text-slate-500 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        كود رأس الموقع (Header Ad)
-                    </label>
-                    <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24 border-none outline-none focus:ring-2 focus:ring-blue-500" dir="ltr">${state.settings.adsterra.header}</textarea>
-                </div>
-                <div>
-                    <label class="block font-bold mb-2 text-slate-500 flex items-center gap-2">
-                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                         كود وسط المقال (Middle Ad)
-                    </label>
-                    <textarea id="ad-m" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24 border-none outline-none focus:ring-2 focus:ring-blue-500" dir="ltr">${state.settings.adsterra.middle}</textarea>
-                </div>
-                <div>
-                    <label class="block font-bold mb-2 text-slate-500 flex items-center gap-2">
-                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                         كود أسفل المقال (Bottom Ad)
-                    </label>
-                    <textarea id="ad-b" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24 border-none outline-none focus:ring-2 focus:ring-blue-500" dir="ltr">${state.settings.adsterra.bottom}</textarea>
-                </div>
-                <button onclick="saveAdsterra()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-xl hover:bg-blue-700 transition">تحديث الإعلانات ✅</button>
+            <h2 class="text-3xl font-black mb-8 dark:text-white">إعدادات Adsterra</h2>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
+                <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24" dir="ltr" placeholder="Header Code">${state.settings.adsterra.header}</textarea>
+                <textarea id="ad-m" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24" dir="ltr" placeholder="Middle Code">${state.settings.adsterra.middle}</textarea>
+                <textarea id="ad-b" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24" dir="ltr" placeholder="Bottom Code">${state.settings.adsterra.bottom}</textarea>
+                <button onclick="saveAdsterra()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">تحديث ✅</button>
             </div>
         `;
     } else if (tab === 'settings') {
         panel.innerHTML = `
-            <h2 class="text-3xl font-black mb-8 dark:text-white">الإعدادات العامة</h2>
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 shadow-sm max-w-2xl">
-                <div>
+            <h2 class="text-3xl font-black mb-8 dark:text-white">الإعدادات</h2>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 max-w-2xl mx-auto">
+                <div class="text-right">
                     <label class="block font-bold mb-2 text-slate-500">اسم الموقع</label>
                     <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div>
+                <div class="text-right">
                     <label class="block font-bold mb-2 text-slate-500">كلمة سر المركز السري</label>
                     <div class="relative">
-                        <input type="password" id="set-pass" value="${state.settings.adminPass}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-center font-mono">
-                        <button onclick="togglePassView()" class="absolute left-4 top-4 text-slate-400 hover:text-blue-500 transition">👁️</button>
+                        <input type="password" id="set-pass" value="${state.settings.adminPass}" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-center font-bold">
+                        <button id="set-eye-btn" onclick="togglePassword('set-pass', 'set-eye-btn')" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors">
+                            ${EYE_ICON}
+                        </button>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2 italic">* انقر على العين لرؤية كلمة السر الحالية</p>
+                    <p class="text-xs text-slate-400 mt-2 text-center italic">انقر على العين لتتأكد مما كتبت</p>
                 </div>
-                <button onclick="saveGeneralSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">حفظ التغييرات ✅</button>
+                <button onclick="saveGeneralSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">حفظ التغييرات ✅</button>
             </div>
         `;
     }
 };
 
-(window as any).togglePassView = () => {
-    const input = document.getElementById('set-pass') as HTMLInputElement;
-    if (input) {
-        input.type = input.type === 'password' ? 'text' : 'password';
-    }
-};
-
-(window as any).toggleLoginPass = () => {
-    const input = document.getElementById('admin-pass-input') as HTMLInputElement;
-    if (input) {
-        input.type = input.type === 'password' ? 'text' : 'password';
-    }
-};
-
 (window as any).handleLogin = () => {
-    const pass = (document.getElementById('admin-pass-input') as HTMLInputElement).value;
+    const pass = (document.getElementById('login-pass') as HTMLInputElement).value;
     if (pass === state.settings.adminPass) {
         state.isAdmin = true;
         sessionStorage.setItem('isAdmin', 'true');
@@ -345,7 +328,7 @@ const renderDashboard = () => {
     state.settings.adsterra.middle = (document.getElementById('ad-m') as HTMLTextAreaElement).value;
     state.settings.adsterra.bottom = (document.getElementById('ad-b') as HTMLTextAreaElement).value;
     saveState();
-    alert('✅ تم تحديث أكواد الإعلانات بنجاح');
+    alert('✅ تم تحديث الإعلانات');
 };
 
 (window as any).saveGeneralSettings = () => {
@@ -355,7 +338,6 @@ const renderDashboard = () => {
     alert('✅ تم حفظ الإعدادات');
 };
 
-// --- الموجه (Router) ---
 const router = () => {
     const hash = window.location.hash || '#/';
     const root = document.getElementById('app-root');
