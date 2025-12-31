@@ -73,7 +73,7 @@ const INITIAL_ARTICLES = [
 
 const INITIAL_SETTINGS = {
     whatsapp: '212649075664',
-    siteName: 'حلال ديجيتال',
+    siteName: 'storehalal',
     adminPass: 'halal2025',
     adsterra: {
         header: '',
