@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.6 - Advanced Order Management 🚀🇲🇦
- * إضافة ميزات الحذف وتعديل حالة الطلب في لوحة التحكم
+ * storehalal v3.7 - Ads Fix & Stable Order Management 🚀🇲🇦
+ * تم إصلاح مشكلة ظهور الإعلانات وضمان استقرار النظام
  */
 
 const FALLBACK_IMAGES = {
@@ -38,7 +38,8 @@ let state: any = {
     checkoutItem: null,
     orders: [],
     isAdmin: false,
-    currentTab: 'orders'
+    currentTab: 'orders',
+    adsInjected: false
 };
 
 const initStore = () => {
@@ -54,13 +55,20 @@ const initStore = () => {
             bottom: ''
         };
 
-        state.settings = JSON.parse(localStorage.getItem('settings') || JSON.stringify({
+        const storedSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+        state.settings = {
             whatsapp: '212649075664',
             siteName: 'storehalal',
             adminPass: 'halal2025',
             smartlink: '',
-            adsterra: defaultAds
-        }));
+            adsterra: defaultAds,
+            ...storedSettings
+        };
+
+        // نضمن دائماً وجود أكواد الإعلانات في الإعدادات حتى لو تم تخزين نسخة قديمة بدونها
+        if (!state.settings.adsterra || !state.settings.adsterra.header) {
+            state.settings.adsterra = defaultAds;
+        }
 
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
@@ -76,15 +84,19 @@ const save = () => {
     localStorage.setItem('orders', JSON.stringify(state.orders));
 };
 
-const safeInject = (id: string, code: string) => {
-    const el = document.getElementById(id);
-    if (!el || !code) return;
+// وظيفة الحقن الآن تقوم بالعمل مرة واحدة فقط لمنع تعطل سكريبتات Adsterra
+const injectAdsOnce = () => {
+    if (state.adsInjected || !state.settings.adsterra?.header) return;
+    
+    const el = document.getElementById('global-ad-scripts');
+    if (!el) return;
+    
     try {
-        el.innerHTML = '';
         const range = document.createRange();
         range.selectNode(el);
-        const fragment = range.createContextualFragment(code);
+        const fragment = range.createContextualFragment(state.settings.adsterra.header);
         el.appendChild(fragment);
+        state.adsInjected = true;
     } catch (e) {
         console.error('Error injecting ads:', e);
     }
@@ -126,7 +138,6 @@ const safeInject = (id: string, code: string) => {
     window.location.hash = '#/success';
 };
 
-// --- Dashboard Order Actions ---
 (window as any).deleteOrder = (id: string) => {
     if (!confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب؟')) return;
     state.orders = state.orders.filter((o: any) => o.id !== id);
@@ -297,7 +308,7 @@ const UI = {
 (window as any).saveDashAds = () => {
     state.settings.adsterra.header = (document.getElementById('ad-h') as any).value;
     save();
-    alert('✅ تم الحفظ!');
+    alert('✅ تم الحفظ! سيتم إعادة تحميل الصفحة لتفعيل الأكواد.');
     location.reload();
 };
 
@@ -366,9 +377,8 @@ const updateUI = () => {
             </footer>
         `;
     }
-    if (state.settings.adsterra && state.settings.adsterra.header) {
-        safeInject('global-ad-scripts', state.settings.adsterra.header);
-    }
+    // نقوم بحقن الإعلانات فقط إذا لم يتم حقنها سابقاً في الجلسة الحالية
+    injectAdsOnce();
 };
 
 window.addEventListener('load', () => { initStore(); router(); });
