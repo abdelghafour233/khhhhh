@@ -1,7 +1,7 @@
 
 /**
- * storehalal v6.2 - Mobile Ad Recovery & Social Integration 🚀🇲🇦
- * تم التحديث: إصلاح ظهور الإعلانات على الهواتف وحقنها في Head، مع أزرار المشاركة في الأماكن المطلوبة.
+ * storehalal v6.3 - Persistent Mobile Ads & Strategic Social Sharing 🚀🇲🇦
+ * تم التحديث: حل مشكلة اختفاء الإعلانات في الجوال + أزرار مشاركة تحت المنتجات والطلب.
  */
 
 const FALLBACK_IMAGES = {
@@ -79,51 +79,49 @@ const save = () => {
     localStorage.setItem('settings', JSON.stringify(state.settings));
 };
 
-// --- محرك الإعلانات المطور للجوال (الحقن في Head لضمان التنفيذ) ---
+// --- محرك الإعلانات المطور للجوال (حقن مستمر لمنع الاختفاء) ---
 const injectAds = () => {
     const hash = window.location.hash || '#/';
     const isProtected = hash.startsWith('#/dashboard') || hash.startsWith('#/checkout') || hash.startsWith('#/success');
     
-    // إزالة السكربتات القديمة لمنع التداخل
-    document.querySelectorAll('.dynamic-ad-script').forEach(el => el.remove());
-
+    // إذا دخلنا منطقة محظورة (لوحة التحكم)، نمسح الإعلانات
     if (isProtected) {
+        document.querySelectorAll('.dynamic-ad-script').forEach(el => el.remove());
         state.adsInjected = false;
         return;
     }
 
-    if (hash === '#/' && !state.adsInjected && state.settings.adsterraHeader) {
-        // نستخدم تأخير بسيط لضمان استقرار الصفحة على الجوال
-        setTimeout(() => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = state.settings.adsterraHeader;
-            const scripts = tempDiv.querySelectorAll('script');
+    // الحقن يتم مرة واحدة فقط في الواجهة الرئيسية لمنع "الظهور ثم الاختفاء"
+    if (!state.adsInjected && state.settings.adsterraHeader) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = state.settings.adsterraHeader;
+        const scripts = tempDiv.querySelectorAll('script');
 
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                
-                if (oldScript.src) {
-                    newScript.async = true;
-                } else {
-                    newScript.textContent = oldScript.textContent;
-                }
-                
-                newScript.classList.add('dynamic-ad-script');
-                // الحقن في HEAD هو الأفضل لإعلانات الجوال (Social Bar / Popunder)
-                document.head.appendChild(newScript);
-            });
-            state.adsInjected = true;
-        }, 100);
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            
+            if (oldScript.src) {
+                newScript.async = true;
+                newScript.defer = true;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            
+            newScript.classList.add('dynamic-ad-script');
+            // الحقن في HEAD يجعله أكثر استقراراً في متصفحات الجوال
+            document.head.appendChild(newScript);
+        });
+        state.adsInjected = true;
     }
 };
 
-// --- وظائف المشاركة الاجتماعية ---
+// --- وظائف المشاركة الاجتماعية المطورة ---
 (window as any).shareContent = (platform: string, productId?: string) => {
     const baseUrl = window.location.origin + window.location.pathname;
     const shareUrl = productId ? `${baseUrl}#/product/${productId}` : baseUrl;
     const p = productId ? state.products.find((i: any) => i.id === productId) : null;
-    const text = p ? `أعجبني هذا المنتج: ${p.name}` : `شاهد هذه العروض المذهلة في متجر ${state.settings.siteName}`;
+    const text = p ? `تحقق من هذا العرض: ${p.name}` : `اكتشف أفضل المنتجات في متجر ${state.settings.siteName}`;
     const image = p ? p.image : '';
 
     let url = '';
@@ -134,12 +132,12 @@ const injectAds = () => {
         case 'twitter':
             url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`;
             break;
+        case 'whatsapp':
+            url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + shareUrl)}`;
+            break;
         case 'pinterest':
             url = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&media=${encodeURIComponent(image)}&description=${encodeURIComponent(text)}`;
             break;
-        case 'instagram':
-            window.open(state.settings.instagram, '_blank');
-            return;
     }
     window.open(url, '_blank', 'width=600,height=500');
 };
@@ -245,11 +243,11 @@ const UI = {
         <header class="sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b dark:border-slate-800">
             <nav class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center text-right">
                 <a href="#/" class="flex items-center gap-2">
-                    <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-xl font-black shadow-lg shadow-blue-500/20">S</div>
+                    <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-xl font-black shadow-lg">S</div>
                     <span class="text-lg md:text-xl font-bold tracking-tight">${state.settings.siteName}</span>
                 </a>
                 <div class="flex items-center gap-3">
-                    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm transition-transform active:scale-90">🌓</button>
+                    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-sm active:scale-90 transition-transform">🌓</button>
                     <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3.5 py-2.5 rounded-xl text-[10px] font-black shadow-md active:scale-95 transition-all">🔐 الإدارة</a>
                 </div>
             </nav>
@@ -260,27 +258,20 @@ const UI = {
             <!-- Hero Section -->
             <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-14 md:py-24 px-4 text-center relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-full bg-blue-600/5 pointer-events-none"></div>
-                <h1 class="text-3xl md:text-6xl font-black mb-4 relative z-10 leading-tight">${state.settings.siteName}</h1>
-                <p class="opacity-70 text-sm md:text-lg mb-8 max-w-2xl mx-auto relative z-10 px-4 font-medium">تسوق أرقى المنتجات مع خدمة الدفع عند الاستلام وشحن سريع لكافة المدن المغربية 🇲🇦</p>
+                <h1 class="text-3xl md:text-6xl font-black mb-4 relative z-10 leading-tight tracking-tight">${state.settings.siteName}</h1>
+                <p class="opacity-70 text-sm md:text-lg mb-8 max-w-2xl mx-auto relative z-10 px-4 font-medium">تسوق الآن واستفد من عروض الدفع عند الاستلام مع شحن سريع 🇲🇦</p>
                 
-                <!-- أزرار مشاركة المتجر -->
                 <div class="flex justify-center gap-4 relative z-10">
-                    <button onclick="shareContent('facebook')" class="bg-[#1877F2] p-3.5 rounded-2xl shadow-xl transition transform hover:scale-110 active:scale-90">
-                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-5 h-5 invert">
-                    </button>
-                    <button onclick="shareContent('twitter')" class="bg-black p-3.5 rounded-2xl shadow-xl transition transform hover:scale-110 active:scale-90 border border-white/10">
-                        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-5 h-5 invert">
-                    </button>
-                    <button onclick="shareContent('pinterest')" class="bg-[#E60023] p-3.5 rounded-2xl shadow-xl transition transform hover:scale-110 active:scale-90">
-                        <img src="https://cdn-icons-png.flaticon.com/512/145/145808.png" class="w-5 h-5 invert">
-                    </button>
+                    <button onclick="shareContent('facebook')" class="bg-[#1877F2] p-3.5 rounded-2xl shadow-xl transition transform active:scale-90"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-5 h-5 invert"></button>
+                    <button onclick="shareContent('whatsapp')" class="bg-[#25D366] p-3.5 rounded-2xl shadow-xl transition transform active:scale-90"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" class="w-5 h-5 invert"></button>
+                    <button onclick="shareContent('twitter')" class="bg-black p-3.5 rounded-2xl shadow-xl transition transform active:scale-90 border border-white/10"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-5 h-5 invert"></button>
                 </div>
             </div>
 
             <!-- Products Grid -->
             <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
                 ${state.products.map((p: any) => `
-                    <div class="bg-white dark:bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border dark:border-slate-800 shadow-sm flex flex-col transition hover:shadow-2xl group border-b-4 border-b-transparent hover:border-b-blue-600">
+                    <div class="bg-white dark:bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border dark:border-slate-800 shadow-sm flex flex-col transition hover:shadow-2xl group">
                         <div class="relative overflow-hidden aspect-square">
                             <img src="${p.image}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
                         </div>
@@ -288,27 +279,21 @@ const UI = {
                             <h3 class="font-black text-xs md:text-lg mb-2 line-clamp-1">${p.name}</h3>
                             <div class="flex justify-between items-center mb-4">
                                 <div class="text-blue-600 font-black text-sm md:text-xl tracking-tight">${p.price} د.م.</div>
-                                <div class="text-[8px] md:text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full font-bold opacity-60">مخزون: ${p.stock}</div>
                             </div>
                             
                             <div class="mt-auto space-y-4">
                                 <button onclick="buyNow('${p.id}')" ${p.stock <= 0 ? 'disabled' : ''} 
-                                    class="w-full bg-slate-900 dark:bg-blue-600 text-white py-3.5 md:py-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-black transition active:scale-95 shadow-md hover:brightness-110">
+                                    class="w-full bg-slate-900 dark:bg-blue-600 text-white py-3.5 md:py-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-black transition active:scale-95 shadow-md">
                                     🛒 شراء الآن
                                 </button>
                                 
                                 <!-- أزرار المشاركة تحت المنتج مباشرة -->
                                 <div class="pt-3 border-t dark:border-slate-800">
-                                    <div class="flex justify-center items-center gap-4">
-                                        <button onclick="shareContent('facebook', '${p.id}')" class="transition-transform active:scale-125 hover:opacity-80">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-4 h-4 md:w-5 md:h-5">
-                                        </button>
-                                        <button onclick="shareContent('twitter', '${p.id}')" class="transition-transform active:scale-125 hover:opacity-80">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-4 h-4 md:w-5 md:h-5 dark:invert">
-                                        </button>
-                                        <button onclick="shareContent('pinterest', '${p.id}')" class="transition-transform active:scale-125 hover:opacity-80">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/145/145808.png" class="w-4 h-4 md:w-5 md:h-5">
-                                        </button>
+                                    <p class="text-[8px] font-bold text-slate-400 mb-2 text-center uppercase tracking-widest">شارك المنتج</p>
+                                    <div class="flex justify-center items-center gap-5">
+                                        <button onclick="shareContent('facebook', '${p.id}')" class="transition-transform active:scale-125"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-4 h-4 md:w-5 md:h-5"></button>
+                                        <button onclick="shareContent('whatsapp', '${p.id}')" class="transition-transform active:scale-125"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" class="w-4 h-4 md:w-5 md:h-5"></button>
+                                        <button onclick="shareContent('twitter', '${p.id}')" class="transition-transform active:scale-125"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-4 h-4 md:w-5 md:h-5 dark:invert"></button>
                                     </div>
                                 </div>
                             </div>
@@ -323,35 +308,37 @@ const UI = {
             <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-[2.5rem] shadow-2xl border dark:border-slate-800">
                 <h2 class="text-xl md:text-2xl font-black mb-8 text-center">تأكيد طلبك 🚚</h2>
                 
-                <div class="mb-8 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-3xl flex items-center gap-4 border dark:border-slate-700 shadow-inner">
+                <div class="mb-8 p-4 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center gap-4 border dark:border-slate-700 shadow-inner">
                    <img src="${state.checkoutItem.image}" class="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-slate-700 shadow-sm">
                    <div>
-                       <div class="font-bold text-sm text-slate-500">${state.checkoutItem.name}</div>
+                       <div class="font-bold text-xs text-slate-500 line-clamp-1">${state.checkoutItem.name}</div>
                        <div class="text-blue-600 font-black text-xl">${state.checkoutItem.price} د.م.</div>
                    </div>
                 </div>
 
                 <form onsubmit="submitOrder(event)" class="space-y-4">
-                    <input id="order-name" type="text" placeholder="الاسم الكامل" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-bold">
+                    <input id="order-name" type="text" placeholder="الاسم الكامل" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold">
                     <select id="order-city" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none text-sm font-bold">
                         <option value="" disabled selected>اختر المدينة</option>
                         ${MOROCCAN_CITIES.map(c => `<option value="${c}">${c}</option>`).join('')}
                     </select>
-                    <input id="order-phone" type="tel" placeholder="رقم الهاتف" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none text-right text-sm font-black tracking-widest" dir="ltr">
+                    <input id="order-phone" type="tel" placeholder="رقم الهاتف" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none text-right text-sm font-black" dir="ltr">
                     
                     <button type="submit" class="w-full bg-green-600 hover:bg-green-500 text-white py-5 rounded-2xl font-black text-lg md:text-xl mt-4 transition active:scale-95 shadow-lg shadow-green-500/20">
                         إرسال الطلب ✅
                     </button>
                     
-                    <!-- أزرار المشاركة تحت إرسال الطلب -->
+                    <!-- أزرار المشاركة تحت إرسال الطلب مباشرة -->
                     <div class="mt-8 pt-6 border-t dark:border-slate-800 text-center">
-                        <p class="text-[10px] font-black text-slate-400 mb-5 uppercase tracking-widest">شارك هذا العرض الحصري</p>
-                        <div class="flex justify-center gap-5">
-                            <button type="button" onclick="shareContent('facebook', '${state.checkoutItem.id}')" class="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-[#1877F2] px-5 py-3 rounded-2xl text-xs font-black transition hover:scale-110 active:scale-90">
-                                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-4 h-4"> فايسبوك
+                        <p class="text-[10px] font-black text-slate-400 mb-5 uppercase tracking-widest">شارك هذا العرض قبل تأكيد الطلب</p>
+                        <div class="flex justify-center gap-6">
+                            <button type="button" onclick="shareContent('whatsapp', '${state.checkoutItem.id}')" class="flex flex-col items-center gap-2 group">
+                                <div class="bg-[#25D366] p-3 rounded-full shadow-lg group-active:scale-125 transition-transform"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" class="w-4 h-4 invert"></div>
+                                <span class="text-[8px] font-bold text-slate-400">واتساب</span>
                             </button>
-                            <button type="button" onclick="shareContent('twitter', '${state.checkoutItem.id}')" class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white px-5 py-3 rounded-2xl text-xs font-black transition hover:scale-110 active:scale-90 border dark:border-slate-700">
-                                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-4 h-4 dark:invert"> تويتر
+                            <button type="button" onclick="shareContent('facebook', '${state.checkoutItem.id}')" class="flex flex-col items-center gap-2 group">
+                                <div class="bg-[#1877F2] p-3 rounded-full shadow-lg group-active:scale-125 transition-transform"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-4 h-4 invert"></div>
+                                <span class="text-[8px] font-bold text-slate-400">فايسبوك</span>
                             </button>
                         </div>
                     </div>
@@ -363,19 +350,18 @@ const UI = {
         if (!state.isAdmin) return `
             <div class="max-w-sm mx-auto py-24 px-4 text-center">
                 <div class="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border dark:border-slate-800 shadow-2xl animate-fadeIn">
-                    <h2 class="text-2xl font-black mb-8">دخول الإدارة</h2>
+                    <h2 class="text-2xl font-black mb-8 tracking-tighter">دخول الإدارة</h2>
                     <div class="relative mb-6">
-                        <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 border dark:border-slate-800 rounded-2xl text-center outline-none focus:ring-2 focus:ring-blue-500 font-black">
-                        <button onclick="togglePassword('pass', this)" class="absolute left-4 top-1/2 -translate-y-1/2 p-2 opacity-30 hover:opacity-100 transition-opacity">👁️</button>
+                        <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-800 rounded-2xl text-center outline-none focus:ring-2 focus:ring-blue-500 font-black">
                     </div>
-                    <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black transition hover:bg-blue-700 shadow-xl shadow-blue-500/20 active:scale-95">دخول</button>
+                    <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black transition active:scale-95 shadow-xl shadow-blue-500/20">دخول</button>
                 </div>
             </div>
         `;
         return `
             <div class="flex flex-col md:flex-row min-h-screen text-right bg-slate-50 dark:bg-slate-950">
                 <aside class="w-full md:w-64 bg-slate-900 text-white p-6 flex md:flex-col gap-2 overflow-x-auto md:overflow-x-hidden border-b md:border-b-0 border-white/5">
-                    <div class="hidden md:block text-xl font-black text-blue-500 mb-8 px-2">لوحة التحكم <span class="text-[8px] block opacity-30">v6.2</span></div>
+                    <div class="hidden md:block text-xl font-black text-blue-500 mb-8 px-2">الإدارة <span class="text-[8px] block opacity-30 tracking-widest">VER 6.3</span></div>
                     <button onclick="switchTab('orders')" class="flex-shrink-0 p-3.5 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs md:text-sm">📦 الطلبات</button>
                     <button onclick="switchTab('products')" class="flex-shrink-0 p-3.5 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs md:text-sm">🛍️ المنتجات</button>
                     <button onclick="switchTab('settings')" class="flex-shrink-0 p-3.5 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs md:text-sm">⚙️ الإعدادات</button>
@@ -393,126 +379,47 @@ const UI = {
     if (!panel) return;
 
     if (tab === 'orders') {
-        if (state.viewingOrder) {
-            const o = state.viewingOrder;
-            panel.innerHTML = `
-                <div class="max-w-3xl mx-auto animate-fadeIn">
-                    <button onclick="closePreview()" class="mb-4 text-[10px] font-black text-blue-500 uppercase tracking-widest hover:underline">← العودة للطلبات</button>
-                    <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 shadow-xl text-right">
-                        <h2 class="text-2xl font-black mb-8 border-b dark:border-slate-800 pb-4">تفاصيل الطلبية #${o.id.slice(-4)}</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                            <div class="space-y-5">
-                                <div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">اسم الزبون:</div><div class="font-black text-lg">${o.name}</div></div>
-                                <div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">رقم الهاتف:</div><div class="font-black text-lg text-blue-600" dir="ltr">${o.phone}</div></div>
-                                <div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">المدينة:</div><div class="font-black text-lg">${o.city}</div></div>
-                            </div>
-                            <div class="p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl flex gap-4 border dark:border-slate-700 shadow-sm self-start">
-                                <img src="${o.productImage || FALLBACK_IMAGES.placeholder}" class="w-16 h-16 rounded-2xl object-cover bg-white shadow-sm border dark:border-slate-700">
-                                <div>
-                                    <div class="font-black text-sm text-slate-600 dark:text-slate-300 line-clamp-2">${o.product}</div>
-                                    <div class="text-blue-600 font-black text-xl mt-1">${o.total} د.م.</div>
-                                </div>
-                            </div>
+        panel.innerHTML = `
+            <h2 class="text-2xl font-black mb-8">الطلبات الواردة (${state.orders.length})</h2>
+            <div class="grid gap-4">
+                ${state.orders.map((o: any) => `
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border dark:border-slate-800 flex justify-between items-center shadow-sm hover:shadow-lg transition-all">
+                        <div class="text-right">
+                            <div class="font-black text-sm md:text-base">${o.name} <span class="text-[9px] opacity-40 font-normal ml-2">${o.city}</span></div>
+                            <div class="text-blue-600 font-bold text-xs" dir="ltr">${o.phone}</div>
                         </div>
-                        <div class="flex flex-wrap gap-2 pt-6 border-t dark:border-slate-800">
-                             <button onclick="updateOrderStatus('${o.id}', 'pending')" class="px-4 py-2 bg-yellow-50 text-yellow-600 rounded-xl text-[10px] font-black border border-yellow-200">⏳ قيد الانتظار</button>
-                             <button onclick="updateOrderStatus('${o.id}', 'completed')" class="px-4 py-2 bg-green-50 text-green-600 rounded-xl text-[10px] font-black border border-green-200">✅ تم التوصيل</button>
-                             <button onclick="updateOrderStatus('${o.id}', 'cancelled')" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black border border-red-200">❌ ملغى</button>
+                        <div class="flex gap-2">
+                            <button onclick="deleteOrder('${o.id}')" class="text-red-400 p-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">🗑️</button>
                         </div>
                     </div>
-                </div>
-            `;
-        } else {
-            panel.innerHTML = `
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-black">الطلبات الواردة (${state.orders.length})</h2>
-                </div>
-                <div class="grid gap-4">
-                    ${state.orders.map((o: any) => `
-                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border dark:border-slate-800 flex justify-between items-center shadow-sm hover:shadow-lg transition-all">
-                            <div class="flex items-center gap-4 text-right">
-                                <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center font-black text-slate-400 shadow-inner">${o.id.slice(-2)}</div>
-                                <div>
-                                    <div class="font-black text-sm md:text-base">${o.name} <span class="text-[10px] opacity-30 mr-2 font-normal">${new Date(o.date).toLocaleDateString('ar-MA')}</span></div>
-                                    <div class="text-blue-600 font-bold text-xs" dir="ltr">${o.city} | ${o.phone}</div>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="viewOrder('${o.id}')" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-[10px] font-black shadow-lg shadow-blue-500/10 active:scale-95 transition-transform">معاينة</button>
-                                <button onclick="deleteOrder('${o.id}')" class="text-red-400 p-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">🗑️</button>
-                            </div>
-                        </div>
-                    `).join('') || '<div class="text-center opacity-30 py-24 font-black text-xl">لا توجد طلبات بعد 📦</div>'}
-                </div>
-            `;
-        }
+                `).join('') || '<div class="text-center opacity-30 py-24 font-black text-xl">لا توجد طلبات بعد 📦</div>'}
+            </div>
+        `;
     } else if (tab === 'products') {
         const editing = state.editingProduct;
         panel.innerHTML = `
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black">${editing ? 'تعديل' : 'إضافة'} منتج</h2>
-                ${editing ? `<button onclick="cancelEdit()" class="text-xs font-black text-slate-400 hover:underline">إلغاء</button>` : ''}
-            </div>
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border dark:border-slate-800 shadow-sm mb-12 animate-fadeIn">
+            <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-black">${editing ? 'تعديل' : 'إضافة'} منتج</h2></div>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 shadow-sm mb-12 animate-fadeIn">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <input id="p-name" value="${editing?.name || ''}" placeholder="اسم المنتج" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-bold transition-all">
-                        <div class="grid grid-cols-2 gap-4">
-                            <input id="p-price" type="number" value="${editing?.price || ''}" placeholder="السعر د.م." class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-black transition-all">
-                            <input id="p-stock" type="number" value="${editing?.stock || '10'}" placeholder="المخزون" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-bold transition-all">
-                        </div>
-                    </div>
-                    <div class="w-full h-44 bg-slate-100 dark:bg-slate-800 rounded-3xl border-2 border-dashed dark:border-slate-700 flex items-center justify-center relative overflow-hidden group">
-                        <img id="p-img-preview" src="${editing?.image || FALLBACK_IMAGES.placeholder}" class="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105">
+                    <input id="p-name" value="${editing?.name || ''}" placeholder="اسم المنتج" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                    <input id="p-price" type="number" value="${editing?.price || ''}" placeholder="السعر" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 font-black">
+                    <div class="w-full h-44 bg-slate-100 dark:bg-slate-800 rounded-3xl border-2 border-dashed flex items-center justify-center relative overflow-hidden group">
+                        <img id="p-img-preview" src="${editing?.image || FALLBACK_IMAGES.placeholder}" class="w-full h-full object-contain p-4 transition-transform group-hover:scale-105">
                         <input type="file" onchange="processFile(event, 'main')" class="absolute inset-0 opacity-0 cursor-pointer z-20">
                         <input type="hidden" id="p-img-data" value="${editing?.image || ''}">
-                        <div class="absolute inset-0 bg-black/40 text-white flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity font-black uppercase tracking-widest">تغيير الصورة</div>
                     </div>
                 </div>
-                <button onclick="saveProduct()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black mt-8 shadow-xl shadow-blue-500/20 active:scale-[0.98] transition-all">
-                    ${editing ? 'تحديث بيانات المنتج' : 'إطلاق المنتج في المتجر'}
-                </button>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                ${state.products.map((p: any) => `
-                    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border dark:border-slate-800 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
-                        <img src="${p.image}" class="w-16 h-16 rounded-xl object-cover bg-slate-50 border dark:border-slate-700 shadow-inner flex-shrink-0">
-                        <div class="flex-1 min-w-0">
-                            <div class="font-black text-sm truncate">${p.name}</div>
-                            <div class="text-blue-600 font-black text-sm tracking-tight">${p.price} د.م.</div>
-                            <div class="flex gap-4 mt-3">
-                                <button onclick="editProduct('${p.id}')" class="text-[10px] font-black text-blue-500 uppercase tracking-tighter hover:underline">تعديل</button>
-                                <button onclick="deleteProduct('${p.id}')" class="text-[10px] font-black text-red-400 uppercase tracking-tighter hover:underline">حذف</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
+                <button onclick="saveProduct()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black mt-8 shadow-xl active:scale-95 transition-all">حفظ وتنشيط المنتج</button>
             </div>
         `;
     } else if (tab === 'settings') {
         panel.innerHTML = `
-            <h2 class="text-2xl font-black mb-8">إعدادات المتجر</h2>
-            <div class="bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border dark:border-slate-800 space-y-8 max-w-xl shadow-sm animate-fadeIn">
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">اسم المتجر</label>
-                    <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-sm font-black outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">فيسبوك</label>
-                        <input id="set-facebook" value="${state.settings.facebook}" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-xs font-medium outline-none text-left tracking-tight" dir="ltr">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">تويتر (X)</label>
-                        <input id="set-twitter" value="${state.settings.twitter}" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-xs font-medium outline-none text-left tracking-tight" dir="ltr">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">أكواد الإعلانات (Adsterra / JS)</label>
-                    <textarea id="set-ads" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 h-40 font-mono text-[10px] outline-none focus:ring-2 focus:ring-blue-500 transition-all leading-relaxed" placeholder="إلصق كود الإعلانات هنا..." dir="ltr">${state.settings.adsterraHeader}</textarea>
-                    <p class="mt-2 text-[9px] font-medium text-slate-400">سيتم حقن هذه السكربتات في رأس الصفحة (Head) لضمان العمل على الجوال.</p>
-                </div>
-                <button onclick="saveSettings()" class="w-full bg-slate-900 dark:bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl transition transform active:scale-95 hover:brightness-110">تحديث إعدادات المتجر ✅</button>
+            <h2 class="text-2xl font-black mb-8">إعدادات المتجر والإعلانات</h2>
+            <div class="bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border dark:border-slate-800 space-y-8 max-w-xl shadow-sm">
+                <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 text-sm font-black outline-none focus:ring-2 focus:ring-blue-500">
+                <textarea id="set-ads" class="w-full p-4 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 h-40 font-mono text-[10px] outline-none" placeholder="إلصق كود Adsterra هنا..." dir="ltr">${state.settings.adsterraHeader}</textarea>
+                <p class="text-[9px] text-slate-400 font-medium">ملاحظة: النظام يحقن الإعلانات بطريقة "الحقن المستمر" لضمان بقاء الإعلانات ظاهرة في متصفحات الجوال.</p>
+                <button onclick="saveSettings()" class="w-full bg-slate-900 dark:bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl active:scale-95 transition-all">حفظ التغييرات</button>
             </div>
         `;
     }
@@ -521,17 +428,14 @@ const UI = {
 (window as any).saveProduct = () => {
     const name = (document.getElementById('p-name') as HTMLInputElement).value;
     const price = (document.getElementById('p-price') as HTMLInputElement).value;
-    const stock = (document.getElementById('p-stock') as HTMLInputElement).value;
     const image = (document.getElementById('p-img-data') as HTMLInputElement).value;
-    if (!name || !price) return alert('يرجى تعبئة كافة الحقول المطلوبة');
+    if (!name || !price) return alert('يرجى تعبئة كافة الحقول');
     const productData = {
         id: state.editingProduct ? state.editingProduct.id : Date.now().toString(),
         name,
         price: Number(price),
-        stock: Number(stock) || 0,
-        image: image || FALLBACK_IMAGES.placeholder,
-        description: '',
-        gallery: []
+        stock: 10,
+        image: image || FALLBACK_IMAGES.placeholder
     };
     if (state.editingProduct) {
         state.products = state.products.map((p: any) => p.id === productData.id ? productData : p);
@@ -543,36 +447,16 @@ const UI = {
     (window as any).switchTab('products');
 };
 
-(window as any).editProduct = (id: string) => {
-    state.editingProduct = state.products.find((p: any) => p.id === id);
-    (window as any).switchTab('products');
-};
-
-(window as any).cancelEdit = () => {
-    state.editingProduct = null;
-    (window as any).switchTab('products');
-};
-
-(window as any).deleteProduct = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف المنتج؟')) {
-        state.products = state.products.filter((p: any) => p.id !== id);
-        save();
-        (window as any).switchTab('products');
-    }
-};
-
 (window as any).saveSettings = () => {
     state.settings.siteName = (document.getElementById('set-name') as HTMLInputElement).value;
-    state.settings.facebook = (document.getElementById('set-facebook') as HTMLInputElement).value;
-    state.settings.twitter = (document.getElementById('set-twitter') as HTMLInputElement).value;
     state.settings.adsterraHeader = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
     save();
-    alert('✅ تم الحفظ! سيتم إعادة تحميل المتجر لتفعيل الإعلانات الجديدة على الجوال.');
+    alert('✅ تم الحفظ! سيتم إعادة تحميل الموقع لضمان استقرار الإعلانات على الجوال.');
     location.reload();
 };
 
 (window as any).deleteOrder = (id: string) => {
-    if (confirm('حذف هذا الطلب نهائياً؟')) {
+    if (confirm('حذف الطلب؟')) {
         state.orders = state.orders.filter((o: any) => o.id !== id);
         save();
         (window as any).switchTab('orders');
@@ -589,21 +473,10 @@ const router = () => {
     else if (hash === '#/dashboard') html += UI.dashboard();
     else if (hash === '#/success') html += `
         <div class="max-w-md mx-auto py-24 text-center animate-fadeIn px-4">
-            <div class="w-24 h-24 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                <div class="text-5xl">✅</div>
-            </div>
-            <h1 class="text-3xl font-black mb-4">تم استلام طلبك!</h1>
-            <p class="text-slate-500 mb-12 font-bold leading-relaxed px-4">شكراً لثقتك بنا. فريق المبيعات سيتصل بك قريباً لتأكيد العنوان وشحن المنتج لباب منزلك 🇲🇦</p>
-            <div class="space-y-4 px-6">
-                <a href="#/" class="inline-block w-full bg-blue-600 text-white py-5 rounded-3xl font-black shadow-xl shadow-blue-500/10 active:scale-95 transition-transform">تصفح منتجات أخرى</a>
-                <div class="pt-8 border-t dark:border-slate-800">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">ساعدنا في الانتشار</p>
-                    <div class="flex justify-center gap-8">
-                        <button onclick="shareContent('facebook')" class="transition-transform active:scale-125"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-6 h-6"></button>
-                        <button onclick="shareContent('twitter')" class="transition-transform active:scale-125"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-6 h-6 dark:invert"></button>
-                    </div>
-                </div>
-            </div>
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8 text-5xl">✅</div>
+            <h1 class="text-3xl font-black mb-4 tracking-tighter">شكراً لطلبكم!</h1>
+            <p class="text-slate-500 mb-12 font-bold px-4 leading-relaxed">فريقنا سيتصل بكم قريباً عبر الهاتف لتأكيد العنوان وشحن طلبكم 🇲🇦</p>
+            <div class="px-6"><a href="#/" class="inline-block w-full bg-blue-600 text-white py-5 rounded-3xl font-black shadow-xl active:scale-95 transition-transform">العودة للمتجر</a></div>
         </div>
     `;
     
@@ -611,21 +484,21 @@ const router = () => {
     
     const footer = document.getElementById('dynamic-footer');
     if (footer) footer.innerHTML = `
-        <footer class="bg-slate-950 text-white py-14 md:py-24 px-6 text-center border-t border-white/5 relative z-10">
+        <footer class="bg-slate-950 text-white py-14 px-6 text-center border-t border-white/5 relative z-10">
             <div class="text-2xl font-black text-blue-500 mb-2">${state.settings.siteName}</div>
-            <p class="text-slate-500 font-bold text-xs mb-10">متجرك الأول في المغرب - جودة وأمان 🇲🇦</p>
-            <div class="flex justify-center gap-10 mb-14 text-[10px] font-black uppercase tracking-[0.2em]">
-                <button onclick="shareContent('facebook')" class="text-slate-400 hover:text-white transition-colors">Facebook</button>
-                <button onclick="shareContent('twitter')" class="text-slate-400 hover:text-white transition-colors">Twitter</button>
-                <button onclick="shareContent('pinterest')" class="text-slate-400 hover:text-white transition-colors">Pinterest</button>
+            <p class="text-slate-500 font-bold text-[10px] mb-10">تسوق آمن - دفع عند الاستلام - شحن لجميع مدن المغرب 🇲🇦</p>
+            <div class="flex justify-center gap-10 mb-12 text-[9px] font-black uppercase tracking-widest opacity-60">
+                <button onclick="shareContent('facebook')">Facebook</button>
+                <button onclick="shareContent('whatsapp')">WhatsApp</button>
+                <button onclick="shareContent('twitter')">Twitter</button>
             </div>
-            <div class="text-slate-800 text-[8px] font-mono tracking-[0.3em] uppercase opacity-50">© 2025 ${state.settings.siteName} - Luxury COD Experience</div>
+            <div class="text-slate-800 text-[8px] font-mono tracking-widest uppercase opacity-50">© 2025 ${state.settings.siteName} - Mobile Optimized v6.3</div>
         </footer>
     `;
     
     if (hash === '#/dashboard' && state.isAdmin) (window as any).switchTab('orders');
     
-    // حقن الإعلانات مع مراعاة بيئة الجوال (Head Injection)
+    // حقن الإعلانات بطريقة "الحقن المستمر" لضمان ثباتها على الجوال
     injectAds();
 };
 
