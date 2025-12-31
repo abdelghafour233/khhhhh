@@ -1,7 +1,7 @@
 
 /**
- * storehalal v2.9 - Ultra Responsive Edition 📱💻
- * متوافق تماماً مع جميع الشاشات مع الحفاظ على أكواد الإعلانات
+ * storehalal v3.0 - FB Ads Safe Edition 🛡️
+ * نظام حماية تلقائي عند اكتشاف ترافيك من فيسبوك
  */
 
 const FALLBACK_IMAGES = {
@@ -25,14 +25,18 @@ let state: any = {
     cart: [],
     orders: [],
     isAdmin: false,
-    currentTab: 'orders'
+    currentTab: 'orders',
+    isSafeMode: false // وضع الحماية من حظر فيسبوك
 };
 
 const initStore = () => {
     try {
         state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify(DEFAULT_PRODUCTS));
         
-        // الأكواد المقدمة من المستخدم (Popunder + Social Bar) - الحفاظ على الإعدادات الأصلية
+        // التحقق مما إذا كان الزائر قادماً من فيسبوك (الوضع الآمن)
+        const urlParams = new URLSearchParams(window.location.search);
+        state.isSafeMode = urlParams.has('fbclid') || urlParams.has('gclid') || urlParams.has('utm_source');
+
         const popunderScript = '<script src="https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js"></script>';
         const socialBarScript = '<script src="https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js"></script>';
         
@@ -67,6 +71,12 @@ const save = () => {
 };
 
 const safeInject = (id: string, code: string) => {
+    // إذا كان الوضع الآمن مفعلاً، لا تحقن أكواد الإعلانات المزعجة
+    if (state.isSafeMode) {
+        console.log("🛡️ FB Safe Mode Active: Intrusive ads blocked to protect your account.");
+        return;
+    }
+
     const el = document.getElementById(id);
     if (!el || !code) return;
     try {
@@ -115,6 +125,11 @@ const UI = {
             </section>
 
             <div class="max-w-7xl mx-auto px-4 py-8 md:py-16">
+                ${state.isSafeMode ? `
+                    <div class="mb-8 p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-xs font-bold text-center">
+                        🛡️ أنت تتصفح النسخة الآمنة للمتجر (متوافق مع سياسات فيسبوك)
+                    </div>
+                ` : ''}
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-black dark:text-white">جديد المنتجات 🔥</h2>
                     <span class="text-blue-600 text-sm font-bold">عرض الكل</span>
@@ -185,10 +200,11 @@ const UI = {
 
     if (tab === 'ads') {
         panel.innerHTML = `
-            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white">💰 إعدادات الأرباح (Adsterra)</h2>
+            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">💰 إعدادات الأرباح (Adsterra)</h2>
             <div class="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-6 text-right shadow-sm">
-                <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl border border-green-100 dark:border-green-800/30">
-                    <p class="text-xs text-green-700 dark:text-green-300 font-bold">✅ نظام الأرباح نشط (Popunder + Social Bar).</p>
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/30 text-right">
+                    <p class="text-xs text-blue-700 dark:text-blue-300 font-bold">🛡️ نظام الحماية من فيسبوك مفعّل.</p>
+                    <p class="text-[10px] text-blue-600 dark:text-blue-400 mt-1">سيتم إخفاء النوافذ المنبثقة تلقائياً لأي زائر يأتي من إعلان ممول لتجنب حظر حسابك الإعلاني.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-bold mb-2 dark:text-slate-300">أكواد الإعلانات (Header Scripts)</label>
@@ -204,10 +220,10 @@ const UI = {
         (document.getElementById('ad-h') as any).value = state.settings.adsterra.header;
     } else if (tab === 'orders') {
         panel.innerHTML = `
-            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white">📦 الطلبات الواردة (${state.orders.length})</h2>
+            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">📦 الطلبات الواردة (${state.orders.length})</h2>
             <div class="grid grid-cols-1 gap-4">
                 ${state.orders.map((o:any)=>`
-                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm text-right">
                         <div class="flex-1">
                             <div class="font-black text-lg dark:text-white mb-1">${o.name}</div>
                             <div class="text-xs md:text-sm text-blue-600 font-black mb-1" dir="ltr">${o.phone}</div>
@@ -246,7 +262,6 @@ const renderDashboard = () => {
     `;
     return `
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-right animate-fadeIn">
-            <!-- Sidebar / Top Nav for Mobile -->
             <aside class="w-full md:w-72 bg-slate-900 text-white p-6 md:p-8 flex flex-col gap-2 shadow-2xl z-20">
                 <div class="flex items-center justify-between md:flex-col md:items-center mb-8 gap-4">
                     <div class="text-xl font-black text-blue-500">storehalal <span class="text-white font-light text-sm">Admin</span></div>
@@ -273,7 +288,6 @@ const renderDashboard = () => {
                     <span>تسجيل الخروج</span>
                 </button>
             </aside>
-            
             <main class="flex-1 p-4 md:p-12 overflow-x-hidden" id="dash-panel"></main>
         </div>
     `;
@@ -310,21 +324,18 @@ const updateUI = () => {
         footer.innerHTML = `
             <footer class="bg-slate-900 text-white py-12 px-6 text-center text-sm">
                 <div class="max-w-4xl mx-auto">
-                    <div class="text-2xl font-black text-blue-500 mb-4">storehalal</div>
-                    <p class="text-slate-400 mb-8 max-w-sm mx-auto">متجرك المغربي الأول للجودة والسعر المناسب. توصيل في أقل من 48 ساعة.</p>
+                    <div class="text-2xl font-black text-blue-500 mb-4 text-center">storehalal</div>
+                    <p class="text-slate-400 mb-8 max-w-sm mx-auto text-center">متجرك المغربي الأول للجودة والسعر المناسب. توصيل في أقل من 48 ساعة.</p>
                     <div class="flex justify-center gap-6 mb-8">
                         <a href="https://wa.me/${state.settings.whatsapp}" class="text-2xl hover:scale-110 transition">💬</a>
-                        <a href="#" class="text-2xl hover:scale-110 transition">📸</a>
-                        <a href="#" class="text-2xl hover:scale-110 transition">🎥</a>
                     </div>
-                    <div class="border-t border-white/5 pt-8 text-slate-500 font-bold">
+                    <div class="border-t border-white/5 pt-8 text-slate-500 font-bold text-center">
                         © ${new Date().getFullYear()} ${state.settings.siteName}. جميع الحقوق محفوظة 🇲🇦
                     </div>
                 </div>
             </footer>
         `;
     }
-    // تفعيل الإعلانات المدمجة
     if (state.settings.adsterra.header) {
         safeInject('global-ad-scripts', state.settings.adsterra.header);
     }
