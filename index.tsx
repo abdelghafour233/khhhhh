@@ -1,7 +1,7 @@
 
 /**
- * storehalal v5.3 - Anti-Adblock Sync & Pro Inventory 🚀🇲🇦
- * تم تحسين نظام الإعلانات ليدعم السكربتات المتزامنة والمانعة للحظر.
+ * storehalal v5.4 - Anti-Adblock JS SYNC Edition 🚀🇲🇦
+ * تم تحديث محرك الإعلانات ليدعم المزامنة الكاملة والسكربتات المانعة للحظر.
  */
 
 const FALLBACK_IMAGES = {
@@ -52,7 +52,7 @@ const initStore = () => {
         state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify(INITIAL_PRODUCTS));
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         
-        // الأكواد الخاصة بـ Anti-Adblock و Adsterra كما طلبت
+        // الأكواد التي أرسلتها (Anti-Adblock JS SYNC)
         const defaultAds = `<script src="https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js"></script>\n<script src="https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js"></script>`;
 
         const defaultSettings = {
@@ -75,11 +75,10 @@ const save = () => {
     localStorage.setItem('settings', JSON.stringify(state.settings));
 };
 
-// --- وظيفة حقن الإعلانات المطورة للمزامنة (Anti-Adblock Sync) ---
+// --- وظيفة حقن الإعلانات المطورة (دعم JS SYNC) ---
 const injectAds = () => {
     const isDashboard = window.location.hash.startsWith('#/dashboard');
     
-    // تنظيف الإعلانات القديمة إذا كنا في لوحة التحكم
     if (isDashboard) {
         document.querySelectorAll('.dynamic-ad-script').forEach(el => el.remove());
         state.adsInjected = false;
@@ -87,7 +86,7 @@ const injectAds = () => {
     }
 
     if (!state.adsInjected && state.settings.adsterraHeader) {
-        console.log('Syncing Ads & Anti-Adblock...');
+        console.log('Executing Ads SYNC...');
         
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = state.settings.adsterraHeader;
@@ -95,12 +94,20 @@ const injectAds = () => {
 
         scripts.forEach(oldScript => {
             const newScript = document.createElement('script');
-            // استنساخ جميع الخصائص لضمان عمل السكربتات المتزامنة
+            
+            // نقل كل السمات (Attributes)
             Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            
+            // تفعيل المزامنة (JS SYNC) - تعطيل async إذا لم يكن موجوداً بشكل صريح
+            if (!oldScript.hasAttribute('async')) {
+                newScript.async = false;
+            }
+            
             newScript.textContent = oldScript.textContent;
             newScript.classList.add('dynamic-ad-script');
+            newScript.setAttribute('data-ad-type', 'sync');
             
-            // حقن السكربت في الـ Head لضمان عمل Anti-Adblock بشكل صحيح
+            // الحقن في الـ Head هو الأفضل لسكربتات Anti-Adblock
             document.head.appendChild(newScript);
         });
 
@@ -395,8 +402,8 @@ const UI = {
                     <input id="set-pass" type="text" value="${state.settings.adminPass}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-2">أكواد الإعلانات و Anti-Adblock (SYNC)</label>
-                    <p class="text-[10px] text-slate-400 mb-2">الصق السكربتات هنا. سيتم حقنها في رأس الصفحة (Head) لضمان العمل المتزامن.</p>
+                    <label class="block text-sm font-bold mb-2">أكواد الإعلانات و Anti-Adblock (JS SYNC)</label>
+                    <p class="text-[10px] text-slate-400 mb-2">الصق السكربتات هنا. سيتم تنفيذها بشكل متزامن (Synchronous) في رأس الصفحة.</p>
                     <textarea id="set-ads" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 h-48 font-mono text-[11px] outline-none" dir="ltr">${state.settings.adsterraHeader}</textarea>
                 </div>
                 <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg transition active:scale-95">حفظ وتحديث المتجر</button>
@@ -509,7 +516,7 @@ const router = () => {
 
     if (hash === '#/dashboard' && state.isAdmin) (window as any).switchTab('orders');
     
-    // حقن الإعلانات مع المزامنة (SYNC)
+    // حقن الإعلانات مع دعم المزامنة (SYNC)
     injectAds();
 };
 
