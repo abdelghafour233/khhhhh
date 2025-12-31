@@ -1,6 +1,6 @@
 
 /**
- * Halal Digital Blog - Version 7.6 (The Social Share Update 🚀)
+ * storehalal Blog - Version 7.7 (The SEO & Archiving Update 🌐)
  */
 
 // --- البيانات الافتراضية المطولة ---
@@ -88,6 +88,18 @@ let state = {
     settings: JSON.parse(localStorage.getItem('settings') || JSON.stringify(INITIAL_SETTINGS)),
     isAdmin: sessionStorage.getItem('isAdmin') === 'true',
     currentEditId: null as string | null
+};
+
+const updateSEO = (title: string, description: string) => {
+    document.title = `${title} | ${state.settings.siteName}`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', description);
+    
+    // تحديث وسوم OG للفيسبوك
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogTitle) ogTitle.setAttribute('content', title);
+    if (ogDesc) ogDesc.setAttribute('content', description);
 };
 
 const saveState = () => {
@@ -197,6 +209,7 @@ const syncUI = () => {
 };
 
 const renderHome = () => {
+    updateSEO("الرئيسية - مركز البرمجة والتقنية", "اكتشف أفضل المقالات والدروس في البرمجة وتطوير الويب مع storehalal.");
     return `
         <div class="animate-fadeIn">
             <section class="bg-slate-950 text-white py-16 md:py-24 px-4 text-center">
@@ -210,7 +223,7 @@ const renderHome = () => {
                     ${state.articles.map((a: any) => `
                         <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition cursor-pointer group flex flex-col h-full">
                             <div class="relative overflow-hidden aspect-video">
-                                <img src="${a.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <img src="${a.image}" alt="${a.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                             </div>
                             <div class="p-5 text-right flex-1 flex flex-col">
                                 <h3 class="text-lg font-black mb-2 dark:text-white line-clamp-2">${a.title}</h3>
@@ -235,12 +248,15 @@ const renderArticle = (id: string) => {
     const article = state.articles.find((a: any) => a.id === id);
     if (!article) return `<div class="py-20 text-center">المقال غير موجود</div>`;
 
+    // تحديث السيو لهذا المقال تحديداً
+    updateSEO(article.title, article.excerpt);
+
     return `
         <div class="max-w-4xl mx-auto px-4 py-8 text-right animate-fadeIn">
             <div id="ad-article-top" class="mb-8 text-center overflow-hidden">${state.settings.adsterra.header}</div>
             <h1 class="text-2xl md:text-5xl font-black mb-6 dark:text-white leading-snug">${article.title}</h1>
             <div class="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 shadow-xl">
-                <img src="${article.image}" class="w-full h-full object-cover">
+                <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover">
             </div>
             <div id="ad-article-middle" class="my-8 text-center overflow-hidden">${state.settings.adsterra.middle}</div>
             <div class="prose prose-sm md:prose-xl dark:prose-invert max-w-none text-slate-700 dark:text-slate-300">
@@ -255,6 +271,7 @@ const renderArticle = (id: string) => {
 };
 
 const renderDashboard = () => {
+    updateSEO("لوحة التحكم", "إدارة محتوى storehalal.");
     if (!state.isAdmin) {
         return `
             <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
@@ -274,14 +291,11 @@ const renderDashboard = () => {
 
     return `
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-right">
-            <!-- Sidebar / Mobile Header -->
             <aside class="w-full md:w-72 bg-slate-900 text-white p-4 md:p-8 flex flex-col">
                 <div class="text-lg md:text-xl font-black text-blue-500 mb-6 md:mb-10 italic flex items-center justify-between">
                     <span>المركز السري 👁️</span>
                     <span class="md:hidden text-[10px] bg-blue-600 px-2 rounded-full py-0.5">${state.articles.length} مقالات</span>
                 </div>
-                
-                <!-- Nav - Horizontal on mobile, vertical on desktop -->
                 <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide">
                     <button onclick="switchDashTab('articles')" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-white/5 font-bold transition flex items-center gap-2">
                          <span>📚 المقالات</span>
@@ -295,8 +309,6 @@ const renderDashboard = () => {
                     <button onclick="handleLogout()" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-red-500/20 text-red-400 font-bold transition md:mt-4">🚪 خروج</button>
                 </nav>
             </aside>
-
-            <!-- Main Panel -->
             <main class="flex-1 p-4 md:p-12 overflow-x-hidden" id="dash-panel"></main>
         </div>
     `;
@@ -316,7 +328,7 @@ const renderDashboard = () => {
                 ${state.articles.map((a: any) => `
                     <div class="bg-white dark:bg-slate-900 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-3 hover:shadow-md transition">
                         <div class="flex items-center gap-3 w-full">
-                            <img src="${a.image}" class="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl object-cover">
+                            <img src="${a.image}" alt="${a.title}" class="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl object-cover">
                             <div class="min-w-0">
                                 <h4 class="font-bold dark:text-white line-clamp-1 text-sm md:text-base text-right">${a.title}</h4>
                                 <span class="text-[10px] md:text-xs text-slate-500">${new Date(a.date).toLocaleDateString('ar-MA')}</span>
@@ -331,7 +343,6 @@ const renderDashboard = () => {
                 `).join('')}
             </div>
 
-            <!-- Article Modal -->
             <div id="article-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
                 <div class="bg-white dark:bg-slate-900 w-full max-w-2xl p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-2xl relative animate-fadeIn max-h-[90vh] overflow-y-auto">
                     <h3 id="modal-title" class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">إضافة مقال جديد</h3>
@@ -503,7 +514,6 @@ const router = () => {
     const isDashboard = hash.startsWith('#/dashboard');
     if (header) header.style.display = isDashboard && state.isAdmin ? 'none' : 'block';
     
-    // Smooth scroll to top on route change
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (hash === '#/') root.innerHTML = renderHome();
