@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.1 - Checkout & Free Delivery Edition 🚚
- * إضافة صفحة إتمام الطلب المتوافقة مع السوق المغربي
+ * storehalal v3.2 - Internal Checkout Edition 🛒
+ * تحويل مسار الطلبات ليكون داخلياً بالكامل مع صفحة نجاح مخصصة
  */
 
 const FALLBACK_IMAGES = {
@@ -126,9 +126,8 @@ const safeInject = (id: string, code: string) => {
     state.cart = [];
     save();
     
-    // توجيه لصفحة النجاح أو الواتساب
-    const message = `طلب جديد من: ${name}%0Aالمدينة: ${city}%0Aالهاتف: ${phone}%0Aالمجموع: ${total} د.م.%0Aالتوصيل مجاني 🚚`;
-    window.location.href = `https://wa.me/${state.settings.whatsapp}?text=${message}`;
+    // توجيه لصفحة النجاح الداخلية بدلاً من الواتساب
+    window.location.hash = '#/success';
 };
 
 // --- UI Components ---
@@ -147,16 +146,12 @@ const UI = {
                     <h1 class="text-3xl md:text-6xl font-black mb-4 leading-tight">تسوق الأفضل مع <span class="text-yellow-400">${state.settings.siteName}</span></h1>
                     <p class="text-blue-50 text-sm md:text-xl opacity-90 mb-8">أحدث الإلكترونيات | شحن سريع | الدفع عند الاستلام 🇲🇦</p>
                     <div class="flex justify-center gap-3 md:gap-4 flex-wrap">
-                        ${state.settings.smartlink ? `<a href="${state.settings.smartlink}" target="_blank" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black animate-bounce shadow-xl text-sm md:text-lg">🔥 عروض حصرية</a>` : ''}
                         <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl font-bold border border-white/20 text-xs md:text-base">🚚 التوصيل بالمجان</div>
                     </div>
                 </div>
             </section>
 
             <div class="max-w-7xl mx-auto px-4 py-8 md:py-16">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-black dark:text-white">أحدث المنتجات</h2>
-                </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
                     ${state.products.map((p: any) => `
                         <div class="bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full">
@@ -208,7 +203,7 @@ const UI = {
                                 <span>الشحن:</span>
                                 <span>توصيل بالمجان ✅</span>
                             </div>
-                            <a href="#/checkout" class="block w-full bg-blue-600 py-4 rounded-2xl font-black text-lg text-center shadow-xl shadow-blue-500/20">تأكيد الطلب (الدفع عند الاستلام) ➔</a>
+                            <a href="#/checkout" class="block w-full bg-blue-600 py-4 rounded-2xl font-black text-lg text-center shadow-xl shadow-blue-500/20">تأكيد الطلب ➔</a>
                         </div>
                     </div>
                 `}
@@ -222,8 +217,8 @@ const UI = {
         return `
             <div class="max-w-2xl mx-auto px-4 py-8 md:py-12 animate-fadeIn text-right">
                 <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
-                    <h1 class="text-2xl md:text-3xl font-black mb-2 dark:text-white">إتمام الطلب 🚚</h1>
-                    <p class="text-slate-500 mb-8 text-sm">أدخل معلوماتك لنقوم بشحن طلبك فوراً. الدفع عند الاستلام.</p>
+                    <h1 class="text-2xl md:text-3xl font-black mb-2 dark:text-white text-center">تأكيد طلبك 🚚</h1>
+                    <p class="text-slate-500 mb-8 text-sm text-center">أدخل معلومات الشحن لإنهاء عملية الشراء</p>
                     
                     <form onsubmit="submitOrder(event)" class="space-y-5">
                         <div class="space-y-2">
@@ -253,17 +248,28 @@ const UI = {
                                 <span>✨ التوصيل بالمجان لجميع المدن</span>
                                 <span class="text-lg">🚚</span>
                             </div>
-                            <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-green-700 transition active:scale-95">تأكيد الطلب الآن ✅</button>
-                            <p class="text-center text-[10px] text-slate-400 mt-4">بالضغط على الزر، أنت توافق على شروط الخدمة. سيتم التواصل معك هاتفياً.</p>
+                            <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-green-700 transition active:scale-95">تأكيد الشراء الآن ✅</button>
+                            <p class="text-center text-[10px] text-slate-400 mt-4">الدفع يكون عند الاستلام. سيتم الاتصال بك لتأكيد العنوان.</p>
                         </div>
                     </form>
                 </div>
             </div>
         `;
-    }
+    },
+    success: () => `
+        <div class="max-w-xl mx-auto px-4 py-20 text-center animate-fadeIn">
+            <div class="bg-white dark:bg-slate-900 p-10 md:p-16 rounded-[3rem] shadow-2xl border border-slate-50 dark:border-slate-800">
+                <div class="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center text-5xl mx-auto mb-8 animate-bounce">✓</div>
+                <h1 class="text-3xl font-black mb-4 dark:text-white">تم استلام طلبك بنجاح! 🎉</h1>
+                <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">شكرًا لثقتك بنا. فريقنا سيقوم بالاتصال بك خلال الـ 24 ساعة القادمة عبر الهاتف لتأكيد العنوان وترتيب عملية التوصيل المجانية.</p>
+                <a href="#/" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95">العودة للمتجر 🏠</a>
+                <div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 font-bold">رقم الطلب: #${Math.floor(Math.random()*900000)+100000}</div>
+            </div>
+        </div>
+    `
 };
 
-// --- Dashboard Logic (Modified for Layout) ---
+// --- Dashboard Logic ---
 (window as any).switchDashTab = (tab: string) => {
     state.currentTab = tab;
     const panel = document.getElementById('dash-panel');
@@ -283,7 +289,7 @@ const UI = {
         (document.getElementById('ad-h') as any).value = state.settings.adsterra.header;
     } else if (tab === 'orders') {
         panel.innerHTML = `
-            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">📦 الطلبات (${state.orders.length})</h2>
+            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">📦 الطلبات الواردة (${state.orders.length})</h2>
             <div class="grid grid-cols-1 gap-4">
                 ${state.orders.map((o:any)=>`
                     <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm text-right">
@@ -294,9 +300,11 @@ const UI = {
                         </div>
                         <div class="text-left w-full md:w-auto">
                             <div class="font-black text-xl text-green-600">${o.total} د.م.</div>
+                            <div class="text-[9px] text-slate-400 mt-1">${new Date(o.date).toLocaleString('ar-MA')}</div>
                         </div>
                     </div>
                 `).join('')}
+                ${state.orders.length === 0 ? '<div class="text-center py-20 text-slate-400 font-bold">لا توجد طلبات بعد.</div>' : ''}
             </div>
         `;
     }
@@ -352,6 +360,7 @@ const router = () => {
     if (hash === '#/') root.innerHTML = UI.store();
     else if (hash === '#/cart') root.innerHTML = UI.cart();
     else if (hash === '#/checkout') root.innerHTML = UI.checkout();
+    else if (hash === '#/success') root.innerHTML = UI.success();
     else if (hash === '#/dashboard') {
         root.innerHTML = renderDashboard();
         if(state.isAdmin) (window as any).switchDashTab('orders');
