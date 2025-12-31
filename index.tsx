@@ -1,11 +1,11 @@
 
 /**
- * Halal Digital Services - Version 4.7
- * Feature: Deep-dive Article on AI & Programming
+ * Halal Digital Services - Version 4.8
+ * Feature: Social Sharing & Footer Social Icons
  */
 
 // --- Constants & Data ---
-const APP_VERSION = '4.7'; 
+const APP_VERSION = '4.8'; 
 
 const INITIAL_PROJECTS = [
     { 
@@ -60,7 +60,14 @@ const INITIAL_SETTINGS = {
     adsHeader: '',
     adsMiddle: '',
     adsBottom: '',
-    siteName: 'حلال ديجيتال'
+    siteName: 'حلال ديجيتال',
+    socialLinks: {
+        facebook: 'https://facebook.com/halaldigital',
+        twitter: 'https://twitter.com/halaldigital',
+        instagram: 'https://instagram.com/halaldigital',
+        telegram: 'https://t.me/halaldigital',
+        pinterest: 'https://pinterest.com/halaldigital'
+    }
 };
 
 // --- App State ---
@@ -122,6 +129,15 @@ const updateMeta = (title: string, description: string = '') => {
     if (metaDesc) metaDesc.setAttribute('content', description || state.settings.siteName);
 };
 
+// --- Icons ---
+const SOCIAL_ICONS = {
+    facebook: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3l-.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>`,
+    twitter: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+    instagram: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`,
+    telegram: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1 .22-1.62.15-.16 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.53-1.39.52-.46-.01-1.33-.26-1.98-.48-.8-.27-1.43-.42-1.37-.89.03-.25.38-.51 1.03-.78 4.04-1.76 6.74-2.92 8.09-3.48 3.85-1.6 4.64-1.88 5.17-1.89.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.13-.03.21z"/></svg>`,
+    pinterest: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.966 1.406-5.966s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.259 7.929-7.259 4.164 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146 1.124.347 2.317.535 3.554.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"/></svg>`
+};
+
 // --- AdSense Renderer ---
 const renderAdUnit = (type: 'adsHeader' | 'adsMiddle' | 'adsBottom', label: string) => {
     const adCode = state.settings[type];
@@ -137,11 +153,11 @@ const renderPrivacyPolicy = () => {
     return `
         <div class="max-w-4xl mx-auto px-6 py-20 animate-fadeIn text-right dark:text-white">
             <h1 class="text-4xl font-black mb-10">سياسة الخصوصية</h1>
-            <div class="prose prose-lg dark:prose-invert space-y-6">
+            <div class="prose prose-lg dark:prose-invert space-y-6 text-gray-700 dark:text-gray-300">
                 <p>في <strong>حلال ديجيتال</strong>، نولي خصوصية زوارنا أهمية بالغة. توضح هذه الوثيقة أنواع المعلومات الشخصية التي نجمعها وكيفية استخدامها.</p>
-                <h3 class="text-xl font-bold">ملفات تعريف الارتباط (Cookies)</h3>
+                <h3 class="text-xl font-bold dark:text-white">ملفات تعريف الارتباط (Cookies)</h3>
                 <p>نحن نستخدم ملفات تعريف الارتباط لتخزين تفضيلات الزوار وتحسين تجربة المستخدم. قد تقوم شركات الإعلانات مثل Ezoic وGoogle AdSense باستخدام هذه الملفات لعرض إعلانات مخصصة.</p>
-                <h3 class="text-xl font-bold">جمع البيانات</h3>
+                <h3 class="text-xl font-bold dark:text-white">جمع البيانات</h3>
                 <p>نحن نجمع فقط المعلومات التي تقدمها لنا طواعية (مثل الاسم ورقم الهاتف عند طلب خدمة). لا نقوم ببيع أو مشاركة بياناتك مع أطراف ثالثة.</p>
             </div>
         </div>
@@ -153,7 +169,7 @@ const renderTerms = () => {
     return `
         <div class="max-w-4xl mx-auto px-6 py-20 animate-fadeIn text-right dark:text-white">
             <h1 class="text-4xl font-black mb-10">شروط الخدمة</h1>
-            <div class="prose prose-lg dark:prose-invert space-y-6">
+            <div class="prose prose-lg dark:prose-invert space-y-6 text-gray-700 dark:text-gray-300">
                 <p>باستخدامك لموقع حلال ديجيتال، فإنك توافق على الالتزام بالشروط التالية:</p>
                 <ul class="list-disc list-inside">
                     <li>المحتوى المنشور في المدونة هو ملكية فكرية للوكالة.</li>
@@ -184,10 +200,10 @@ const renderHome = () => {
 
         <section class="max-w-7xl mx-auto px-6" id="portfolio">
             <div class="flex justify-between items-end mb-16">
-                <h2 class="text-4xl font-black text-gray-900 dark:text-white">جديد المدونة</h2>
+                <h2 class="text-4xl font-black text-gray-900 dark:text-white text-right">جديد المدونة</h2>
                 <a href="#/blog" class="text-blue-600 font-black">كل المقالات ←</a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-right">
                 ${state.articles.slice(0, 3).map((a: any) => `
                     <article class="bg-white dark:bg-gray-900 rounded-[3rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg transition flex flex-col cursor-pointer" onclick="window.location.hash='#/article/${a.id}'">
                         <img src="${a.image}" class="h-64 object-cover" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
@@ -231,6 +247,8 @@ const renderArticleDetail = (id: string) => {
     if (!article) return `<div class="text-center py-40 font-black text-3xl dark:text-white">المقال غير موجود</div>`;
 
     updateMeta(article.title, article.excerpt);
+    const url = window.location.href;
+    const title = encodeURIComponent(article.title);
 
     // Schema Markup for Google & Ad networks
     const schema = {
@@ -246,23 +264,30 @@ const renderArticleDetail = (id: string) => {
     return `
         <script type="application/ld+json">${JSON.stringify(schema)}</script>
         <div class="max-w-4xl mx-auto px-6 py-20 animate-fadeIn text-right">
-            <h1 class="text-4xl md:text-6xl font-black leading-tight mb-12 dark:text-white">${article.title}</h1>
+            <h1 class="text-4xl md:text-6xl font-black leading-tight mb-12 dark:text-white text-right">${article.title}</h1>
             
             ${renderAdUnit('adsHeader', 'Article Top')}
             
             <img src="${article.image}" class="w-full h-auto rounded-[3rem] shadow-2xl mb-12" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200'">
             
-            <div class="prose prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-300 font-medium leading-relaxed">
+            <div class="prose prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-300 font-medium leading-relaxed text-right">
                 ${article.content.split('\n').map((p: string, i: number) => {
                     if (p.trim() === '') return '';
                     return `<p class="mb-6">${p}</p>${i === 1 ? renderAdUnit('adsMiddle', 'In-Content') : ''}`;
                 }).join('')}
             </div>
 
-            <div class="mt-20 pt-10 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-4">
-                 <button onclick="copyArticleLink()" class="px-8 py-3 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-xl font-black">نسخ الرابط</button>
-                 <a href="https://wa.me/${state.settings.whatsappNumber}" class="px-8 py-3 bg-green-500 text-white rounded-xl font-black">مشاركة عبر واتساب</a>
+            <div class="mt-20 pt-10 border-t border-gray-100 dark:border-gray-800">
+                 <h4 class="text-xl font-black mb-6 dark:text-white">شارك المقال مع أصدقائك:</h4>
+                 <div class="flex flex-wrap gap-4 items-center">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=${url}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-blue-600 text-white rounded-full hover:scale-110 transition shadow-lg">${SOCIAL_ICONS.facebook}</a>
+                    <a href="https://twitter.com/intent/tweet?url=${url}&text=${title}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-black text-white rounded-full hover:scale-110 transition shadow-lg">${SOCIAL_ICONS.twitter}</a>
+                    <a href="https://t.me/share/url?url=${url}&text=${title}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-blue-400 text-white rounded-full hover:scale-110 transition shadow-lg">${SOCIAL_ICONS.telegram}</a>
+                    <a href="https://pinterest.com/pin/create/button/?url=${url}&media=${encodeURIComponent(article.image)}&description=${title}" target="_blank" class="w-12 h-12 flex items-center justify-center bg-red-600 text-white rounded-full hover:scale-110 transition shadow-lg">${SOCIAL_ICONS.pinterest}</a>
+                    <button onclick="copyArticleLink()" class="px-6 py-3 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-full font-black text-sm">نسخ الرابط 🔗</button>
+                 </div>
             </div>
+            
             ${renderAdUnit('adsBottom', 'Article Bottom')}
         </div>
     `;
@@ -312,21 +337,21 @@ const renderDashboard = () => `
         `;
     } else if (tab === 'settings') {
         container.innerHTML = `
-            <h2 class="text-3xl font-black mb-8 dark:text-white">إعدادات الموقع (Sitemap & Ads)</h2>
-            <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 space-y-6">
+            <h2 class="text-3xl font-black mb-8 dark:text-white text-right">إعدادات الموقع (Sitemap & Ads)</h2>
+            <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 space-y-6 text-right">
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="block font-black mb-2 dark:text-gray-400">كلمة السر</label>
-                        <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold">
+                        <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-right">
                     </div>
                     <div>
                         <label class="block font-black mb-2 dark:text-gray-400">رقم الواتساب</label>
-                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold">
+                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-right">
                     </div>
                 </div>
                 <div>
                     <label class="block font-black mb-2 dark:text-gray-400">كود الإعلان العلوي (Ezoic/AdSense)</label>
-                    <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs">${state.settings.adsHeader}</textarea>
+                    <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs text-left" dir="ltr">${state.settings.adsHeader}</textarea>
                 </div>
                 <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl">حفظ كل الإعدادات ✅</button>
             </div>
@@ -340,15 +365,15 @@ const renderDashboard = () => `
     const article = id ? state.articles.find((a: any) => a.id === id) : null;
     const initialImg = article ? article.image : 'https://via.placeholder.com/800x450';
     container.innerHTML = `
-        <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] space-y-6">
+        <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] space-y-6 text-right">
             <input type="hidden" id="edit-id" value="${id || ''}">
-            <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-black" placeholder="العنوان">
-            <input id="edit-image" oninput="document.getElementById('img-preview').src = this.value" value="${article ? article.image : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-bold" placeholder="رابط الصورة">
+            <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-black text-right" placeholder="العنوان">
+            <input id="edit-image" oninput="document.getElementById('img-preview').src = this.value" value="${article ? article.image : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-bold text-right" placeholder="رابط الصورة">
             <div class="w-full aspect-video rounded-2xl overflow-hidden border">
                 <img id="img-preview" src="${initialImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/800x450?text=Invalid+Image'">
             </div>
-            <textarea id="edit-excerpt" class="w-full h-24 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-bold" placeholder="الوصف القصير">${article ? article.excerpt : ''}</textarea>
-            <textarea id="edit-content" class="w-full h-96 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-medium" placeholder="المحتوى الكامل">${article ? article.content : ''}</textarea>
+            <textarea id="edit-excerpt" class="w-full h-24 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-bold text-right" placeholder="الوصف القصير">${article ? article.excerpt : ''}</textarea>
+            <textarea id="edit-content" class="w-full h-96 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-medium text-right" placeholder="المحتوى الكامل">${article ? article.content : ''}</textarea>
             <button onclick="saveArticle()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl">حفظ المقال</button>
         </div>
     `;
@@ -425,7 +450,7 @@ const router = () => {
     else if (hash.startsWith('#/article/')) root.innerHTML = renderArticleDetail(hash.replace('#/article/', ''));
     else if (isDashboard) {
         if (sessionStorage.getItem('isAdmin') !== 'true') {
-            root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4"><div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md"><h2 class="text-2xl font-black dark:text-white">تسجيل الدخول</h2><input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center font-bold outline-none" placeholder="كلمة السر"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl">دخول آمن</button></div></div>`;
+            root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4"><div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-md w-full max-w-md"><h2 class="text-2xl font-black dark:text-white">تسجيل الدخول</h2><input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center font-bold outline-none" placeholder="كلمة السر"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl">دخول آمن</button></div></div>`;
         } else {
             root.innerHTML = renderDashboard();
             (window as any).switchTab('articles');
