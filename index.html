@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <!-- SEO & Metadata -->
-    <title>storehalal | متجر التكنولوجيا والدفع عند الاستلام 🇲🇦</title>
-    <meta name="description" content="متجر storehalal هو وجهتك الأولى في المغرب لشراء أحدث المنتجات التقنية بأسعار منافسة مع ميزة الدفع عند الاستلام.">
+    <title>متجركم | تسوق آمن ودفع عند الاستلام 🇲🇦</title>
     <meta name="theme-color" content="#2563eb">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,8 +28,6 @@
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         input, button, textarea { font-family: inherit; }
     </style>
 <script type="importmap">
@@ -45,28 +42,12 @@
 </head>
 <body class="text-slate-900 dark:text-slate-100 selection:bg-blue-100 dark:selection:bg-blue-900">
 
-    <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
-        <nav class="max-w-7xl mx-auto px-4 h-16 md:h-20 flex justify-between items-center">
-            <a href="#/" class="flex items-center gap-2 group">
-                <div class="bg-blue-600 text-white w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-xl font-black text-lg shadow-lg shadow-blue-500/30 group-hover:rotate-6 transition">S</div>
-                <span class="text-xl md:text-2xl font-black tracking-tight">store<span class="text-blue-600">halal</span></span>
-            </a>
-
-            <div class="flex items-center gap-2 md:gap-4">
-                <button onclick="document.documentElement.classList.toggle('dark')" class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-2xl text-lg transition active:scale-90 shadow-sm">🌓</button>
-                <a href="#/dashboard" class="flex bg-slate-900 dark:bg-blue-600 text-white px-4 py-2 md:px-5 md:py-2.5 rounded-2xl text-[10px] md:text-sm font-black shadow-xl shadow-blue-500/10 hover:opacity-90 transition items-center gap-2">
-                    <span>🔐</span>
-                    <span class="hidden md:inline">لوحة الإدارة</span>
-                </a>
-            </div>
-        </nav>
-    </header>
-
-    <main id="app-root" class="min-h-[75vh]"></main>
+    <!-- الحاوية الأساسية للتطبيق - الهيدر سيظهر بداخلها ديناميكياً -->
+    <main id="app-root" class="min-h-screen"></main>
 
     <footer id="dynamic-footer"></footer>
 
-    <!-- تم نقل الإعلانات لأسفل الصفحة لعدم التداخل مع الهيدر أو زر الإدارة -->
+    <!-- حاوية الإعلانات -->
     <div id="global-ad-scripts"></div>
 
     <script src="index.tsx" type="module"></script>
