@@ -1,7 +1,7 @@
 
 /**
- * storehalal v5.4 - Anti-Adblock JS SYNC Edition 🚀🇲🇦
- * تم تحديث محرك الإعلانات ليدعم المزامنة الكاملة والسكربتات المانعة للحظر.
+ * storehalal v5.5 - Password Security & Management 🔐🇲🇦
+ * تم إضافة: إيقونة العين لإظهار كلمة السر، وتحسين واجهة تغيير كلمة المرور في الإدارة.
  */
 
 const FALLBACK_IMAGES = {
@@ -52,7 +52,6 @@ const initStore = () => {
         state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify(INITIAL_PRODUCTS));
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         
-        // الأكواد التي أرسلتها (Anti-Adblock JS SYNC)
         const defaultAds = `<script src="https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js"></script>\n<script src="https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js"></script>`;
 
         const defaultSettings = {
@@ -78,7 +77,6 @@ const save = () => {
 // --- وظيفة حقن الإعلانات المطورة (دعم JS SYNC) ---
 const injectAds = () => {
     const isDashboard = window.location.hash.startsWith('#/dashboard');
-    
     if (isDashboard) {
         document.querySelectorAll('.dynamic-ad-script').forEach(el => el.remove());
         state.adsInjected = false;
@@ -86,32 +84,34 @@ const injectAds = () => {
     }
 
     if (!state.adsInjected && state.settings.adsterraHeader) {
-        console.log('Executing Ads SYNC...');
-        
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = state.settings.adsterraHeader;
         const scripts = tempDiv.querySelectorAll('script');
 
         scripts.forEach(oldScript => {
             const newScript = document.createElement('script');
-            
-            // نقل كل السمات (Attributes)
             Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            
-            // تفعيل المزامنة (JS SYNC) - تعطيل async إذا لم يكن موجوداً بشكل صريح
-            if (!oldScript.hasAttribute('async')) {
-                newScript.async = false;
-            }
-            
+            if (!oldScript.hasAttribute('async')) { newScript.async = false; }
             newScript.textContent = oldScript.textContent;
             newScript.classList.add('dynamic-ad-script');
             newScript.setAttribute('data-ad-type', 'sync');
-            
-            // الحقن في الـ Head هو الأفضل لسكربتات Anti-Adblock
             document.head.appendChild(newScript);
         });
-
         state.adsInjected = true;
+    }
+};
+
+// --- وظيفة تبديل رؤية كلمة السر ---
+(window as any).togglePassword = (inputId: string, btn: HTMLElement) => {
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '👁️‍🗨️';
+        btn.classList.add('text-blue-600');
+    } else {
+        input.type = 'password';
+        btn.innerHTML = '👁️';
+        btn.classList.remove('text-blue-600');
     }
 };
 
@@ -263,7 +263,10 @@ const UI = {
             <div class="max-w-sm mx-auto py-24 px-4 text-center">
                 <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border shadow-2xl">
                     <h2 class="text-2xl font-black mb-6">دخول الإدارة</h2>
-                    <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl text-center mb-6 outline-none">
+                    <div class="relative mb-6">
+                        <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 border rounded-2xl text-center outline-none">
+                        <button onclick="togglePassword('pass', this)" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl grayscale hover:grayscale-0 transition">👁️</button>
+                    </div>
                     <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black">دخول</button>
                 </div>
             </div>
@@ -398,8 +401,12 @@ const UI = {
                     <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-2">كلمة سر الإدارة</label>
-                    <input id="set-pass" type="text" value="${state.settings.adminPass}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
+                    <label class="block text-sm font-bold mb-2 text-blue-600 font-black">تعديل كلمة سر الإدارة</label>
+                    <div class="relative">
+                        <input id="set-pass" type="password" value="${state.settings.adminPass}" class="w-full p-4 pl-12 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="togglePassword('set-pass', this)" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl grayscale hover:grayscale-0 transition">👁️</button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2 italic">* استخدم أيقونة العين للتأكد من كلمة السر الجديدة قبل الحفظ.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-bold mb-2">أكواد الإعلانات و Anti-Adblock (JS SYNC)</label>
@@ -516,7 +523,6 @@ const router = () => {
 
     if (hash === '#/dashboard' && state.isAdmin) (window as any).switchTab('orders');
     
-    // حقن الإعلانات مع دعم المزامنة (SYNC)
     injectAds();
 };
 
