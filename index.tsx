@@ -3,6 +3,16 @@
  * storehalal - Full E-commerce & Blog Engine (Adsterra & SEO Ready 💰)
  */
 
+// --- الروابط الجديدة والمستقرة للصور ---
+const IMAGES = {
+    watch: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800',
+    headphones: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800',
+    charger: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&q=80&w=800',
+    cable: 'https://images.unsplash.com/photo-1610492421943-88d2f38f8176?auto=format&fit=crop&q=80&w=800',
+    article: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200',
+    placeholder: 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?auto=format&fit=crop&q=10&w=10' // صورة ضبابية خفيفة كاحتياط
+};
+
 // --- البيانات الافتراضية ---
 const INITIAL_PRODUCTS = [
     {
@@ -10,7 +20,7 @@ const INITIAL_PRODUCTS = [
         name: 'ساعة ذكية Ultra Series 9',
         description: 'ساعة ذكية متطورة مع شاشة AMOLED ودعم كامل للمكالمات وتتبع الصحة.',
         price: 450,
-        image: 'https://images.unsplash.com/photo-1544117518-30dd5ff7a9b0?auto=format&fit=crop&q=80&w=800',
+        image: IMAGES.watch,
         category: 'إلكترونيات'
     },
     {
@@ -18,7 +28,7 @@ const INITIAL_PRODUCTS = [
         name: 'سماعات Air-Pro لاسلكية',
         description: 'جودة صوت استثنائية مع خاصية إلغاء الضوضاء وبطارية تدوم طويلاً.',
         price: 290,
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800',
+        image: IMAGES.headphones,
         category: 'إكسسوارات'
     },
     {
@@ -26,8 +36,16 @@ const INITIAL_PRODUCTS = [
         name: 'شاحن سريع 65W GaN',
         description: 'شاحن جداري فائق السرعة متوافق مع جميع الهواتف والحواسيب المحمولة.',
         price: 180,
-        image: 'https://images.unsplash.com/photo-1610492421943-88d2f38f8176?auto=format&fit=crop&q=80&w=800',
+        image: IMAGES.charger,
         category: 'إلكترونيات'
+    },
+    {
+        id: 'p4',
+        name: 'كابل شحن سريع Type-C',
+        description: 'كابل متين مغطى بالنايلون يدعم الشحن السريع ونقل البيانات السريع.',
+        price: 45,
+        image: IMAGES.cable,
+        category: 'إكسسوارات'
     }
 ];
 
@@ -39,7 +57,7 @@ const INITIAL_ARTICLES = [
         content: `في storehalal، نسعى لتقديم أفضل المنتجات التقنية بأسعار تنافسية. جودة المنتجات هي أولويتنا القصوى، حيث نقوم بفحص كل قطعة قبل إرسالها.
         
 نتميز بخدمة التوصيل السريع لجميع المدن المغربية، ونوفر ميزة الدفع عند الاستلام لضمان راحة بال زبنائنا.`,
-        image: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&q=80&w=1200',
+        image: IMAGES.article,
         date: new Date().toISOString()
     }
 ];
@@ -64,6 +82,21 @@ let state = {
     orders: JSON.parse(localStorage.getItem('orders') || '[]'),
     isAdmin: sessionStorage.getItem('isAdmin') === 'true',
     currentTab: 'orders'
+};
+
+// وظيفة لإصلاح الروابط المكسورة تلقائياً في LocalStorage
+const autoFixImages = () => {
+    let changed = false;
+    state.products.forEach((p: any) => {
+        if (!p.image || p.image.includes('picsum.photos') || p.image.includes('1617625818242')) {
+            const match = INITIAL_PRODUCTS.find(ip => ip.id === p.id);
+            if (match) {
+                p.image = match.image;
+                changed = true;
+            }
+        }
+    });
+    if (changed) saveState();
 };
 
 const saveState = () => {
@@ -91,13 +124,11 @@ const injectAd = (containerId: string, code: string) => {
     container.appendChild(documentFragment);
 };
 
-// وظيفة لحقن السكربتات العالمية (مثل الإعلانات المنبثقة) في كل الصفحات
 const injectGlobalAds = () => {
     const globalAdContainer = document.getElementById('global-ad-scripts') || document.createElement('div');
     globalAdContainer.id = 'global-ad-scripts';
     if (!document.getElementById('global-ad-scripts')) document.body.appendChild(globalAdContainer);
     
-    // حقن كود الهيدر كسكريبت عالمي
     if (state.settings.adsterra.header) {
         injectAd('global-ad-scripts', state.settings.adsterra.header);
     }
@@ -146,12 +177,19 @@ const renderStore = () => {
             </section>
 
             <div class="max-w-7xl mx-auto px-4 py-12">
-                <h2 class="text-2xl font-black mb-8 border-r-4 border-blue-600 pr-4">وصل حديثاً 🔥</h2>
+                <div class="flex justify-between items-center mb-8 border-r-4 border-blue-600 pr-4">
+                    <h2 class="text-2xl font-black">وصل حديثاً 🔥</h2>
+                    <span class="text-xs text-slate-400">تحديث تلقائي للصور ✅</span>
+                </div>
+                
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
                     ${state.products.map((p: any) => `
                         <div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group">
                             <div class="relative aspect-square overflow-hidden bg-slate-100">
-                                <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                <img src="${p.image}" 
+                                     onerror="this.src='${IMAGES.placeholder}'; console.log('Image failed, using placeholder');" 
+                                     alt="${p.name}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 <div class="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full">${p.category}</div>
                             </div>
                             <div class="p-4 text-right">
@@ -167,8 +205,10 @@ const renderStore = () => {
                     <h2 class="text-2xl font-black mb-8 border-r-4 border-slate-900 dark:border-white pr-4">آخر المقالات التقنية ✍️</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         ${state.articles.map((a: any) => `
-                            <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex gap-4 p-3 cursor-pointer">
-                                <img src="${a.image}" class="w-24 h-24 rounded-xl object-cover">
+                            <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex gap-4 p-3 cursor-pointer group">
+                                <div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+                                    <img src="${a.image}" onerror="this.src='${IMAGES.placeholder}'" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                                </div>
                                 <div>
                                     <h4 class="font-bold text-sm dark:text-white line-clamp-2">${a.title}</h4>
                                     <p class="text-xs text-slate-500 mt-2 line-clamp-2">${a.excerpt}</p>
@@ -197,7 +237,7 @@ const renderCart = () => {
                     ${state.cart.map((item: any) => `
                         <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
                             <div class="flex items-center gap-4">
-                                <img src="${item.image}" class="w-16 h-16 rounded-lg object-cover">
+                                <img src="${item.image}" onerror="this.src='${IMAGES.placeholder}'" class="w-16 h-16 rounded-lg object-cover">
                                 <div>
                                     <h3 class="font-bold dark:text-white">${item.name}</h3>
                                     <p class="text-blue-600 font-bold">${item.price} د.م.</p>
@@ -300,7 +340,7 @@ const renderArticle = (id: string) => {
     return `
         <div class="max-w-4xl mx-auto px-4 py-12 text-right animate-fadeIn">
             <h1 class="text-3xl font-black mb-6 dark:text-white">${article.title}</h1>
-            <img src="${article.image}" class="w-full rounded-3xl mb-8">
+            <img src="${article.image}" onerror="this.src='${IMAGES.placeholder}'" class="w-full rounded-3xl mb-8 shadow-lg">
             <div id="ad-art-m" class="my-8 min-h-[250px]"></div>
             <div class="prose prose-lg dark:prose-invert max-w-none leading-loose">
                 ${article.content.split('\n').map((p:string)=>`<p>${p}</p>`).join('')}
@@ -344,24 +384,26 @@ const renderArticle = (id: string) => {
             <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
                 <div>
                     <label class="block font-bold mb-2">كود الهيدر / الإعلانات المنبثقة (Header Script)</label>
-                    <p class="text-xs text-slate-500 mb-2">هذا هو المكان الذي يوضع فيه سكريبت الـ Social Bar أو الـ Pop-under.</p>
                     <textarea id="ad-h" class="w-full p-3 bg-slate-50 dark:bg-slate-800 font-mono text-xs h-32" dir="ltr">${state.settings.adsterra.header}</textarea>
                 </div>
-                <div><label class="block font-bold mb-2">كود وسط المقال (Native Ads)</label><textarea id="ad-m" class="w-full p-3 bg-slate-50 dark:bg-slate-800 font-mono text-xs h-32" dir="ltr">${state.settings.adsterra.middle}</textarea></div>
-                <div><label class="block font-bold mb-2">كود الفوتر (Footer Banner)</label><textarea id="ad-b" class="w-full p-3 bg-slate-50 dark:bg-slate-800 font-mono text-xs h-32" dir="ltr">${state.settings.adsterra.bottom}</textarea></div>
+                <div><label class="block font-bold mb-2">كود وسط المقال</label><textarea id="ad-m" class="w-full p-3 bg-slate-50 dark:bg-slate-800 font-mono text-xs h-32" dir="ltr">${state.settings.adsterra.middle}</textarea></div>
+                <div><label class="block font-bold mb-2">كود الفوتر</label><textarea id="ad-b" class="w-full p-3 bg-slate-50 dark:bg-slate-800 font-mono text-xs h-32" dir="ltr">${state.settings.adsterra.bottom}</textarea></div>
                 <button onclick="saveAds()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">تحديث الإعلانات ✅</button>
             </div>
         `;
     } else if (tab === 'products') {
         panel.innerHTML = `
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black dark:text-white">المنتجات (${state.products.length})</h2>
-                <button onclick="openProductModal()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">+ منتج جديد</button>
+                <h2 class="text-2xl font-black dark:text-white">إدارة المنتجات</h2>
+                <div class="flex gap-2">
+                    <button onclick="resetToDefaults()" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold">⚠️ استعادة الصور الافتراضية</button>
+                    <button onclick="openProductModal()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">+ منتج جديد</button>
+                </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 ${state.products.map((p: any) => `
                     <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-                        <img src="${p.image}" class="w-full h-32 object-cover rounded-xl mb-4">
+                        <img src="${p.image}" onerror="this.src='${IMAGES.placeholder}'" class="w-full h-32 object-cover rounded-xl mb-4">
                         <h4 class="font-bold dark:text-white text-sm truncate">${p.name}</h4>
                         <div class="flex justify-between items-center mt-3">
                             <span class="text-blue-600 font-black">${p.price} د.م.</span>
@@ -376,7 +418,7 @@ const renderArticle = (id: string) => {
                     <div class="space-y-4">
                         <input id="p-name" placeholder="اسم المنتج" class="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none dark:text-white">
                         <input id="p-price" type="number" placeholder="السعر" class="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none dark:text-white">
-                        <input id="p-image" placeholder="رابط الصورة" class="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none dark:text-white">
+                        <input id="p-image" placeholder="رابط الصورة (Unsplash)" class="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none dark:text-white">
                         <textarea id="p-desc" placeholder="وصف قصير" class="w-full p-3 bg-slate-100 dark:bg-slate-800 rounded-xl outline-none dark:text-white h-24"></textarea>
                     </div>
                     <div class="flex gap-4 mt-8">
@@ -391,11 +433,19 @@ const renderArticle = (id: string) => {
     }
 };
 
+(window as any).resetToDefaults = () => {
+    if(confirm('سيتم حذف جميع تعديلاتك وإرجاع الصور الأصلية الشغالة. هل أنت متأكد؟')) {
+        localStorage.removeItem('products');
+        localStorage.removeItem('articles');
+        location.reload();
+    }
+};
+
 (window as any).openProductModal = () => document.getElementById('product-modal')?.classList.replace('hidden', 'flex');
 (window as any).saveNewProduct = () => {
     const name = (document.getElementById('p-name') as HTMLInputElement).value;
     const price = Number((document.getElementById('p-price') as HTMLInputElement).value);
-    const image = (document.getElementById('p-image') as HTMLInputElement).value;
+    const image = (document.getElementById('p-image') as HTMLInputElement).value || IMAGES.placeholder;
     const description = (document.getElementById('p-desc') as HTMLTextAreaElement).value;
     if(!name || !price) return alert('أكمل البيانات');
     state.products.unshift({ id: Date.now().toString(), name, price, image, description, category: 'عام' });
@@ -409,8 +459,8 @@ const renderArticle = (id: string) => {
     state.settings.adsterra.middle = (document.getElementById('ad-m') as HTMLTextAreaElement).value;
     state.settings.adsterra.bottom = (document.getElementById('ad-b') as HTMLTextAreaElement).value;
     saveState();
-    alert('✅ تم حفظ أكواد Adsterra بنجاح! سيتم تفعيلها الآن.');
-    location.reload(); // إعادة تحميل لضمان حقن السكريبتات الجديدة
+    alert('✅ تم حفظ أكواد Adsterra!');
+    location.reload();
 };
 
 const router = () => {
@@ -419,7 +469,8 @@ const router = () => {
     if (!root) return;
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    injectGlobalAds(); // حقن سكريبتات Adsterra في كل صفحة
+    injectGlobalAds();
+    autoFixImages(); // إصلاح الصور المكسورة عند التنقل
 
     if (hash === '#/') root.innerHTML = renderStore();
     else if (hash === '#/cart') root.innerHTML = renderCart();
