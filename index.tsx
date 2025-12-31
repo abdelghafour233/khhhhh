@@ -1,7 +1,7 @@
 
 /**
- * storehalal v5.5 - Password Security & Management 🔐🇲🇦
- * تم إضافة: إيقونة العين لإظهار كلمة السر، وتحسين واجهة تغيير كلمة المرور في الإدارة.
+ * storehalal v5.6 - Order Processing & Security Pro 🚀🇲🇦
+ * تم إضافة: معاينة الطلبيات، معالجة الحالات، وأيقونة العين لكلمات السر.
  */
 
 const FALLBACK_IMAGES = {
@@ -44,7 +44,8 @@ let state: any = {
     isAdmin: false,
     currentTab: 'orders',
     adsInjected: false,
-    editingProduct: null
+    editingProduct: null,
+    viewingOrder: null // لتخزين الطلب الذي يتم معاينته حالياً
 };
 
 const initStore = () => {
@@ -184,10 +185,30 @@ const handleImageUpload = (file: File): Promise<string> => {
         name, city, phone,
         total: state.checkoutItem.price,
         product: state.checkoutItem.name,
+        productImage: state.checkoutItem.image,
+        status: 'pending', // الحالات: pending, completed, cancelled
         date: new Date().toISOString()
     });
     save();
     window.location.hash = '#/success';
+};
+
+// --- وظائف إدارة الطلبات ---
+(window as any).viewOrder = (id: string) => {
+    state.viewingOrder = state.orders.find((o: any) => o.id === id);
+    (window as any).switchTab('orders');
+};
+
+(window as any).closePreview = () => {
+    state.viewingOrder = null;
+    (window as any).switchTab('orders');
+};
+
+(window as any).updateOrderStatus = (id: string, newStatus: string) => {
+    state.orders = state.orders.map((o: any) => o.id === id ? { ...o, status: newStatus } : o);
+    save();
+    if (state.viewingOrder) state.viewingOrder.status = newStatus;
+    (window as any).switchTab('orders');
 };
 
 const UI = {
@@ -292,21 +313,98 @@ const UI = {
     if (!panel) return;
 
     if (tab === 'orders') {
-        panel.innerHTML = `
-            <h2 class="text-3xl font-black mb-8">إدارة الطلبات</h2>
-            <div class="grid gap-4">
-                ${state.orders.map((o: any) => `
-                    <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border dark:border-slate-800 flex justify-between items-center shadow-sm">
-                        <div>
-                            <div class="font-black text-xl mb-1">${o.name}</div>
-                            <div class="text-blue-600 font-bold">${o.phone} | ${o.city}</div>
-                            <div class="text-sm text-slate-500">${o.product} - <span class="text-xs">${new Date(o.date).toLocaleString('ar-MA')}</span></div>
+        if (state.viewingOrder) {
+            const o = state.viewingOrder;
+            const statusLabels: any = { pending: '⏳ قيد الانتظار', completed: '✅ تم التوصيل', cancelled: '❌ ملغى' };
+            const statusColors: any = { pending: 'bg-yellow-100 text-yellow-700', completed: 'bg-green-100 text-green-700', cancelled: 'bg-red-100 text-red-700' };
+            
+            panel.innerHTML = `
+                <div class="max-w-3xl mx-auto animate-fadeIn">
+                    <button onclick="closePreview()" class="mb-6 flex items-center gap-2 text-slate-500 font-bold hover:text-blue-600 transition">
+                        <span>←</span> العودة للطلبيات
+                    </button>
+                    
+                    <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border dark:border-slate-800 shadow-xl overflow-hidden relative">
+                        <div class="absolute top-8 left-8">
+                            <span class="px-4 py-2 rounded-full text-xs font-black ${statusColors[o.status]}">${statusLabels[o.status]}</span>
                         </div>
-                        <button onclick="deleteOrder('${o.id}')" class="text-red-500 font-bold p-3 hover:bg-red-50 rounded-xl transition">حذف</button>
+                        
+                        <h2 class="text-3xl font-black mb-8 border-b pb-4">تفاصيل الطلبية #${o.id.slice(-4)}</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div class="space-y-6">
+                                <h3 class="text-lg font-black text-blue-600">بيانات الزبون</h3>
+                                <div>
+                                    <div class="text-xs text-slate-400 mb-1">الاسم الكامل:</div>
+                                    <div class="font-bold text-xl">${o.name}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 mb-1">رقم الهاتف:</div>
+                                    <div class="font-bold text-xl text-blue-600" dir="ltr">${o.phone}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 mb-1">المدينة:</div>
+                                    <div class="font-bold text-xl">${o.city}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 mb-1">التاريخ:</div>
+                                    <div class="text-sm font-bold">${new Date(o.date).toLocaleString('ar-MA')}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <h3 class="text-lg font-black text-blue-600">المنتج المطلوب</h3>
+                                <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex gap-4 border">
+                                    <img src="${o.productImage || FALLBACK_IMAGES.placeholder}" class="w-20 h-20 rounded-xl object-cover bg-white">
+                                    <div class="flex-1">
+                                        <div class="font-bold text-sm mb-1">${o.product}</div>
+                                        <div class="text-blue-600 font-black text-lg">${o.total} د.م.</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-4 space-y-3">
+                                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">تغيير الحالة</h3>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button onclick="updateOrderStatus('${o.id}', 'pending')" class="px-4 py-2 bg-yellow-50 text-yellow-600 border border-yellow-200 rounded-xl text-xs font-bold hover:bg-yellow-100 transition">⏳ قيد الانتظار</button>
+                                        <button onclick="updateOrderStatus('${o.id}', 'completed')" class="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-xl text-xs font-bold hover:bg-green-100 transition">✅ تم التوصيل</button>
+                                        <button onclick="updateOrderStatus('${o.id}', 'cancelled')" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-100 transition">❌ إلغاء</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                `).join('') || '<p class="text-center opacity-40 py-20 font-bold">لا توجد طلبات</p>'}
-            </div>
-        `;
+                </div>
+            `;
+        } else {
+            panel.innerHTML = `
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-black">إدارة الطلبات</h2>
+                    <div class="text-xs font-bold bg-blue-100 text-blue-600 px-4 py-2 rounded-full">إجمالي الطلبات: ${state.orders.length}</div>
+                </div>
+                <div class="grid gap-4">
+                    ${state.orders.map((o: any) => {
+                        const statusColors: any = { pending: 'text-yellow-500', completed: 'text-green-500', cancelled: 'text-red-500' };
+                        const statusDots: any = { pending: '●', completed: '●', cancelled: '●' };
+                        return `
+                            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border dark:border-slate-800 flex justify-between items-center shadow-sm hover:shadow-md transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center font-black text-slate-400">${o.id.slice(-2)}</div>
+                                    <div>
+                                        <div class="font-black text-lg mb-0.5">${o.name} <span class="text-[10px] ${statusColors[o.status] || ''} mr-2">${statusDots[o.status] || ''}</span></div>
+                                        <div class="text-blue-600 font-bold text-sm" dir="ltr">${o.phone} | ${o.city}</div>
+                                        <div class="text-[10px] text-slate-400 mt-1">${o.product} - ${new Date(o.date).toLocaleDateString('ar-MA')}</div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="viewOrder('${o.id}')" class="bg-blue-50 text-blue-600 px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">معاينة</button>
+                                    <button onclick="deleteOrder('${o.id}')" class="text-red-400 hover:text-red-600 p-2.5 transition">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('') || '<div class="text-center opacity-40 py-20 font-bold">لا توجد طلبات حتى الآن</div>'}
+                </div>
+            `;
+        }
     } else if (tab === 'products') {
         const editing = state.editingProduct;
         panel.innerHTML = `
