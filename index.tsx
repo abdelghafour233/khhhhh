@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.2 - Internal Checkout Edition 🛒
- * تحويل مسار الطلبات ليكون داخلياً بالكامل مع صفحة نجاح مخصصة
+ * storehalal v3.3 - Clean Checkout & City Selection Edition 🛒🇲🇦
+ * تبسيط صفحة الشراء وإضافة قائمة المدن المغربية
  */
 
 const FALLBACK_IMAGES = {
@@ -11,6 +11,12 @@ const FALLBACK_IMAGES = {
     cable: 'https://images.unsplash.com/photo-1610492421943-88d2f38f8176?auto=format&fit=crop&q=80&w=800',
     placeholder: 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?auto=format&fit=crop&q=10&w=10'
 };
+
+const MOROCCAN_CITIES = [
+    "الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", 
+    "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات",
+    "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان", "الناظور"
+].sort();
 
 const DEFAULT_PRODUCTS = [
     { id: 'p1', name: 'ساعة ذكية Ultra Series 9', price: 450, image: FALLBACK_IMAGES.watch, category: 'إلكترونيات' },
@@ -102,7 +108,7 @@ const safeInject = (id: string, code: string) => {
 (window as any).submitOrder = (e: Event) => {
     e.preventDefault();
     const name = (document.getElementById('order-name') as HTMLInputElement).value;
-    const city = (document.getElementById('order-city') as HTMLInputElement).value;
+    const city = (document.getElementById('order-city') as HTMLSelectElement).value;
     const phone = (document.getElementById('order-phone') as HTMLInputElement).value;
 
     if (!name || !city || !phone) {
@@ -125,8 +131,6 @@ const safeInject = (id: string, code: string) => {
     state.orders.unshift(newOrder);
     state.cart = [];
     save();
-    
-    // توجيه لصفحة النجاح الداخلية بدلاً من الواتساب
     window.location.hash = '#/success';
 };
 
@@ -217,39 +221,37 @@ const UI = {
         return `
             <div class="max-w-2xl mx-auto px-4 py-8 md:py-12 animate-fadeIn text-right">
                 <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
-                    <h1 class="text-2xl md:text-3xl font-black mb-2 dark:text-white text-center">تأكيد طلبك 🚚</h1>
-                    <p class="text-slate-500 mb-8 text-sm text-center">أدخل معلومات الشحن لإنهاء عملية الشراء</p>
+                    <h1 class="text-2xl md:text-3xl font-black mb-8 dark:text-white text-center">معلومات الشحن 🚚</h1>
                     
-                    <form onsubmit="submitOrder(event)" class="space-y-5">
+                    <form onsubmit="submitOrder(event)" class="space-y-6">
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">الاسم الكامل</label>
-                            <input id="order-name" type="text" placeholder="مثال: أحمد العلوي" required 
+                            <input id="order-name" type="text" placeholder="الاسم الشخصي والعائلي" required 
                                 class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
                         </div>
                         
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">المدينة</label>
-                            <input id="order-city" type="text" placeholder="مثال: الدار البيضاء" required 
-                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <select id="order-city" required 
+                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                                <option value="" disabled selected>اختر مدينتك</option>
+                                ${MOROCCAN_CITIES.map(city => `<option value="${city}">${city}</option>`).join('')}
+                            </select>
                         </div>
                         
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">رقم الهاتف</label>
-                            <input id="order-phone" type="tel" placeholder="06XXXXXXXX" required dir="ltr"
+                            <input id="order-phone" type="tel" placeholder="رقم الهاتف (مثال: 0600000000)" required dir="ltr"
                                 class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition text-right">
                         </div>
 
-                        <div class="pt-6 border-t dark:border-slate-800">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="font-bold dark:text-white">المجموع الإجمالي:</span>
-                                <span class="text-2xl font-black text-blue-600">${total} د.م.</span>
-                            </div>
-                            <div class="text-green-600 font-bold text-sm mb-6 flex items-center gap-2">
-                                <span>✨ التوصيل بالمجان لجميع المدن</span>
-                                <span class="text-lg">🚚</span>
+                        <div class="pt-8 border-t dark:border-slate-800">
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-bold text-lg dark:text-white">المجموع الإجمالي:</span>
+                                <span class="text-3xl font-black text-blue-600">${total} <span class="text-sm font-bold">د.م.</span></span>
                             </div>
                             <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-green-700 transition active:scale-95">تأكيد الشراء الآن ✅</button>
-                            <p class="text-center text-[10px] text-slate-400 mt-4">الدفع يكون عند الاستلام. سيتم الاتصال بك لتأكيد العنوان.</p>
+                            <p class="text-center text-[10px] text-slate-400 mt-4">🚚 الدفع نقداً عند استلام المنتج</p>
                         </div>
                     </form>
                 </div>
@@ -263,7 +265,6 @@ const UI = {
                 <h1 class="text-3xl font-black mb-4 dark:text-white">تم استلام طلبك بنجاح! 🎉</h1>
                 <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">شكرًا لثقتك بنا. فريقنا سيقوم بالاتصال بك خلال الـ 24 ساعة القادمة عبر الهاتف لتأكيد العنوان وترتيب عملية التوصيل المجانية.</p>
                 <a href="#/" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95">العودة للمتجر 🏠</a>
-                <div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 font-bold">رقم الطلب: #${Math.floor(Math.random()*900000)+100000}</div>
             </div>
         </div>
     `
