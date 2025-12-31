@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.7 - Ads Fix & Stable Order Management 🚀🇲🇦
- * تم إصلاح مشكلة ظهور الإعلانات وضمان استقرار النظام
+ * storehalal v3.8 - Password Visibility Toggle 🚀🇲🇦
+ * إضافة ميزة إظهار وإخفاء كلمة السر في لوحة التحكم
  */
 
 const FALLBACK_IMAGES = {
@@ -65,7 +65,6 @@ const initStore = () => {
             ...storedSettings
         };
 
-        // نضمن دائماً وجود أكواد الإعلانات في الإعدادات حتى لو تم تخزين نسخة قديمة بدونها
         if (!state.settings.adsterra || !state.settings.adsterra.header) {
             state.settings.adsterra = defaultAds;
         }
@@ -84,22 +83,17 @@ const save = () => {
     localStorage.setItem('orders', JSON.stringify(state.orders));
 };
 
-// وظيفة الحقن الآن تقوم بالعمل مرة واحدة فقط لمنع تعطل سكريبتات Adsterra
 const injectAdsOnce = () => {
     if (state.adsInjected || !state.settings.adsterra?.header) return;
-    
     const el = document.getElementById('global-ad-scripts');
     if (!el) return;
-    
     try {
         const range = document.createRange();
         range.selectNode(el);
         const fragment = range.createContextualFragment(state.settings.adsterra.header);
         el.appendChild(fragment);
         state.adsInjected = true;
-    } catch (e) {
-        console.error('Error injecting ads:', e);
-    }
+    } catch (e) { console.error('Error injecting ads:', e); }
 };
 
 // --- Actions ---
@@ -115,23 +109,15 @@ const injectAdsOnce = () => {
     const name = (document.getElementById('order-name') as HTMLInputElement).value;
     const city = (document.getElementById('order-city') as HTMLSelectElement).value;
     const phone = (document.getElementById('order-phone') as HTMLInputElement).value;
-
-    if (!name || !city || !phone || !state.checkoutItem) {
-        alert('يرجى ملء جميع الحقول المطلوبة');
-        return;
-    }
-
+    if (!name || !city || !phone || !state.checkoutItem) return alert('يرجى ملء الحقول');
     const newOrder = {
         id: Date.now().toString(),
-        name,
-        city,
-        phone,
+        name, city, phone,
         total: state.checkoutItem.price,
         items: [state.checkoutItem],
         date: new Date().toISOString(),
         status: 'pending'
     };
-
     state.orders.unshift(newOrder);
     state.checkoutItem = null;
     save();
@@ -139,7 +125,7 @@ const injectAdsOnce = () => {
 };
 
 (window as any).deleteOrder = (id: string) => {
-    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب؟')) return;
+    if (!confirm('هل أنت متأكد؟')) return;
     state.orders = state.orders.filter((o: any) => o.id !== id);
     save();
     (window as any).switchDashTab('orders');
@@ -147,10 +133,21 @@ const injectAdsOnce = () => {
 
 (window as any).updateOrderStatus = (id: string, newStatus: string) => {
     const order = state.orders.find((o: any) => o.id === id);
-    if (order) {
-        order.status = newStatus;
-        save();
-        (window as any).switchDashTab('orders');
+    if (order) { order.status = newStatus; save(); (window as any).switchDashTab('orders'); }
+};
+
+// وظيفة إظهار/إخفاء كلمة السر
+(window as any).togglePass = () => {
+    const passInput = document.getElementById('pass') as HTMLInputElement;
+    const eyeBtn = document.getElementById('eye-icon');
+    if (!passInput || !eyeBtn) return;
+    
+    if (passInput.type === 'password') {
+        passInput.type = 'text';
+        eyeBtn.innerHTML = '👁️'; // عين مفتوحة
+    } else {
+        passInput.type = 'password';
+        eyeBtn.innerHTML = '🙈'; // قرد يغطي عينيه أو عين مغلقة
     }
 };
 
@@ -165,7 +162,6 @@ const UI = {
                     <div class="inline-block bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl font-bold border border-white/20 text-xs md:text-base">🚚 التوصيل بالمجان لجميع المدن</div>
                 </div>
             </section>
-
             <div class="max-w-7xl mx-auto px-4 py-8 md:py-16">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
                     ${state.products.map((p: any) => `
@@ -188,7 +184,6 @@ const UI = {
     checkout: () => {
         if (!state.checkoutItem) { window.location.hash = '#/'; return ''; }
         const item = state.checkoutItem;
-        
         return `
             <div class="max-w-2xl mx-auto px-4 py-8 md:py-12 animate-fadeIn text-right">
                 <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
@@ -199,35 +194,18 @@ const UI = {
                             <p class="text-blue-600 font-black">${item.price} د.م.</p>
                         </div>
                     </div>
-
                     <h1 class="text-2xl font-black mb-8 dark:text-white text-center">معلومات الشحن 🚚</h1>
-                    
                     <form onsubmit="submitOrder(event)" class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">الاسم الكامل</label>
-                            <input id="order-name" type="text" placeholder="الاسم الشخصي والعائلي" required 
-                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">المدينة</label>
-                            <select id="order-city" required 
-                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
-                                <option value="" disabled selected>اختر مدينتك</option>
-                                ${MOROCCAN_CITIES.map(city => `<option value="${city}">${city}</option>`).join('')}
-                            </select>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">رقم الهاتف</label>
-                            <input id="order-phone" type="tel" placeholder="06XXXXXXXX" required dir="ltr"
-                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition text-right">
-                        </div>
-
+                        <input id="order-name" type="text" placeholder="الاسم الكامل" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <select id="order-city" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer">
+                            <option value="" disabled selected>اختر مدينتك</option>
+                            ${MOROCCAN_CITIES.map(city => `<option value="${city}">${city}</option>`).join('')}
+                        </select>
+                        <input id="order-phone" type="tel" placeholder="06XXXXXXXX" required dir="ltr" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition text-right">
                         <div class="pt-8 border-t dark:border-slate-800">
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-bold text-lg dark:text-white">المجموع الإجمالي:</span>
-                                <span class="text-3xl font-black text-green-600">${item.price} <span class="text-sm font-bold">د.م.</span></span>
+                                <span class="text-3xl font-black text-green-600">${item.price} د.م.</span>
                             </div>
                             <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-green-700 transition active:scale-95">تأكيد الشراء الآن ✅</button>
                         </div>
@@ -241,7 +219,7 @@ const UI = {
             <div class="bg-white dark:bg-slate-900 p-10 md:p-16 rounded-[3rem] shadow-2xl border border-slate-50 dark:border-slate-800">
                 <div class="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center text-5xl mx-auto mb-8 animate-bounce">✓</div>
                 <h1 class="text-3xl font-black mb-4 dark:text-white">تم استلام طلبك بنجاح! 🎉</h1>
-                <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">شكرًا لثقتك بنا. فريقنا سيقوم بالاتصال بك خلال الـ 24 ساعة القادمة عبر الهاتف لتأكيد العنوان وترتيب عملية التوصيل المجانية.</p>
+                <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">فريقنا سيقوم بالاتصال بك خلال الـ 24 ساعة القادمة لتأكيد الطلب.</p>
                 <a href="#/" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95">العودة للمتجر 🏠</a>
             </div>
         </div>
@@ -253,15 +231,11 @@ const UI = {
     state.currentTab = tab;
     const panel = document.getElementById('dash-panel');
     if (!panel) return;
-
     if (tab === 'ads') {
         panel.innerHTML = `
             <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">💰 إعدادات الأرباح</h2>
             <div class="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-6 text-right shadow-sm">
-                <div>
-                    <label class="block text-sm font-bold mb-2 dark:text-slate-300">أكواد Adsterra</label>
-                    <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white font-mono text-[10px] h-48 border rounded-2xl outline-none" dir="ltr"></textarea>
-                </div>
+                <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white font-mono text-[10px] h-48 border rounded-2xl outline-none" dir="ltr"></textarea>
                 <button onclick="saveDashAds()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg hover:bg-blue-700 transition">حفظ التغييرات</button>
             </div>
         `;
@@ -281,12 +255,9 @@ const UI = {
                             </div>
                             <div class="text-sm text-blue-600 font-black" dir="ltr">${o.phone}</div>
                             <div class="text-xs text-slate-500 font-bold">${o.city} • المنتج: ${o.items[0]?.name || 'غير معروف'}</div>
-                            <div class="text-[10px] text-slate-400 font-bold">${new Date(o.date).toLocaleString('ar-MA')}</div>
                         </div>
-                        
                         <div class="flex flex-col md:items-end gap-3 w-full md:w-auto">
                             <div class="font-black text-2xl text-green-600">${o.total} د.م.</div>
-                            
                             <div class="flex gap-2 flex-wrap">
                                 <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold p-2 rounded-lg outline-none cursor-pointer">
                                     <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>قيد الانتظار</option>
@@ -299,7 +270,6 @@ const UI = {
                         </div>
                     </div>
                 `}).join('')}
-                ${state.orders.length === 0 ? '<div class="text-center py-20 text-slate-400 font-bold">لا توجد طلبات بعد.</div>' : ''}
             </div>
         `;
     }
@@ -307,9 +277,7 @@ const UI = {
 
 (window as any).saveDashAds = () => {
     state.settings.adsterra.header = (document.getElementById('ad-h') as any).value;
-    save();
-    alert('✅ تم الحفظ! سيتم إعادة تحميل الصفحة لتفعيل الأكواد.');
-    location.reload();
+    save(); alert('✅ تم الحفظ!'); location.reload();
 };
 
 const renderDashboard = () => {
@@ -317,8 +285,18 @@ const renderDashboard = () => {
         <div class="max-w-md mx-auto py-16 px-4 text-right animate-fadeIn">
             <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border shadow-2xl">
                 <h2 class="text-2xl font-black mb-6 dark:text-white text-center">دخول الإدارة</h2>
-                <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border rounded-2xl mb-4 text-center">
-                <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl">دخول</button>
+                
+                <div class="relative mb-4">
+                    <input id="pass" type="password" placeholder="كلمة السر" 
+                        class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition text-center pr-4 pl-12">
+                    
+                    <button onclick="togglePass()" id="eye-icon" type="button" 
+                        class="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-slate-200 dark:bg-slate-700 rounded-xl hover:opacity-80 transition text-lg">
+                        🙈
+                    </button>
+                </div>
+                
+                <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95">دخول</button>
             </div>
         </div>
     `;
@@ -326,9 +304,9 @@ const renderDashboard = () => {
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-right animate-fadeIn">
             <aside class="w-full md:w-72 bg-slate-900 text-white p-6 md:p-8 flex flex-col gap-2 shadow-2xl z-20">
                 <div class="text-xl font-black text-blue-500 mb-8">إدارة المتجر</div>
-                <nav class="flex md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                    <button onclick="switchDashTab('orders')" class="flex-shrink-0 p-4 bg-white/5 rounded-2xl font-bold">📦 الطلبات</button>
-                    <button onclick="switchDashTab('ads')" class="flex-shrink-0 p-4 hover:bg-white/5 rounded-2xl font-bold">💰 الأرباح</button>
+                <nav class="flex md:flex-col gap-2">
+                    <button onclick="switchDashTab('orders')" class="p-4 bg-white/5 rounded-2xl font-bold">📦 الطلبات</button>
+                    <button onclick="switchDashTab('ads')" class="p-4 hover:bg-white/5 rounded-2xl font-bold">💰 الأرباح</button>
                     <button onclick="logout()" class="p-4 text-red-400 font-black mt-auto">🚪 تسجيل الخروج</button>
                 </nav>
             </aside>
@@ -345,13 +323,11 @@ const renderDashboard = () => {
 
 (window as any).logout = () => { state.isAdmin = false; sessionStorage.removeItem('isAdmin'); router(); };
 
-// --- Router & Main Logic ---
 const router = () => {
     const root = document.getElementById('app-root');
     if (!root) return;
     const hash = window.location.hash || '#/';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
     if (hash === '#/') root.innerHTML = UI.store();
     else if (hash === '#/checkout') root.innerHTML = UI.checkout();
     else if (hash === '#/success') root.innerHTML = UI.success();
@@ -377,7 +353,6 @@ const updateUI = () => {
             </footer>
         `;
     }
-    // نقوم بحقن الإعلانات فقط إذا لم يتم حقنها سابقاً في الجلسة الحالية
     injectAdsOnce();
 };
 
