@@ -1,46 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- SEO الأساسي -->
-    <title>storehalal | منصة التدوين التقنية والبرمجة الاحترافية 🇲🇦</title>
-    <meta name="description" content="storehalal هي منصتك الرائدة لتعلم البرمجة، تطوير المواقع، وأحدث تقنيات الذكاء الاصطناعي. مقالات معمقة ودعم فني للمطورين العرب.">
-    <meta name="keywords" content="برمجة، تطوير مواقع، ذكاء اصطناعي، تعلم البرمجة بالعربية، سيو، SEO، تجارة إلكترونية، المغرب">
+    <!-- SEO -->
+    <title>storehalal | متجر التكنولوجيا والدفع عند الاستلام 🇲🇦</title>
+    <meta name="description" content="متجر storehalal هو وجهتك الأولى في المغرب لشراء أحدث المنتجات التقنية بأسعار منافسة مع ميزة الدفع عند الاستلام.">
+    <meta name="keywords" content="متجر إلكتروني، المغرب، تسوق، إلكترونيات، دفع عند الاستلام، COD">
     <meta name="author" content="storehalal Team">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://storehalal.com/">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://storehalal.com/">
-    <meta property="og:title" content="storehalal | منصة التدوين التقنية والبرمجة الاحترافية">
-    <meta property="og:description" content="اكتشف عالم البرمجة والتقنية مع مقالاتنا المتخصصة ودليلك للنجاح الرقمي.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://storehalal.com/">
-    <meta property="twitter:title" content="storehalal | منصة التدوين التقنية">
-    <meta property="twitter:description" content="دليلك الشامل لاحتراف البرمجة وتطوير المواقع في 2025.">
-    <meta property="twitter:image" content="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200">
-
-    <!-- Structured Data (Schema.org) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "storehalal",
-      "url": "https://storehalal.com/",
-      "logo": "https://storehalal.com/logo.png",
-      "description": "منصة تدوين تقنية متخصصة في البرمجة وتطوير الويب.",
-      "sameAs": [
-        "https://facebook.com/storehalal",
-        "https://twitter.com/storehalal"
-      ]
-    }
-    </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
@@ -55,26 +25,12 @@
         }
     </script>
     <style>
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background-color: #f8fafc; 
-            overflow-x: hidden; 
-            width: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
         .dark body { background-color: #020617; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
-        
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-        img, video, iframe { max-width: 100%; height: auto; }
-        .prose p { word-break: break-word; }
     </style>
 <script type="importmap">
 {
@@ -90,21 +46,18 @@
 
     <header class="sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <nav class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-            <a href="#/" class="text-lg md:text-2xl font-black text-primary flex items-center gap-2">
-                <span class="bg-primary text-white p-1 rounded-lg px-2 text-sm md:text-base">S</span>
-                <span class="truncate">store<span class="text-slate-900 dark:text-white font-light">halal</span></span>
+            <a href="#/" class="text-xl md:text-2xl font-black text-primary flex items-center gap-2">
+                <span class="bg-primary text-white p-1 rounded-lg px-2 text-sm">S</span>
+                <span>store<span class="text-slate-900 dark:text-white font-light">halal</span></span>
             </a>
 
-            <div class="flex items-center gap-2 md:gap-8">
-                <div class="hidden sm:flex items-center gap-6 font-bold text-xs md:text-sm">
-                    <a href="#/" class="hover:text-primary transition">الرئيسية</a>
-                    <a href="#/dashboard" class="bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-lg">🔐 الإدارة</a>
-                </div>
-                
-                <div class="flex items-center gap-2 border-r border-slate-200 dark:border-slate-800 pr-2 md:pr-4 mr-2 md:mr-0">
-                    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-full text-sm">🌙</button>
-                    <a href="#/dashboard" class="sm:hidden p-2 bg-slate-100 dark:bg-slate-900 rounded-full text-sm">🔐</a>
-                </div>
+            <div class="flex items-center gap-4">
+                <a href="#/cart" class="relative p-2 bg-slate-100 dark:bg-slate-900 rounded-full hover:bg-blue-600 hover:text-white transition">
+                    <span class="text-xl">🛒</span>
+                    <span class="cart-badge absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                </a>
+                <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-full text-sm">🌙</button>
+                <a href="#/dashboard" class="hidden sm:inline-block bg-slate-900 dark:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold">🔐 الإدارة</a>
             </div>
         </nav>
     </header>
