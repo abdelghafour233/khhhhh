@@ -1,11 +1,11 @@
 
 /**
- * Halal Digital Services - Version 4.8
- * Feature: Social Sharing & Footer Social Icons
+ * Halal Digital Services - Version 4.9
+ * Feature: Optimized Footer Social Links & Version Sync
  */
 
 // --- Constants & Data ---
-const APP_VERSION = '4.8'; 
+const APP_VERSION = '4.9'; 
 
 const INITIAL_PROJECTS = [
     { 
@@ -450,7 +450,7 @@ const router = () => {
     else if (hash.startsWith('#/article/')) root.innerHTML = renderArticleDetail(hash.replace('#/article/', ''));
     else if (isDashboard) {
         if (sessionStorage.getItem('isAdmin') !== 'true') {
-            root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4"><div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-md w-full max-w-md"><h2 class="text-2xl font-black dark:text-white">تسجيل الدخول</h2><input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center font-bold outline-none" placeholder="كلمة السر"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl">دخول آمن</button></div></div>`;
+            root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4"><div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md"><h2 class="text-2xl font-black dark:text-white">تسجيل الدخول</h2><input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center font-bold outline-none" placeholder="كلمة السر"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl">دخول آمن</button></div></div>`;
         } else {
             root.innerHTML = renderDashboard();
             (window as any).switchTab('articles');
