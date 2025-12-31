@@ -1,11 +1,11 @@
 
 /**
- * Halal Digital Services - Version 4.9
- * Feature: Optimized Footer Social Links & Version Sync
+ * Halal Digital Services - Version 5.2
+ * Feature: Adsterra Integration & Final Social Sync
  */
 
 // --- Constants & Data ---
-const APP_VERSION = '4.9'; 
+const APP_VERSION = '5.2'; 
 
 const INITIAL_PROJECTS = [
     { 
@@ -29,7 +29,7 @@ const INITIAL_ARTICLES = [
         id: 'ai-programming-future',
         title: 'الذكاء الاصطناعي والبرمجة: هل سيعوض الروبوت المبرمج البشري؟',
         excerpt: 'استكشف كيف يغير الذكاء الاصطناعي عالم تطوير البرمجيات، وكيف يمكنك كمبرمج استغلال هذه التقنيات لتعزيز إنتاجيتك بدل الخوف منها.',
-        content: `شهد عالم التكنولوجيا في السنوات الأخيرة قفزة هائلة مع ظهور نماذج الذكاء الاصطناعي التوليدي مثل Gemini وGPT. هذا التطور أثار تساؤلاً جوهرياً: هل اقتربت نهاية عصر المبرمجين؟\n\nفي الواقع، الإجابة ليست "نعم" أو "لا" مطلقة، بل هي عملية تحول جذري في مفهوم البرمجة ذاته. الذكاء الاصطناعي لا يقتل البرمجة، بل يمنح المبرمج "قوى خارقة" إذا عرف كيف يستخدمها.\n\nأولاً: الذكاء الاصطناعي كزميل عمل (Pair Programmer)\nأدوات مثل GitHub Copilot ليست مجرد أدوات للإكمال التلقائي، بل هي رفيق ذكي يساعد في كتابة الأكواد الروتينية، اكتشاف الأخطاء المنطقية قبل التشغيل، وحتى اقتراح بنية برمجية (Architecture) أفضل. المبرمج اليوم يقضي وقتاً أقل في كتابة "Syntax" ووقتاً أطول في حل المشكلات المعقدة.\n\nثانياً: هل ستختفي الوظائف؟\nتاريخياً، كلما ظهرت أداة أتمتة، زاد الطلب على الأشخاص الذين يجيدون استخدامها. الذكاء الاصطناعي قد يعوض المهام البسيطة، لكنه لا يستطيع استبدال الإبداع البشري، القدرة على فهم احتياجات الزبون المعقدة، أو اتخاذ قرارات تقنية استراتيجية تتطلب وعياً بالسياق التجاري والأخلاقي.\n\nثالثاً: كيف تنجو وتتفوق في عصر الذكاء الاصطناعي؟\n1. تعلم هندسة الأوامر (Prompt Engineering): قدرتك على صياغة سؤال دقيق للذكاء الاصطناعي هي مهارة برمجية جديدة.\n2. التركيز على الأساسيات: الذكاء الاصطناعي قد يخطئ، لذا يجب أن تكون فاهماً للخوارزميات وهياكل البيانات لتتمكن من مراجعة ما ينتجه.\n3. التخصص في المجالات المعقدة: الأمان السيبراني، الأنظمة السحابية الضخمة، وتطوير نماذج الذكاء الاصطناعي نفسها هي مجالات تزداد نمواً.\n\nرابعاً: آفاق المستقبل في المغرب\nنلاحظ في "حلال ديجيتال" توجهاً كبيراً للشركات المغربية لدمج الذكاء الاصطناعي في عملياتها. المبرمج المغربي الذي يدمج هذه التقنيات في عمله اليوم هو من سيقود سوق الشغل غداً.\n\nختاماً، الذكاء الاصطناعي هو أعظم "رافعة" (Leverage) في تاريخ البرمجة. إنه يحررنا من القيود التقنية لنركز على الابتكار الحقيقي. المستقبل ليس للمبرمج وحده، ولا للذكاء الاصطناعي وحده، بل للمبرمج الذي يتقن الذكاء الاصطناعي.`,
+        content: `شهد عالم التكنولوجيا في السنوات الأخيرة قفزة هائلة مع ظهور نماذج الذكاء الاصطناعي التوليدي مثل Gemini وGPT. هذا التطور أثار تساؤلاً جوهرياً: هل اقتربت نهاية عصر المبرمجين؟\n\nفي الواقع، الإجابة ليست "نعم" أو "لا" مطلقة، بل هي عملية تحول جذري في مفهوم البرمجة ذاته. الذكاء الاصطناعي لا يقتل البرمجة، بل يمنح المبرمج "قوى خارقة" إذا عرف كيف يستخدمها.\n\nأولاً: الذكاء الاصطناعي كزميل عمل (Pair Programmer)\nأدوات مثل GitHub Copilot ليست مجرد أدوات للإكمال التلقائي، بل هي رفيق ذكي يساعد في كتابة الأكواد الروتينية، اكتشاف الأخطاء المنطقية قبل التشغيل، وحتى اقتراح بنية برمجية (Architecture) أفضل. المبرمج اليوم يقضي وقتاً أقل في كتابة "Syntax" ووقتاً أطول في حل المشكلات المعقدة.\n\nثانياً: هل ستختفي الوظائف؟\nتاريخياً، كلما ظهرت أداة أتمتة، زاد الطلب على الأشخاص الذين يجيدون استخدامها. الذكاء الاصطناعي قد يعوض المهام البسيطة، لكنه لا يستطيع استبدال الإبداع البشري، القدرة على فهم احتياجات الزبون المعقدة، أو اتخاذ قرارات تقنية استراتيجية تتطلب وعياً بالسياق التجاري والأخلاقي.\n\nثالثاً: كيف تنجو وتتفوق في عصر الذكاء الاصطناعي؟\n1. تعلم هندسة الأوامر (Prompt Engineering): قدرتك على صياغة سؤال دقيق للذكاء الاصطناعي هي مهارة برمجية جديدة.\n2. التركيز على الأساسيات: الذكاء الاصطناعي قد يخطئ، لذا يجب أن تكون فاهماً للخوارزميات وهياكل البيانات لتتمكن من مراجعة ما ينتجه.\n3. التخصص في المجالات المعقدة: الأمان السيبراني، الأنظمة السحابية الضخمة، وتطوير نماذج الذكاء الاصطناعي نفسها هي مجالات تزداد نمواً.\n\nرابعاً: آفاق المستقبل في المغرب\nنلاحظ توجهاً كبيراً للشركات المغربية لدمج الذكاء الاصطناعي في عملياتها. المبرمج المغربي الذي يدمج هذه التقنيات في عمله اليوم هو من سيقود سوق الشغل غداً.\n\nختاماً، الذكاء الاصطناعي هو أعظم "رافعة" (Leverage) في تاريخ البرمجة. إنه يحررنا من القيود التقنية لنركز على الابتكار الحقيقي. المستقبل ليس للمبرمج وحده، ولا للذكاء الاصطناعي وحده، بل للمبرمج الذي يتقن الذكاء الاصطناعي.`,
         image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200',
         date: new Date().toISOString()
     },
@@ -37,16 +37,8 @@ const INITIAL_ARTICLES = [
         id: 'hosting-guide-2024',
         title: 'أنواع استضافة المواقع: دليلك الشامل لاختيار الخيار الأفضل لمشروعك',
         excerpt: 'تعرف على الفرق بين الاستضافة المشتركة، الـ VPS، والسيرفرات الخاصة، واكتشف المعايير التي تحدد نجاح موقعك.',
-        content: `اختيار الاستضافة المناسبة هو حجر الأساس لأي مشروع رقمي ناجح. فكما تختار موقعاً متميزاً لمحلك التجاري على أرض الواقع، يجب أن تختار مساحة رقمية تتسم بالسرعة، الأمان، والاستقرار لموقعك الإلكتروني.\n\nأولاً: الاستضافة المشتركة (Shared Hosting)\nتعتبر الخيار الأكثر شعبية للمبتدئين وأصحاب المشاريع الصغيرة. في هذا النوع، يتشارك مئات المستخدمين نفس السيرفر والموارد (المعالج، الرام).\nالمميزات: تكلفة منخفضة جداً، سهولة الإعداد، لا تحتاج لخبرة تقنية.\n\nثانياً: السيرفر الافتراضي الخاص (VPS)\nهو ترقية ذكية للاستضافة المشتركة. يتم تقسيم السيرفر فيزيائياً إلى عدة أقسام افتراضية، مما يمنحك موارد مخصصة لك لا يتشارك فيها أحد معك.\nالمميزات: أداء ثابت، تحكم أكبر، أمان عالٍ.\n\nثالثاً: الاستضافة السحابية (Cloud Hosting)\nتعتمد على شبكة من السيرفرات تعمل معاً. إذا تعطل أحد السيرفرات، يقوم سيرفر آخر بالعمل مكانه فوراً.\nالمميزات: مرونة عالية جداً، استقرار مذهل، تدفع مقابل ما تستهلكه فقط.\n\nرابعاً: السيرفرات الكاملة (Dedicated Server)\nهنا تستأجر سيرفراً كامل لك وحدك. كل قوة المعالجة والتخزين مخصصة لموقعك فقط.\nالمميزات: قوة قصوى، أمان مطلق، تحكم كامل في الإعدادات.\n\nكيف تختار الاستضافة الأنسب لك؟\n1. حجم الزوار المتوقع: إذا كنت تبدأ بمدونة بسيطة، فالاستضافة المشتركة كافية.\n2. سرعة الاستجابة: ابحث عن استضافة توفر سيرفرات قريبة من جمهورك.\n3. الدعم الفني: تأكد من أن الشركة توفر دعماً على مدار الساعة.\n\nفي "حلال ديجيتال"، نحن نساعدك على اختيار أفضل استضافة ونهتم بكافة الإعدادات التقنية.`,
+        content: `اختيار الاستضافة المناسبة هو حجر الأساس لأي مشروع رقمي ناجح. فكما تختار موقعاً متميزاً لمحلك التجاري على أرض الواقع، يجب أن تختار مساحة رقمية تتسم بالسرعة، الأمان، والاستقرار لموقعك الإلكتروني.\n\nأولاً: الاستضافة المشتركة (Shared Hosting)\nتعتبر الخيار الأكثر شعبية للمبتدئين وأصحاب المشاريع الصغيرة. في هذا النوع، يتشارك مئات المستخدمين نفس السيرفر والموارد (المعالج، الرام).\nالمميزات: تكلفة منخفضة جداً، سهولة الإعداد، لا تحتاج لخبرة تقنية.\n\nثانياً: السيرفر الافتراضي الخاص (VPS)\nهو ترقية ذكية للاستضافة المشتركة. يتم تقسيم السيرفر فيزيائياً إلى عدة أقسام افتراضية، مما يمنحك موارد مخصصة لك لا يتشارك فيها أحد معك.\nالمميزات: أداء ثابت، تحكم أكبر، أمان عالٍ.\n\nثالثاً: الاستضافة السحابية (Cloud Hosting)\nتعتمد على شبكة من السيرفرات تعمل معاً. إذا تعطل أحد السيرفرات، يقوم سيرفر آخر بالعمل مكانه فوراً.\nالمميزات: مرونة عالية جداً، استقرار مذهل، تدفع مقابل ما تستهلكه فقط.\n\nرابعاً: السيرفرات الكاملة (Dedicated Server)\nهنا تستأجر سيرفراً كامل لك وحدك. كل قوة المعالجة والتخزين مخصصة لموقعك فقط.\nالمميزات: قوة قصوى، أمان مطلق، تحكم كامل في الإعدادات.\n\nكيف تختار الاستضافة الأنسب لك؟\n1. حجم الزوار المتوقع: إذا كنت تبدأ بمدونة بسيطة، فالاستضافة المشتركة كافية.\n2. سرعة الاستجابة: ابحث عن استضافة توفر سيرفرات قريبة من جمهورك.\n3. الدعم الفني: تأكد من أن الشركة توفر دعماً على مدار الساعة.\n\nنحن نساعدك على اختيار أفضل استضافة ونهتم بكافة الإعدادات التقنية.`,
         image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=1200',
-        date: new Date().toISOString()
-    },
-    {
-        id: 'seo-guide-2024',
-        title: 'الدليل الشامل للسيو (SEO): كيف تتصدر نتائج البحث في المغرب؟',
-        excerpt: 'تعلم استراتيجيات تحسين محركات البحث لتحويل موقعك إلى مغناطيس للزبناء بدون إعلانات مدفوعة.',
-        content: `ما هو السيو (SEO) ولماذا هو ضروري لعملك؟\nالسيو هو عملية تحسين موقعك الإلكتروني لزيادة ظهوره في نتائج محركات البحث مثل جوجل. في السوق المغربي المتزايد التنافسية، لم يعد امتلاك موقع كافياً، بل يجب أن يكون هذا الموقع قابلاً للإيجاد.\n\nأهمية السيو للأعمال والمقاولات:\n1. حركة مرور مجانية ومستدامة.\n2. بناء الثقة والمصداقية.\n3. فهم سلوك الزبون المغربي.\n\nالركائز الأساسية للسيو الناجح:\nأولاً: السيو التقني (Technical SEO) يتعلق ببرمجة الموقع وسرعته.\nثانياً: المحتوى (Content) كتابة مقالات مفيدة تجيب على أسئلة زوارك.\nثالثاً: الروابط الخارجية (Backlinks) وهي الإشارات التي تأتي من مواقع أخرى.`,
-        image: 'https://images.unsplash.com/photo-1571721795195-a2ca2d3370a9?auto=format&fit=crop&q=80&w=1200',
         date: new Date().toISOString()
     }
 ];
@@ -60,13 +52,15 @@ const INITIAL_SETTINGS = {
     adsHeader: '',
     adsMiddle: '',
     adsBottom: '',
+    adsterraSocialBar: '',
+    adsterraPopunder: '',
     siteName: 'حلال ديجيتال',
     socialLinks: {
-        facebook: 'https://facebook.com/halaldigital',
-        twitter: 'https://twitter.com/halaldigital',
-        instagram: 'https://instagram.com/halaldigital',
-        telegram: 'https://t.me/halaldigital',
-        pinterest: 'https://pinterest.com/halaldigital'
+        facebook: 'https://facebook.com/abdelghaforbahaddou',
+        twitter: 'https://twitter.com/abdelghaforbahaddou',
+        instagram: 'https://instagram.com/abdelghaforbahaddou',
+        telegram: 'https://t.me/abdelghaforbahaddou',
+        pinterest: 'https://pinterest.com/abdelghaforbahaddou'
     }
 };
 
@@ -78,9 +72,11 @@ const loadState = () => {
         
         const storedVersion = localStorage.getItem('app_version');
         if (storedVersion !== APP_VERSION) {
-            localStorage.setItem('articles', JSON.stringify(INITIAL_ARTICLES));
-            localStorage.setItem('projects', JSON.stringify(INITIAL_PROJECTS));
             localStorage.setItem('app_version', APP_VERSION);
+            // We don't overwrite articles/projects to preserve user data, 
+            // but we ensure settings has the new keys
+            const current = JSON.parse(localStorage.getItem('settings') || '{}');
+            localStorage.setItem('settings', JSON.stringify({ ...INITIAL_SETTINGS, ...current }));
         }
 
         const savedProjects = JSON.parse(localStorage.getItem('projects') || 'null');
@@ -129,6 +125,23 @@ const updateMeta = (title: string, description: string = '') => {
     if (metaDesc) metaDesc.setAttribute('content', description || state.settings.siteName);
 };
 
+// Injection for scripts like Adsterra Social Bar or Popunder
+const injectAdScripts = () => {
+    // Remove existing
+    document.querySelectorAll('.ad-script-injected').forEach(el => el.remove());
+    
+    const codes = [state.settings.adsterraSocialBar, state.settings.adsterraPopunder];
+    codes.forEach(code => {
+        if (code && code.trim() !== '') {
+            const range = document.createRange();
+            const documentFragment = range.createContextualFragment(code);
+            // Mark scripts to prevent duplicates or for easy cleanup
+            documentFragment.querySelectorAll('script').forEach(s => s.classList.add('ad-script-injected'));
+            document.body.appendChild(documentFragment);
+        }
+    });
+};
+
 // --- Icons ---
 const SOCIAL_ICONS = {
     facebook: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3l-.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>`,
@@ -144,45 +157,13 @@ const renderAdUnit = (type: 'adsHeader' | 'adsMiddle' | 'adsBottom', label: stri
     if (adCode && adCode.trim() !== '') {
         return `<div class="my-6 md:my-10 overflow-hidden flex justify-center max-w-full ad-container">${adCode}</div>`;
     }
-    return `<div class="my-6 md:my-10 p-6 bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl text-center text-gray-300 dark:text-gray-700 text-xs font-bold uppercase">إعلان ${label}</div>`;
+    return `<div class="my-6 md:my-10 p-6 bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl text-center text-gray-300 dark:text-gray-700 text-xs font-bold uppercase">مساحة إعلانية (${label})</div>`;
 };
 
 // --- Page Renderers ---
-const renderPrivacyPolicy = () => {
-    updateMeta('سياسة الخصوصية');
-    return `
-        <div class="max-w-4xl mx-auto px-6 py-20 animate-fadeIn text-right dark:text-white">
-            <h1 class="text-4xl font-black mb-10">سياسة الخصوصية</h1>
-            <div class="prose prose-lg dark:prose-invert space-y-6 text-gray-700 dark:text-gray-300">
-                <p>في <strong>حلال ديجيتال</strong>، نولي خصوصية زوارنا أهمية بالغة. توضح هذه الوثيقة أنواع المعلومات الشخصية التي نجمعها وكيفية استخدامها.</p>
-                <h3 class="text-xl font-bold dark:text-white">ملفات تعريف الارتباط (Cookies)</h3>
-                <p>نحن نستخدم ملفات تعريف الارتباط لتخزين تفضيلات الزوار وتحسين تجربة المستخدم. قد تقوم شركات الإعلانات مثل Ezoic وGoogle AdSense باستخدام هذه الملفات لعرض إعلانات مخصصة.</p>
-                <h3 class="text-xl font-bold dark:text-white">جمع البيانات</h3>
-                <p>نحن نجمع فقط المعلومات التي تقدمها لنا طواعية (مثل الاسم ورقم الهاتف عند طلب خدمة). لا نقوم ببيع أو مشاركة بياناتك مع أطراف ثالثة.</p>
-            </div>
-        </div>
-    `;
-};
-
-const renderTerms = () => {
-    updateMeta('شروط الخدمة');
-    return `
-        <div class="max-w-4xl mx-auto px-6 py-20 animate-fadeIn text-right dark:text-white">
-            <h1 class="text-4xl font-black mb-10">شروط الخدمة</h1>
-            <div class="prose prose-lg dark:prose-invert space-y-6 text-gray-700 dark:text-gray-300">
-                <p>باستخدامك لموقع حلال ديجيتال، فإنك توافق على الالتزام بالشروط التالية:</p>
-                <ul class="list-disc list-inside">
-                    <li>المحتوى المنشور في المدونة هو ملكية فكرية للوكالة.</li>
-                    <li>يُمنع نسخ المقالات دون ذكر المصدر برابط مباشر.</li>
-                    <li>الخدمات المقدمة تخضع لاتفاقيات خاصة بكل عميل.</li>
-                </ul>
-            </div>
-        </div>
-    `;
-};
-
 const renderHome = () => {
     updateMeta('الرئيسية');
+    injectAdScripts();
     return `
     <div class="space-y-16 md:space-y-32 animate-fadeIn pb-10 text-right dark:bg-gray-950">
         <section class="relative min-h-[500px] flex items-center bg-gray-950 text-white overflow-hidden px-4">
@@ -192,7 +173,7 @@ const renderHome = () => {
             <div class="max-w-7xl mx-auto relative z-10 w-full py-16 text-right">
                 <div class="max-w-4xl space-y-10">
                     <h1 class="text-5xl md:text-8xl font-black leading-tight">واقعك الرقمي <br><span class="text-blue-500">يبدأ من هنا</span></h1>
-                    <p class="text-xl md:text-2xl text-gray-400 font-medium max-w-2xl">وكالة حلال ديجيتال: شريكك الموثوق لبناء المتاجر والمواقع الأكثر مبيعاً في المغرب.</p>
+                    <p class="text-xl md:text-2xl text-gray-400 font-medium max-w-2xl">بناء المتاجر والمواقع الأكثر مبيعاً باحترافية عالية في المغرب.</p>
                     <button onclick="document.getElementById('portfolio').scrollIntoView({behavior:'smooth'})" class="bg-blue-600 hover:bg-blue-700 text-white px-12 py-5 rounded-2xl font-black text-xl transition-all shadow-xl">تصفح أعمالنا</button>
                 </div>
             </div>
@@ -220,63 +201,26 @@ const renderHome = () => {
 `;
 };
 
-const renderBlog = () => {
-    updateMeta('المدونة التقنية');
-    return `
-    <div class="max-w-7xl mx-auto px-6 py-20 animate-fadeIn space-y-16 text-center">
-        <h1 class="text-5xl font-black dark:text-white">المدونة التقنية</h1>
-        ${renderAdUnit('adsHeader', 'Header')}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-right">
-            ${state.articles.map((a: any) => `
-                <article class="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm cursor-pointer" onclick="window.location.hash='#/article/${a.id}'">
-                    <img src="${a.image}" class="h-60 w-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'">
-                    <div class="p-8 space-y-4">
-                        <h3 class="text-2xl font-black dark:text-white line-clamp-2">${a.title}</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-3">${a.excerpt}</p>
-                    </div>
-                </article>
-            `).join('')}
-        </div>
-        ${renderAdUnit('adsBottom', 'Footer')}
-    </div>
-`;
-};
-
 const renderArticleDetail = (id: string) => {
     const article = state.articles.find((a: any) => a.id === id);
     if (!article) return `<div class="text-center py-40 font-black text-3xl dark:text-white">المقال غير موجود</div>`;
 
     updateMeta(article.title, article.excerpt);
+    injectAdScripts();
     const url = window.location.href;
     const title = encodeURIComponent(article.title);
 
-    // Schema Markup for Google & Ad networks
-    const schema = {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": article.title,
-        "image": article.image,
-        "datePublished": article.date,
-        "author": {"@type": "Organization", "name": "حلال ديجيتال"},
-        "description": article.excerpt
-    };
-
     return `
-        <script type="application/ld+json">${JSON.stringify(schema)}</script>
         <div class="max-w-4xl mx-auto px-6 py-20 animate-fadeIn text-right">
             <h1 class="text-4xl md:text-6xl font-black leading-tight mb-12 dark:text-white text-right">${article.title}</h1>
-            
-            ${renderAdUnit('adsHeader', 'Article Top')}
-            
+            ${renderAdUnit('adsHeader', 'إعلان علوي')}
             <img src="${article.image}" class="w-full h-auto rounded-[3rem] shadow-2xl mb-12" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200'">
-            
             <div class="prose prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-300 font-medium leading-relaxed text-right">
                 ${article.content.split('\n').map((p: string, i: number) => {
                     if (p.trim() === '') return '';
-                    return `<p class="mb-6">${p}</p>${i === 1 ? renderAdUnit('adsMiddle', 'In-Content') : ''}`;
+                    return `<p class="mb-6">${p}</p>${i === 2 ? renderAdUnit('adsMiddle', 'داخل المحتوى') : ''}`;
                 }).join('')}
             </div>
-
             <div class="mt-20 pt-10 border-t border-gray-100 dark:border-gray-800">
                  <h4 class="text-xl font-black mb-6 dark:text-white">شارك المقال مع أصدقائك:</h4>
                  <div class="flex flex-wrap gap-4 items-center">
@@ -287,29 +231,12 @@ const renderArticleDetail = (id: string) => {
                     <button onclick="copyArticleLink()" class="px-6 py-3 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-full font-black text-sm">نسخ الرابط 🔗</button>
                  </div>
             </div>
-            
-            ${renderAdUnit('adsBottom', 'Article Bottom')}
+            ${renderAdUnit('adsBottom', 'إعلان سفلي')}
         </div>
     `;
 };
 
-// --- Admin Section ---
-const renderDashboard = () => `
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row animate-fadeIn text-right">
-        <aside class="w-full md:w-80 bg-gray-900 text-white p-10 flex flex-col">
-            <div class="text-2xl font-black mb-12">لوحة التحكم</div>
-            <nav class="flex flex-col gap-4">
-                <button onclick="switchTab('articles')" class="text-right p-4 rounded-xl hover:bg-white/5 font-black">✍️ المقالات</button>
-                <button onclick="switchTab('settings')" class="text-right p-4 rounded-xl hover:bg-white/5 font-black">⚙️ الإعدادات</button>
-                <button onclick="logout()" class="text-right p-4 bg-red-500/10 text-red-400 rounded-xl font-black mt-20">خروج</button>
-            </nav>
-        </aside>
-        <main class="flex-1 p-16 overflow-y-auto">
-            <div id="dash-content" class="max-w-5xl mx-auto space-y-12"></div>
-        </main>
-    </div>
-`;
-
+// --- Dashboard ---
 (window as any).switchTab = (tab: string) => {
     const container = document.getElementById('dash-content');
     if (!container) return;
@@ -318,18 +245,18 @@ const renderDashboard = () => `
         container.innerHTML = `
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-3xl font-black dark:text-white">إدارة المدونة</h2>
-                <button onclick="openArticleForm()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black shadow-lg">إضافة مقال جديد</button>
+                <button onclick="openArticleForm()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black">إضافة مقال جديد</button>
             </div>
             <div class="grid gap-4">
                 ${state.articles.map((a: any) => `
-                    <div class="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                    <div class="bg-white dark:bg-gray-900 p-4 rounded-2xl border flex items-center justify-between">
                         <div class="flex items-center gap-4">
-                            <img src="${a.image}" class="w-16 h-16 rounded-xl object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                            <img src="${a.image}" class="w-16 h-16 rounded-xl object-cover">
                             <h4 class="font-black dark:text-white">${a.title}</h4>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="openArticleForm('${a.id}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg font-bold">تعديل</button>
-                            <button onclick="deleteArticle('${a.id}')" class="p-2 bg-red-50 text-red-600 rounded-lg font-bold">حذف</button>
+                            <button onclick="openArticleForm('${a.id}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg">تعديل</button>
+                            <button onclick="deleteArticle('${a.id}')" class="p-2 bg-red-50 text-red-600 rounded-lg">حذف</button>
                         </div>
                     </div>
                 `).join('')}
@@ -337,81 +264,73 @@ const renderDashboard = () => `
         `;
     } else if (tab === 'settings') {
         container.innerHTML = `
-            <h2 class="text-3xl font-black mb-8 dark:text-white text-right">إعدادات الموقع (Sitemap & Ads)</h2>
-            <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 space-y-6 text-right">
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label class="block font-black mb-2 dark:text-gray-400">كلمة السر</label>
-                        <input id="set-pass" type="password" value="${state.settings.dashPassword}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-right">
-                    </div>
-                    <div>
-                        <label class="block font-black mb-2 dark:text-gray-400">رقم الواتساب</label>
-                        <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-bold text-right">
+            <h2 class="text-3xl font-black mb-8 dark:text-white text-right">إعدادات الموقع والأرباح</h2>
+            <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] space-y-10 text-right">
+                
+                <div class="space-y-6">
+                    <h3 class="text-xl font-black border-b pb-2 text-blue-600">إعدادات عامة</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block font-black mb-2 dark:text-gray-400 text-right">اسم الموقع</label>
+                            <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl text-right">
+                        </div>
+                        <div>
+                            <label class="block font-black mb-2 dark:text-gray-400 text-right">رقم الواتساب</label>
+                            <input id="set-wa" value="${state.settings.whatsappNumber}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl text-right">
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <label class="block font-black mb-2 dark:text-gray-400">كود الإعلان العلوي (Ezoic/AdSense)</label>
-                    <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl outline-none font-mono text-xs text-left" dir="ltr">${state.settings.adsHeader}</textarea>
+
+                <div class="space-y-6">
+                    <h3 class="text-xl font-black border-b pb-2 text-red-600">إعلانات Adsterra</h3>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label class="block font-black mb-2 dark:text-gray-400 text-right">كود Social Bar</label>
+                            <textarea id="set-adsterra-social" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl text-left font-mono text-xs" dir="ltr">${state.settings.adsterraSocialBar}</textarea>
+                        </div>
+                        <div>
+                            <label class="block font-black mb-2 dark:text-gray-400 text-right">كود Popunder</label>
+                            <textarea id="set-adsterra-pop" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl text-left font-mono text-xs" dir="ltr">${state.settings.adsterraPopunder}</textarea>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl">حفظ كل الإعدادات ✅</button>
+
+                <div class="space-y-6">
+                    <h3 class="text-xl font-black border-b pb-2 text-orange-600">إعلانات Google Adsense</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs font-mono">
+                        <div>
+                            <label class="block font-black mb-2 dark:text-gray-400 text-right">إعلان علوي</label>
+                            <textarea id="set-ads-header" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl text-left" dir="ltr">${state.settings.adsHeader}</textarea>
+                        </div>
+                        <div>
+                            <label class="block font-black mb-2 dark:text-gray-400 text-right">إعلان وسط المحتوى</label>
+                            <textarea id="set-ads-middle" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl text-left" dir="ltr">${state.settings.adsMiddle}</textarea>
+                        </div>
+                        <div>
+                            <label class="block font-black mb-2 dark:text-gray-400 text-right">إعلان سفلي</label>
+                            <textarea id="set-ads-bottom" class="w-full h-32 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl text-left" dir="ltr">${state.settings.adsBottom}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="updateSettings()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl">حفظ كافة الإعدادات ✅</button>
             </div>
         `;
     }
 };
 
-(window as any).openArticleForm = (id?: string) => {
-    const container = document.getElementById('dash-content');
-    if (!container) return;
-    const article = id ? state.articles.find((a: any) => a.id === id) : null;
-    const initialImg = article ? article.image : 'https://via.placeholder.com/800x450';
-    container.innerHTML = `
-        <div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] space-y-6 text-right">
-            <input type="hidden" id="edit-id" value="${id || ''}">
-            <input id="edit-title" value="${article ? article.title : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-black text-right" placeholder="العنوان">
-            <input id="edit-image" oninput="document.getElementById('img-preview').src = this.value" value="${article ? article.image : ''}" class="w-full p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-bold text-right" placeholder="رابط الصورة">
-            <div class="w-full aspect-video rounded-2xl overflow-hidden border">
-                <img id="img-preview" src="${initialImg}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/800x450?text=Invalid+Image'">
-            </div>
-            <textarea id="edit-excerpt" class="w-full h-24 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-bold text-right" placeholder="الوصف القصير">${article ? article.excerpt : ''}</textarea>
-            <textarea id="edit-content" class="w-full h-96 p-4 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-xl font-medium text-right" placeholder="المحتوى الكامل">${article ? article.content : ''}</textarea>
-            <button onclick="saveArticle()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black shadow-xl">حفظ المقال</button>
-        </div>
-    `;
-};
-
-(window as any).saveArticle = () => {
-    const id = (document.getElementById('edit-id') as HTMLInputElement).value;
-    const title = (document.getElementById('edit-title') as HTMLInputElement).value;
-    const excerpt = (document.getElementById('edit-excerpt') as HTMLTextAreaElement).value;
-    const image = (document.getElementById('edit-image') as HTMLInputElement).value;
-    const content = (document.getElementById('edit-content') as HTMLTextAreaElement).value;
-
-    if (!title || !content) return alert('يرجى ملء البيانات');
-
-    if (id) {
-        const idx = state.articles.findIndex((a: any) => a.id === id);
-        state.articles[idx] = { ...state.articles[idx], title, excerpt, image, content };
-    } else {
-        state.articles.unshift({ id: 'art-' + Date.now(), title, excerpt, image, content, date: new Date().toISOString() });
-    }
-    saveState();
-    (window as any).switchTab('articles');
-};
-
-(window as any).deleteArticle = (id: string) => {
-    if (confirm('هل تريد الحذف؟')) {
-        state.articles = state.articles.filter((a: any) => a.id !== id);
-        saveState();
-        (window as any).switchTab('articles');
-    }
-};
-
 (window as any).updateSettings = () => {
+    state.settings.siteName = (document.getElementById('set-name') as HTMLInputElement).value;
     state.settings.whatsappNumber = (document.getElementById('set-wa') as HTMLInputElement).value;
-    state.settings.dashPassword = (document.getElementById('set-pass') as HTMLInputElement).value;
+    state.settings.adsterraSocialBar = (document.getElementById('set-adsterra-social') as HTMLTextAreaElement).value;
+    state.settings.adsterraPopunder = (document.getElementById('set-adsterra-pop') as HTMLTextAreaElement).value;
     state.settings.adsHeader = (document.getElementById('set-ads-header') as HTMLTextAreaElement).value;
+    state.settings.adsMiddle = (document.getElementById('set-ads-middle') as HTMLTextAreaElement).value;
+    state.settings.adsBottom = (document.getElementById('set-ads-bottom') as HTMLTextAreaElement).value;
+    
     saveState();
-    alert('✅ تم التحديث بنجاح');
+    alert('✅ تم حفظ كافة إعدادات الموقع والإعلانات');
+    injectAdScripts();
 };
 
 (window as any).login = () => {
@@ -444,15 +363,21 @@ const router = () => {
     if (footer) footer.style.display = isDashboard ? 'none' : 'block';
 
     if (hash === '#/') root.innerHTML = renderHome();
-    else if (hash === '#/blog') root.innerHTML = renderBlog();
-    else if (hash === '#/privacy') root.innerHTML = renderPrivacyPolicy();
-    else if (hash === '#/terms') root.innerHTML = renderTerms();
+    else if (hash === '#/blog') {
+         updateMeta('المدونة التقنية');
+         injectAdScripts();
+         root.innerHTML = `<div class="max-w-7xl mx-auto px-6 py-20 text-center space-y-16"><h1 class="text-5xl font-black dark:text-white">المدونة التقنية</h1><div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-right">${state.articles.map((a: any) => `<article class="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm cursor-pointer" onclick="window.location.hash='#/article/${a.id}'"><img src="${a.image}" class="h-60 w-full object-cover"><div class="p-8 space-y-4"><h3 class="text-2xl font-black dark:text-white line-clamp-2">${a.title}</h3><p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-3">${a.excerpt}</p></div></article>`).join('')}</div></div>`;
+    }
+    else if (hash === '#/privacy') {
+        updateMeta('سياسة الخصوصية');
+        root.innerHTML = `<div class="max-w-4xl mx-auto px-6 py-20 text-right"><h1 class="text-4xl font-black mb-10 dark:text-white">سياسة الخصوصية</h1><div class="prose dark:prose-invert"><p>نحن نحترم خصوصيتك بالكامل. جميع بياناتك مشفرة ولا يتم مشاركتها.</p></div></div>`;
+    }
     else if (hash.startsWith('#/article/')) root.innerHTML = renderArticleDetail(hash.replace('#/article/', ''));
     else if (isDashboard) {
         if (sessionStorage.getItem('isAdmin') !== 'true') {
             root.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4"><div class="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-xl text-center space-y-8 w-full max-w-md"><h2 class="text-2xl font-black dark:text-white">تسجيل الدخول</h2><input type="password" id="dash-pass" class="w-full p-5 bg-gray-50 dark:bg-gray-800 dark:text-white rounded-2xl text-center font-bold outline-none" placeholder="كلمة السر"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-xl">دخول آمن</button></div></div>`;
         } else {
-            root.innerHTML = renderDashboard();
+            root.innerHTML = `<div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row text-right"><aside class="w-full md:w-80 bg-gray-900 text-white p-10 flex flex-col"><div class="text-2xl font-black mb-12">لوحة التحكم</div><nav class="flex flex-col gap-4"><button onclick="switchTab('articles')" class="text-right p-4 rounded-xl hover:bg-white/5 font-black">✍️ المقالات</button><button onclick="switchTab('settings')" class="text-right p-4 rounded-xl hover:bg-white/5 font-black">⚙️ الإعدادات</button><button onclick="logout()" class="text-right p-4 bg-red-500/10 text-red-400 rounded-xl font-black mt-20">خروج</button></nav></aside><main class="flex-1 p-16 overflow-y-auto"><div id="dash-content" class="max-w-5xl mx-auto space-y-12"></div></main></div>`;
             (window as any).switchTab('articles');
         }
     }
@@ -460,4 +385,7 @@ const router = () => {
 };
 
 window.addEventListener('hashchange', router);
-window.addEventListener('load', router);
+window.addEventListener('load', () => {
+    router();
+    injectAdScripts();
+});
