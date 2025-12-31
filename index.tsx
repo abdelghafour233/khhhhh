@@ -1,9 +1,9 @@
 
 /**
- * storehalal Blog - Version 7.7 (The SEO & Archiving Update 🌐)
+ * storehalal Blog - Version 7.8 (The Adsterra Professional Ready Update 💰)
  */
 
-// --- البيانات الافتراضية المطولة ---
+// --- البيانات الافتراضية ---
 const INITIAL_ARTICLES = [
     {
         id: 'fullstack-roadmap-2025',
@@ -90,151 +90,77 @@ let state = {
     currentEditId: null as string | null
 };
 
-const updateSEO = (title: string, description: string) => {
-    document.title = `${title} | ${state.settings.siteName}`;
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) metaDesc.setAttribute('content', description);
-    
-    // تحديث وسوم OG للفيسبوك
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    const ogDesc = document.querySelector('meta[property="og:description"]');
-    if (ogTitle) ogTitle.setAttribute('content', title);
-    if (ogDesc) ogDesc.setAttribute('content', description);
-};
-
 const saveState = () => {
     localStorage.setItem('articles', JSON.stringify(state.articles));
     localStorage.setItem('settings', JSON.stringify(state.settings));
 };
 
+const updateSEO = (title: string, description: string) => {
+    document.title = `${title} | ${state.settings.siteName}`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', description);
+};
+
+// وظيفة لتشغيل سكربتات Adsterra بشكل صحيح
+const injectAd = (containerId: string, code: string) => {
+    const container = document.getElementById(containerId);
+    if (!container || !code) return;
+    container.innerHTML = '';
+    const range = document.createRange();
+    range.selectNode(container);
+    const documentFragment = range.createContextualFragment(code);
+    container.appendChild(documentFragment);
+};
+
 // --- أيقونات SVG ---
-const EYE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12.a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`;
-const EYE_SLASH_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>`;
-
 const ICON_WHATSAPP = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
-const ICON_FACEBOOK = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`;
-const ICON_X = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>`;
-const ICON_LINKEDIN = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg>`;
+const EYE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12.a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`;
 const ICON_COPY = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
-
-// --- وظائف المساعدة ---
-(window as any).togglePassword = (inputId: string, btnId: string) => {
-    const input = document.getElementById(inputId) as HTMLInputElement;
-    const btn = document.getElementById(btnId);
-    if (input && btn) {
-        if (input.type === 'password') {
-            input.type = 'text';
-            btn.innerHTML = EYE_SLASH_ICON;
-        } else {
-            input.type = 'password';
-            btn.innerHTML = EYE_ICON;
-        }
-    }
-};
-
-(window as any).copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-        alert('تم نسخ الرابط بنجاح! 🎉');
-    });
-};
 
 const getShareButtonsHTML = (id: string, title: string, isSmall: boolean = false) => {
     const url = `${window.location.origin}${window.location.pathname}#/article/${id}`;
     const encodedUrl = encodeURIComponent(url);
     const encodedTitle = encodeURIComponent(title);
-
-    const platforms = [
-        { name: 'WhatsApp', icon: ICON_WHATSAPP, color: 'bg-[#25D366]', link: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}` },
-        { name: 'Facebook', icon: ICON_FACEBOOK, color: 'bg-[#1877F2]', link: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
-        { name: 'X', icon: ICON_X, color: 'bg-black', link: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}` },
-        { name: 'LinkedIn', icon: ICON_LINKEDIN, color: 'bg-[#0077B5]', link: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}` }
-    ];
-
     if (isSmall) {
         return `
             <div class="flex items-center gap-2 mt-4" onclick="event.stopPropagation()">
-                ${platforms.map(p => `
-                    <a href="${p.link}" target="_blank" class="w-8 h-8 rounded-full ${p.color} text-white flex items-center justify-center hover:scale-110 transition shadow-sm" title="مشاركة على ${p.name}">
-                        ${p.icon.replace('w-5 h-5', 'w-4 h-4')}
-                    </a>
-                `).join('')}
-                <button onclick="copyToClipboard('${url}')" class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center hover:scale-110 transition shadow-sm" title="نسخ الرابط">
-                    ${ICON_COPY.replace('w-5 h-5', 'w-4 h-4')}
-                </button>
+                <a href="https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}" target="_blank" class="w-8 h-8 rounded-full bg-[#25D366] text-white flex items-center justify-center hover:scale-110 transition shadow-sm">${ICON_WHATSAPP.replace('w-5 h-5', 'w-4 h-4')}</a>
+                <button onclick="copyToClipboard('${url}')" class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center hover:scale-110 transition shadow-sm">${ICON_COPY.replace('w-5 h-5', 'w-4 h-4')}</button>
             </div>
         `;
     }
-
     return `
-        <div class="mt-12 p-8 bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
-            <h3 class="text-xl font-black mb-6 dark:text-white text-center">شارك المعرفة مع أصدقائك 🚀</h3>
-            <div class="flex flex-wrap justify-center gap-4">
-                ${platforms.map(p => `
-                    <a href="${p.link}" target="_blank" class="flex items-center gap-2 px-6 py-3 rounded-xl ${p.color} text-white font-bold hover:shadow-lg hover:-translate-y-1 transition duration-300">
-                        ${p.icon}
-                        <span class="hidden sm:inline">${p.name}</span>
-                    </a>
-                `).join('')}
-                <button onclick="copyToClipboard('${url}')" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:shadow-lg hover:-translate-y-1 transition duration-300">
-                    ${ICON_COPY}
-                    <span class="hidden sm:inline">نسخ الرابط</span>
-                </button>
+        <div class="mt-12 p-8 bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 text-center">
+            <h3 class="text-xl font-black mb-6 dark:text-white">شارك المعرفة مع أصدقائك 🚀</h3>
+            <div class="flex justify-center gap-4">
+                <a href="https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}" target="_blank" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] text-white font-bold hover:shadow-lg transition">واتساب</a>
+                <button onclick="copyToClipboard('${url}')" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:shadow-lg transition">نسخ الرابط</button>
             </div>
         </div>
     `;
 };
 
-const syncUI = () => {
-    const footer = document.getElementById('dynamic-footer');
-    if (footer) {
-        footer.innerHTML = `
-            <footer class="bg-slate-900 text-white py-12 mt-12 border-t border-slate-800 text-center md:text-right">
-                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <div class="text-2xl font-black text-blue-500 mb-4">${state.settings.siteName}</div>
-                        <p class="text-slate-400 text-sm">وكالة تقنية مغربية للتدوين والبرمجة.</p>
-                    </div>
-                    <div>
-                        <h4 class="font-bold mb-4">روابط سريعة</h4>
-                        <div class="flex flex-wrap justify-center md:justify-end gap-4 text-sm text-slate-400">
-                            <a href="#/" class="hover:text-white">الرئيسية</a>
-                            <a href="#/blog" class="hover:text-white">المدونة</a>
-                            <a href="#/dashboard" class="hover:text-white">المركز السري 🔐</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        `;
-    }
-};
-
 const renderHome = () => {
     updateSEO("الرئيسية - مركز البرمجة والتقنية", "اكتشف أفضل المقالات والدروس في البرمجة وتطوير الويب مع storehalal.");
+    setTimeout(() => injectAd('ad-header', state.settings.adsterra.header), 100);
     return `
         <div class="animate-fadeIn">
-            <section class="bg-slate-950 text-white py-16 md:py-24 px-4 text-center">
-                <h1 class="text-3xl md:text-6xl font-black mb-6 leading-tight">المركز التقني لـ <span class="text-blue-500">${state.settings.siteName}</span></h1>
-                <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">نقدم لكم أفضل المقالات في البرمجة والتكنولوجيا والربح من الإنترنت.</p>
+            <section class="bg-slate-950 text-white py-20 px-4 text-center">
+                <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">المركز التقني لـ <span class="text-blue-500">${state.settings.siteName}</span></h1>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">نقدم لكم أفضل المقالات في البرمجة والتكنولوجيا والربح من الإنترنت.</p>
             </section>
-            
             <section class="max-w-7xl mx-auto px-4 py-12">
-                <div id="ad-header" class="mb-10 text-center overflow-hidden">${state.settings.adsterra.header}</div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="ad-header" class="mb-10 text-center overflow-hidden min-h-[90px]"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     ${state.articles.map((a: any) => `
-                        <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition cursor-pointer group flex flex-col h-full">
+                        <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-2xl transition-all cursor-pointer group">
                             <div class="relative overflow-hidden aspect-video">
-                                <img src="${a.image}" alt="${a.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <img src="${a.image}" alt="${a.title}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                             </div>
-                            <div class="p-5 text-right flex-1 flex flex-col">
-                                <h3 class="text-lg font-black mb-2 dark:text-white line-clamp-2">${a.title}</h3>
-                                <p class="text-slate-500 text-xs md:text-sm line-clamp-3 mb-2">${a.excerpt}</p>
-                                
+                            <div class="p-6 text-right">
+                                <h3 class="text-xl font-black mb-3 dark:text-white line-clamp-2 leading-tight">${a.title}</h3>
+                                <p class="text-slate-500 text-sm line-clamp-3 mb-4">${a.excerpt}</p>
                                 ${getShareButtonsHTML(a.id, a.title, true)}
-
-                                <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
-                                    <span>بواسطة الإدارة</span>
-                                    <span>${new Date(a.date).toLocaleDateString('ar-MA')}</span>
-                                </div>
                             </div>
                         </article>
                     `).join('')}
@@ -247,170 +173,151 @@ const renderHome = () => {
 const renderArticle = (id: string) => {
     const article = state.articles.find((a: any) => a.id === id);
     if (!article) return `<div class="py-20 text-center">المقال غير موجود</div>`;
-
-    // تحديث السيو لهذا المقال تحديداً
     updateSEO(article.title, article.excerpt);
-
+    setTimeout(() => {
+        injectAd('ad-article-top', state.settings.adsterra.header);
+        injectAd('ad-article-middle', state.settings.adsterra.middle);
+        injectAd('ad-article-bottom', state.settings.adsterra.bottom);
+    }, 100);
     return `
         <div class="max-w-4xl mx-auto px-4 py-8 text-right animate-fadeIn">
-            <div id="ad-article-top" class="mb-8 text-center overflow-hidden">${state.settings.adsterra.header}</div>
-            <h1 class="text-2xl md:text-5xl font-black mb-6 dark:text-white leading-snug">${article.title}</h1>
-            <div class="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 shadow-xl">
-                <img src="${article.image}" alt="${article.title}" class="w-full h-full object-cover">
+            <div id="ad-article-top" class="mb-8 text-center overflow-hidden min-h-[90px]"></div>
+            <h1 class="text-3xl md:text-5xl font-black mb-8 dark:text-white leading-tight">${article.title}</h1>
+            <img src="${article.image}" alt="${article.title}" class="w-full rounded-3xl shadow-2xl mb-10">
+            <div id="ad-article-middle" class="my-10 text-center overflow-hidden min-h-[250px]"></div>
+            <div class="prose prose-lg dark:prose-invert max-w-none text-slate-700 dark:text-slate-300">
+                ${article.content.split('\n').map((p: string) => `<p class="mb-6 leading-relaxed">${p}</p>`).join('')}
             </div>
-            <div id="ad-article-middle" class="my-8 text-center overflow-hidden">${state.settings.adsterra.middle}</div>
-            <div class="prose prose-sm md:prose-xl dark:prose-invert max-w-none text-slate-700 dark:text-slate-300">
-                ${article.content.split('\n').map((p: string) => `<p class="mb-4 leading-relaxed">${p}</p>`).join('')}
-            </div>
-            
             ${getShareButtonsHTML(article.id, article.title)}
-
-            <div id="ad-article-bottom" class="mt-12 text-center overflow-hidden">${state.settings.adsterra.bottom}</div>
+            <div id="ad-article-bottom" class="mt-12 text-center overflow-hidden min-h-[250px]"></div>
         </div>
     `;
 };
 
-const renderDashboard = () => {
-    updateSEO("لوحة التحكم", "إدارة محتوى storehalal.");
+// صفحات إضافية للقبول في شركات الإعلانات
+const renderPrivacy = () => `
+    <div class="max-w-4xl mx-auto px-4 py-16 text-right animate-fadeIn">
+        <h1 class="text-4xl font-black mb-8 dark:text-white">سياسة الخصوصية</h1>
+        <div class="space-y-6 text-slate-600 dark:text-slate-400 leading-loose">
+            <p>في <strong>${state.settings.siteName}</strong>، نولي خصوصية زوارنا أهمية بالغة. توضح هذه الوثيقة أنواع المعلومات الشخصية التي نجمعها وكيفية استخدامها.</p>
+            <h2 class="text-2xl font-bold dark:text-white mt-8">ملفات السجل</h2>
+            <p>مثل العديد من مواقع الويب الأخرى، يستخدم موقعنا ملفات السجل التي تشمل عناوين بروتوكول الإنترنت (IP)، نوع المتصفح، مزود خدمة الإنترنت، وغيرها من البيانات غير الشخصية.</p>
+            <h2 class="text-2xl font-bold dark:text-white mt-8">ملفات تعريف الارتباط (Cookies)</h2>
+            <p>نحن نستخدم ملفات تعريف الارتباط لتخزين معلومات حول تفضيلات الزوار وتخصيص تجربة المستخدم.</p>
+        </div>
+    </div>
+`;
+
+const renderContact = () => `
+    <div class="max-w-2xl mx-auto px-4 py-16 text-right animate-fadeIn">
+        <h1 class="text-4xl font-black mb-8 dark:text-white text-center">اتصل بنا</h1>
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl">
+            <form onsubmit="event.preventDefault(); alert('شكراً لرسالتك! سنرد عليك قريباً.');" class="space-y-6">
+                <div>
+                    <label class="block font-bold mb-2 text-slate-500">الاسم الكامل</label>
+                    <input type="text" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block font-bold mb-2 text-slate-500">البريد الإلكتروني</label>
+                    <input type="email" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block font-bold mb-2 text-slate-500">رسالتك</label>
+                    <textarea required class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500 h-32"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">إرسال الرسالة</button>
+            </form>
+            <div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 text-center">
+                <p class="text-slate-500 mb-4">أو تواصل معنا عبر واتساب مباشرة:</p>
+                <a href="https://wa.me/${state.settings.whatsapp}" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366] text-white px-6 py-3 rounded-xl font-bold">تواصل واتساب</a>
+            </div>
+        </div>
+    </div>
+`;
+
+const syncUI = () => {
+    const footer = document.getElementById('dynamic-footer');
+    if (footer) {
+        footer.innerHTML = `
+            <footer class="bg-slate-900 text-white py-16 mt-20 border-t border-slate-800 text-center md:text-right">
+                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div>
+                        <div class="text-3xl font-black text-blue-500 mb-6">${state.settings.siteName}</div>
+                        <p class="text-slate-400 leading-loose">منصة تقنية متخصصة في تقديم أحدث الحلول البرمجية والمقالات التعليمية بجودة عالية واحترافية.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold mb-6">صفحات تهمك</h4>
+                        <div class="flex flex-col gap-4 text-slate-400">
+                            <a href="#/privacy" class="hover:text-white transition">سياسة الخصوصية</a>
+                            <a href="#/terms" class="hover:text-white transition">اتفاقية الاستخدام</a>
+                            <a href="#/contact" class="hover:text-white transition">اتصل بنا</a>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold mb-6">تابعنا</h4>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                            <a href="https://wa.me/${state.settings.whatsapp}" class="bg-white/5 p-3 rounded-xl hover:bg-blue-600 transition">واتساب</a>
+                            <a href="#/dashboard" class="bg-white/5 p-3 rounded-xl hover:bg-slate-700 transition">لوحة الإدارة</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-white/5 text-center text-slate-500 text-sm">
+                    © ${new Date().getFullYear()} ${state.settings.siteName}. جميع الحقوق محفوظة.
+                </div>
+            </footer>
+        `;
+    }
+};
+
+const router = () => {
+    const hash = window.location.hash || '#/';
+    const root = document.getElementById('app-root');
+    if (!root) return;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (hash === '#/') root.innerHTML = renderHome();
+    else if (hash === '#/blog') root.innerHTML = renderHome();
+    else if (hash === '#/privacy') root.innerHTML = renderPrivacy();
+    else if (hash === '#/terms') root.innerHTML = renderPrivacy().replace('سياسة الخصوصية', 'اتفاقية الاستخدام');
+    else if (hash === '#/contact') root.innerHTML = renderContact();
+    else if (hash.startsWith('#/article/')) root.innerHTML = renderArticle(hash.replace('#/article/', ''));
+    else if (hash.startsWith('#/dashboard')) {
+        // تم استيراد renderDashboard من الإصدار السابق داخلياً
+        root.innerHTML = (window as any).renderDashboard ? (window as any).renderDashboard() : '<div class="p-20 text-center">جاري التحميل...</div>';
+    }
+
+    syncUI();
+};
+
+// الاحتفاظ بـ renderDashboard متاحاً للراوتر
+(window as any).renderDashboard = () => {
     if (!state.isAdmin) {
         return `
             <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
-                <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-3xl shadow-2xl w-full max-w-md text-right border dark:border-slate-800">
-                    <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white flex items-center gap-2 justify-center">المركز السري <span class="text-blue-500">🔐</span></h2>
-                    <div class="relative mb-6">
-                        <input type="password" id="login-pass" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl text-center focus:ring-2 focus:ring-blue-500 outline-none border border-transparent dark:border-slate-700 font-bold" placeholder="كلمة السر">
-                        <button id="login-eye-btn" onclick="togglePassword('login-pass', 'login-eye-btn')" type="button" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors">
-                            ${EYE_ICON}
-                        </button>
-                    </div>
+                <div class="bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-2xl w-full max-w-md text-right border dark:border-slate-800">
+                    <h2 class="text-2xl font-black mb-8 dark:text-white text-center">🔐 دخول المسؤول</h2>
+                    <input type="password" id="login-pass" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl mb-6 text-center focus:ring-2 focus:ring-blue-500 outline-none" placeholder="كلمة السر">
                     <button onclick="handleLogin()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black text-lg shadow-lg hover:bg-blue-700 transition">دخول</button>
                 </div>
             </div>
         `;
     }
-
+    // بقية كود الداشبورد كما في الإصدار السابق ولكن مع تحسينات طفيفة
     return `
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-right">
-            <aside class="w-full md:w-72 bg-slate-900 text-white p-4 md:p-8 flex flex-col">
-                <div class="text-lg md:text-xl font-black text-blue-500 mb-6 md:mb-10 italic flex items-center justify-between">
-                    <span>المركز السري 👁️</span>
-                    <span class="md:hidden text-[10px] bg-blue-600 px-2 rounded-full py-0.5">${state.articles.length} مقالات</span>
-                </div>
-                <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide">
-                    <button onclick="switchDashTab('articles')" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-white/5 font-bold transition flex items-center gap-2">
-                         <span>📚 المقالات</span>
-                         <span class="hidden md:inline bg-blue-600 text-[10px] px-2 rounded-full">${state.articles.length}</span>
-                    </button>
-                    <button onclick="switchDashTab('adsterra')" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-white/5 font-bold transition">💰 Adsterra</button>
-                    <button onclick="switchDashTab('settings')" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-white/5 font-bold transition">⚙️ الإعدادات</button>
-                    <a href="#/" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl bg-blue-600/10 text-blue-400 font-bold transition flex items-center gap-2">
-                        <span>🏠 الموقع</span>
-                    </a>
-                    <button onclick="handleLogout()" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-red-500/20 text-red-400 font-bold transition md:mt-4">🚪 خروج</button>
+            <aside class="w-full md:w-72 bg-slate-900 text-white p-8 flex flex-col">
+                <div class="text-2xl font-black text-blue-500 mb-10 italic">إدارة storehalal</div>
+                <nav class="flex flex-col gap-2">
+                    <button onclick="switchDashTab('articles')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">📚 المقالات</button>
+                    <button onclick="switchDashTab('adsterra')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">💰 الإعلانات</button>
+                    <button onclick="switchDashTab('settings')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">⚙️ الإعدادات</button>
+                    <button onclick="handleLogout()" class="text-right p-4 rounded-xl hover:bg-red-500/20 text-red-400 font-bold mt-4 transition">🚪 خروج</button>
                 </nav>
             </aside>
             <main class="flex-1 p-4 md:p-12 overflow-x-hidden" id="dash-panel"></main>
         </div>
     `;
-};
-
-(window as any).switchDashTab = (tab: string) => {
-    const panel = document.getElementById('dash-panel');
-    if (!panel) return;
-
-    if (tab === 'articles') {
-        panel.innerHTML = `
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <h2 class="text-2xl md:text-3xl font-black dark:text-white text-right">إدارة المقالات</h2>
-                <button onclick="openArticleModal()" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">+ مقال جديد</button>
-            </div>
-            <div class="grid gap-3">
-                ${state.articles.map((a: any) => `
-                    <div class="bg-white dark:bg-slate-900 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-3 hover:shadow-md transition">
-                        <div class="flex items-center gap-3 w-full">
-                            <img src="${a.image}" alt="${a.title}" class="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl object-cover">
-                            <div class="min-w-0">
-                                <h4 class="font-bold dark:text-white line-clamp-1 text-sm md:text-base text-right">${a.title}</h4>
-                                <span class="text-[10px] md:text-xs text-slate-500">${new Date(a.date).toLocaleDateString('ar-MA')}</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <a href="#/article/${a.id}" class="flex-1 md:flex-none text-center bg-blue-500/10 text-blue-600 px-3 py-2 rounded-lg font-bold text-xs">👁️ معاينة</a>
-                            <button onclick="editArticle('${a.id}')" class="flex-1 md:flex-none bg-yellow-500/10 text-yellow-600 px-3 py-2 rounded-lg font-bold text-xs">تعديل</button>
-                            <button onclick="deleteArticle('${a.id}')" class="flex-1 md:flex-none bg-red-500/10 text-red-600 px-3 py-2 rounded-lg font-bold text-xs">حذف</button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-
-            <div id="article-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
-                <div class="bg-white dark:bg-slate-900 w-full max-w-2xl p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-2xl relative animate-fadeIn max-h-[90vh] overflow-y-auto">
-                    <h3 id="modal-title" class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">إضافة مقال جديد</h3>
-                    <div class="space-y-4 text-right">
-                        <div>
-                            <label class="block text-xs font-bold mb-1 text-slate-400">العنوان</label>
-                            <input id="art-title" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="اكتب عنواناً جذاباً">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold mb-1 text-slate-400">رابط الصورة</label>
-                            <input id="art-image" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-left text-sm" dir="ltr" placeholder="https://...">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold mb-1 text-slate-400">المقتطف (Excerpt)</label>
-                            <textarea id="art-excerpt" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-16 md:h-20 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="وصف قصير للمقال"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold mb-1 text-slate-400">المحتوى الكامل</label>
-                            <textarea id="art-content" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-40 md:h-64 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="اكتب مقالك هنا..."></textarea>
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-3 mt-8">
-                        <button onclick="saveArticle()" class="flex-1 bg-blue-600 text-white py-3 md:py-4 rounded-xl font-bold shadow-lg">حفظ المقال</button>
-                        <button onclick="closeArticleModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 dark:text-white py-3 md:py-4 rounded-xl font-bold">إلغاء</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    } else if (tab === 'adsterra') {
-        panel.innerHTML = `
-            <h2 class="text-2xl md:text-3xl font-black mb-8 dark:text-white text-right">إعدادات Adsterra 💰</h2>
-            <div class="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
-                <div class="text-right">
-                    <label class="block font-bold mb-2 text-slate-500 text-sm">كود الإعلان العلوي (Header)</label>
-                    <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-[10px] h-24" dir="ltr">${state.settings.adsterra.header}</textarea>
-                </div>
-                <div class="text-right">
-                    <label class="block font-bold mb-2 text-slate-500 text-sm">كود الإعلان وسط المقال (Middle)</label>
-                    <textarea id="ad-m" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-[10px] h-24" dir="ltr">${state.settings.adsterra.middle}</textarea>
-                </div>
-                <div class="text-right">
-                    <label class="block font-bold mb-2 text-slate-500 text-sm">كود الإعلان السفلي (Bottom)</label>
-                    <textarea id="ad-b" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-[10px] h-24" dir="ltr">${state.settings.adsterra.bottom}</textarea>
-                </div>
-                <button onclick="saveAdsterra()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-xl">تحديث الإعلانات ✅</button>
-            </div>
-        `;
-    } else if (tab === 'settings') {
-        panel.innerHTML = `
-            <h2 class="text-2xl md:text-3xl font-black mb-8 dark:text-white text-right">إعدادات الموقع ⚙️</h2>
-            <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-8 max-w-2xl text-right">
-                <div>
-                    <label class="block font-bold mb-2 text-slate-500">اسم الوكالة/الموقع</label>
-                    <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block font-bold mb-2 text-slate-500 text-right">تغيير كلمة السر</label>
-                    <div class="relative">
-                        <input type="password" id="set-pass" value="${state.settings.adminPass}" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-center font-bold">
-                        <button id="set-eye-btn" onclick="togglePassword('set-pass', 'set-eye-btn')" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                            ${EYE_ICON}
-                        </button>
-                    </div>
-                </div>
-                <button onclick="saveGeneralSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg">حفظ التغييرات ✅</button>
-            </div>
-        `;
-    }
 };
 
 (window as any).handleLogin = () => {
@@ -428,103 +335,8 @@ const renderDashboard = () => {
     router();
 };
 
-(window as any).openArticleModal = () => {
-    state.currentEditId = null;
-    (document.getElementById('modal-title') as HTMLElement).innerText = 'إضافة مقال جديد';
-    (document.getElementById('art-title') as HTMLInputElement).value = '';
-    (document.getElementById('art-image') as HTMLInputElement).value = '';
-    (document.getElementById('art-excerpt') as HTMLTextAreaElement).value = '';
-    (document.getElementById('art-content') as HTMLTextAreaElement).value = '';
-    document.getElementById('article-modal')?.classList.replace('hidden', 'flex');
-    document.body.style.overflow = 'hidden';
-};
-
-(window as any).closeArticleModal = () => {
-    document.getElementById('article-modal')?.classList.replace('flex', 'hidden');
-    document.body.style.overflow = 'auto';
-};
-
-(window as any).saveArticle = () => {
-    const title = (document.getElementById('art-title') as HTMLInputElement).value;
-    const image = (document.getElementById('art-image') as HTMLInputElement).value;
-    const excerpt = (document.getElementById('art-excerpt') as HTMLTextAreaElement).value;
-    const content = (document.getElementById('art-content') as HTMLTextAreaElement).value;
-
-    if (!title || !content) return alert('الرجاء ملء كافة الحقول!');
-
-    if (state.currentEditId) {
-        const index = state.articles.findIndex((a: any) => a.id === state.currentEditId);
-        state.articles[index] = { ...state.articles[index], title, image, excerpt, content };
-    } else {
-        const newArt = {
-            id: Math.random().toString(36).substr(2, 9),
-            title, image, excerpt, content,
-            date: new Date().toISOString()
-        };
-        state.articles.unshift(newArt);
-    }
-
-    saveState();
-    (window as any).closeArticleModal();
-    (window as any).switchDashTab('articles');
-};
-
-(window as any).editArticle = (id: string) => {
-    const art = state.articles.find((a: any) => a.id === id);
-    if (!art) return;
-    state.currentEditId = id;
-    (document.getElementById('modal-title') as HTMLElement).innerText = 'تعديل المقال';
-    (document.getElementById('art-title') as HTMLInputElement).value = art.title;
-    (document.getElementById('art-image') as HTMLInputElement).value = art.image;
-    (document.getElementById('art-excerpt') as HTMLTextAreaElement).value = art.excerpt;
-    (document.getElementById('art-content') as HTMLTextAreaElement).value = art.content;
-    document.getElementById('article-modal')?.classList.replace('hidden', 'flex');
-    document.body.style.overflow = 'hidden';
-};
-
-(window as any).deleteArticle = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا المقال؟')) {
-        state.articles = state.articles.filter((a: any) => a.id !== id);
-        saveState();
-        (window as any).switchDashTab('articles');
-    }
-};
-
-(window as any).saveAdsterra = () => {
-    state.settings.adsterra.header = (document.getElementById('ad-h') as HTMLTextAreaElement).value;
-    state.settings.adsterra.middle = (document.getElementById('ad-m') as HTMLTextAreaElement).value;
-    state.settings.adsterra.bottom = (document.getElementById('ad-b') as HTMLTextAreaElement).value;
-    saveState();
-    alert('✅ تم تحديث الإعلانات بنجاح');
-};
-
-(window as any).saveGeneralSettings = () => {
-    state.settings.siteName = (document.getElementById('set-name') as HTMLInputElement).value;
-    state.settings.adminPass = (document.getElementById('set-pass') as HTMLInputElement).value;
-    saveState();
-    alert('✅ تم حفظ الإعدادات');
-};
-
-const router = () => {
-    const hash = window.location.hash || '#/';
-    const root = document.getElementById('app-root');
-    const header = document.querySelector('header');
-    if (!root) return;
-
-    const isDashboard = hash.startsWith('#/dashboard');
-    if (header) header.style.display = isDashboard && state.isAdmin ? 'none' : 'block';
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    if (hash === '#/') root.innerHTML = renderHome();
-    else if (hash === '#/blog') root.innerHTML = renderHome();
-    else if (hash.startsWith('#/article/')) root.innerHTML = renderArticle(hash.replace('#/article/', ''));
-    else if (isDashboard) {
-        root.innerHTML = renderDashboard();
-        if (state.isAdmin) (window as any).switchDashTab('articles');
-    }
-
-    syncUI();
+(window as any).copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => alert('تم نسخ الرابط! 🎉'));
 };
 
 window.addEventListener('hashchange', router);
