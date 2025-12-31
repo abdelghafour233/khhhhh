@@ -8,8 +8,6 @@
     <!-- SEO -->
     <title>storehalal | متجر التكنولوجيا والدفع عند الاستلام 🇲🇦</title>
     <meta name="description" content="متجر storehalal هو وجهتك الأولى في المغرب لشراء أحدث المنتجات التقنية بأسعار منافسة مع ميزة الدفع عند الاستلام.">
-    <meta name="keywords" content="متجر إلكتروني، المغرب، تسوق، إلكترونيات، دفع عند الاستلام، COD">
-    <meta name="author" content="storehalal Team">
     <meta name="robots" content="index, follow">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +23,7 @@
         }
     </script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         .dark body { background-color: #020617; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
@@ -57,10 +55,13 @@
                     <span class="cart-badge absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
                 </a>
                 <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-full text-sm">🌙</button>
-                <a href="#/dashboard" class="hidden sm:inline-block bg-slate-900 dark:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold">🔐 الإدارة</a>
+                <a href="#/dashboard" class="hidden sm:inline-block bg-slate-900 dark:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-blue-500/20">🔐 الإدارة</a>
             </div>
         </nav>
     </header>
+
+    <!-- Adsterra Global Script Slot -->
+    <div id="global-ad-scripts"></div>
 
     <main id="app-root" class="min-h-[70vh]"></main>
 
