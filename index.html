@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>حلال ديجيتال | وكالة برمجة وتصميم مواقع في المغرب 🇲🇦</title>
-    <meta name="description" content="أفضل وكالة رقمية في المغرب لتصميم المواقع والمتاجر، مقالات حصرية عن السيو والربح من أدسنس.">
+    <title>حلال ديجيتال | مدونة برمجية وتقنية 🇲🇦</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <script>
@@ -13,34 +12,27 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#2563eb',
-                    }
+                    colors: { primary: '#2563eb' }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #fcfdfe; scroll-behavior: smooth; overflow-x: hidden; transition: background-color 0.3s ease; width: 100%; }
-        .dark body { background-color: #030712; }
-        .loading-bar { height: 4px; width: 0; background: #2563eb; position: fixed; top: 0; left: 0; z-index: 9999; transition: width 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fadeIn { animation: fadeIn 0.8s ease-out forwards; }
-        .ad-container { max-width: 100% !important; overflow: hidden !important; display: flex; justify-content: center; margin: 2rem 0; }
-        .ad-container ins, .ad-container iframe { max-width: 100% !important; }
-        
-        /* Mobile Menu Transitions */
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #f8fafc; 
+            overflow-x: hidden; 
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dark body { background-color: #020617; }
         #mobile-menu {
-            transition: transform 0.3s ease-in-out, opacity 0.2s ease;
-            transform: translateY(-100%);
-            opacity: 0;
-            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
         }
-        #mobile-menu.active {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
+        #mobile-menu.active { transform: translateX(0); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.6s ease-out forwards; }
     </style>
 <script type="importmap">
 {
@@ -52,50 +44,47 @@
 }
 </script>
 </head>
-<body class="text-gray-900 dark:text-gray-100">
-    <div id="loading" class="loading-bar"></div>
-    
-    <header id="main-header" class="bg-white/95 dark:bg-gray-950/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 dark:border-gray-900 transition-colors">
-        <nav class="max-w-7xl mx-auto px-4 md:px-8 h-20 md:h-24 flex justify-between items-center">
-            <!-- Logo -->
-            <a href="#/" class="flex items-center gap-3 z-50">
-                <span class="w-10 h-10 md:w-12 md:h-12 bg-blue-600 text-white flex items-center justify-center rounded-xl shadow-lg font-black text-xl">H</span>
-                <div class="hidden xs:block">
-                    <div class="text-gray-900 dark:text-white leading-none font-black text-lg md:text-xl">حلال <span class="text-blue-600">ديجيتال</span></div>
-                    <div class="text-[8px] md:text-[10px] text-gray-400 dark:text-gray-600 font-bold uppercase mt-1">المملكة المغربية 🇲🇦</div>
-                </div>
-            </a>
+<body class="text-slate-900 dark:text-slate-100">
 
-            <!-- Desktop Nav -->
-            <div class="hidden md:flex items-center gap-8 font-bold text-gray-600 dark:text-gray-400">
-                <a href="#/" class="hover:text-blue-600 transition">الرئيسية</a>
-                <a href="#/blog" class="hover:text-blue-600 transition">المدونة التقنية</a>
-                <a href="#/privacy" class="hover:text-blue-600 transition">الخصوصية</a>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex items-center gap-2 md:gap-4 z-50">
-                <button onclick="toggleDarkMode()" class="p-2 md:p-3 bg-gray-100 dark:bg-gray-900 rounded-xl hover:bg-gray-200 transition">🌙</button>
-                <a id="header-wa-link" href="#" target="_blank" class="hidden sm:flex bg-blue-600 text-white px-6 py-3 rounded-xl font-black text-sm shadow-md hover:bg-blue-700 transition">واتساب</a>
-                <!-- Mobile Toggle -->
-                <button onclick="toggleMobileMenu()" class="md:hidden p-2 bg-gray-100 dark:bg-gray-900 rounded-xl">
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+        <nav class="max-w-7xl mx-auto px-4 h-16 md:h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMenu()" class="md:hidden p-2 text-slate-600 dark:text-slate-400">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
+                <a href="#/" class="text-xl md:text-2xl font-black text-primary flex items-center gap-2">
+                    <span class="bg-primary text-white p-1 rounded-lg">H</span>
+                    <span>حلال<span class="text-slate-900 dark:text-white font-light">ديجيتال</span></span>
+                </a>
+            </div>
+
+            <div class="hidden md:flex items-center gap-8 font-bold text-sm">
+                <a href="#/" class="hover:text-primary transition">الرئيسية</a>
+                <a href="#/blog" class="hover:text-primary transition">المدونة</a>
+                <a href="#/privacy" class="hover:text-primary transition">الخصوصية</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-full">🌙</button>
+                <a href="https://wa.me/212649075664" target="_blank" class="hidden sm:block bg-primary text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg">واتساب</a>
             </div>
         </nav>
-
-        <!-- Mobile Menu Overlay -->
-        <div id="mobile-menu" class="fixed inset-0 top-20 bg-white dark:bg-gray-950 z-40 md:hidden flex flex-col p-8 gap-6 shadow-2xl">
-            <a href="#/" onclick="toggleMobileMenu()" class="text-2xl font-black border-b pb-4">الرئيسية</a>
-            <a href="#/blog" onclick="toggleMobileMenu()" class="text-2xl font-black border-b pb-4">المدونة التقنية</a>
-            <a href="#/privacy" onclick="toggleMobileMenu()" class="text-2xl font-black border-b pb-4">سياسة الخصوصية</a>
-            <a href="#/dashboard" onclick="toggleMobileMenu()" class="text-2xl font-black border-b pb-4">لوحة التحكم 🔐</a>
-            <div class="mt-auto">
-                <p class="text-gray-400 text-sm mb-4">تواصل معنا مباشرة:</p>
-                <a id="mobile-wa-btn" href="#" target="_blank" class="w-full bg-blue-600 text-white py-5 rounded-2xl flex justify-center items-center font-black text-xl shadow-xl">واتساب الآن 💬</a>
-            </div>
-        </div>
     </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-white dark:bg-slate-950 md:hidden p-6 flex flex-col gap-6">
+        <div class="flex justify-between items-center border-b pb-4">
+            <span class="font-black text-xl italic text-primary underline">القائمة</span>
+            <button onclick="toggleMenu()" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg">✕</button>
+        </div>
+        <a href="#/" onclick="toggleMenu()" class="text-xl font-bold p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg">الرئيسية</a>
+        <a href="#/blog" onclick="toggleMenu()" class="text-xl font-bold p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg">المدونة</a>
+        <a href="#/privacy" onclick="toggleMenu()" class="text-xl font-bold p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg">الخصوصية</a>
+        <a href="#/dashboard" onclick="toggleMenu()" class="text-xl font-bold p-2 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg">الإدارة 🔐</a>
+        <div class="mt-auto p-4 bg-primary/5 rounded-2xl border border-primary/10">
+            <a id="mobile-wa-link" href="#" target="_blank" class="block w-full bg-green-500 text-white text-center py-4 rounded-xl font-black">واتساب الآن 💬</a>
+        </div>
+    </div>
 
     <main id="app-root"></main>
 
@@ -103,9 +92,8 @@
 
     <script src="index.tsx" type="module"></script>
     <script>
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('active');
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('active');
             document.body.classList.toggle('overflow-hidden');
         }
     </script>
