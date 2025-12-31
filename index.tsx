@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.5 - Ads Always On & Direct Purchase 🚀🇲🇦
- * تم إلغاء وضع الأمان لضمان ظهور الإعلانات لجميع الزوار دائماً
+ * storehalal v3.6 - Advanced Order Management 🚀🇲🇦
+ * إضافة ميزات الحذف وتعديل حالة الطلب في لوحة التحكم
  */
 
 const FALLBACK_IMAGES = {
@@ -25,6 +25,13 @@ const DEFAULT_PRODUCTS = [
     { id: 'p4', name: 'كابل شحن Type-C متين', price: 45, image: FALLBACK_IMAGES.cable, category: 'إكسسوارات' }
 ];
 
+const STATUS_LABELS: any = {
+    pending: { label: 'قيد الانتظار', class: 'bg-yellow-100 text-yellow-700' },
+    confirmed: { label: 'تم التأكيد', class: 'bg-blue-100 text-blue-700' },
+    shipped: { label: 'تم الإرسال', class: 'bg-green-100 text-green-700' },
+    cancelled: { label: 'ملغي', class: 'bg-red-100 text-red-700' }
+};
+
 let state: any = {
     products: [],
     settings: {},
@@ -38,7 +45,6 @@ const initStore = () => {
     try {
         state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify(DEFAULT_PRODUCTS));
         
-        // تم حذف كود "isSafeMode" لضمان ظهور الإعلانات دائماً
         const popunderScript = '<script src="https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js"></script>';
         const socialBarScript = '<script src="https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js"></script>';
         
@@ -71,7 +77,6 @@ const save = () => {
 };
 
 const safeInject = (id: string, code: string) => {
-    // الحقن يعمل الآن دائماً لضمان ظهور الإعلانات
     const el = document.getElementById(id);
     if (!el || !code) return;
     try {
@@ -119,6 +124,23 @@ const safeInject = (id: string, code: string) => {
     state.checkoutItem = null;
     save();
     window.location.hash = '#/success';
+};
+
+// --- Dashboard Order Actions ---
+(window as any).deleteOrder = (id: string) => {
+    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب؟')) return;
+    state.orders = state.orders.filter((o: any) => o.id !== id);
+    save();
+    (window as any).switchDashTab('orders');
+};
+
+(window as any).updateOrderStatus = (id: string, newStatus: string) => {
+    const order = state.orders.find((o: any) => o.id === id);
+    if (order) {
+        order.status = newStatus;
+        save();
+        (window as any).switchDashTab('orders');
+    }
 };
 
 // --- UI Components ---
@@ -197,11 +219,6 @@ const UI = {
                                 <span class="text-3xl font-black text-green-600">${item.price} <span class="text-sm font-bold">د.م.</span></span>
                             </div>
                             <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-green-700 transition active:scale-95">تأكيد الشراء الآن ✅</button>
-                            <div class="text-center text-[11px] text-slate-400 mt-4 flex items-center justify-center gap-2">
-                                <span>🚚 التوصيل مجاني</span>
-                                <span>•</span>
-                                <span>💵 الدفع عند الاستلام</span>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -241,21 +258,36 @@ const UI = {
     } else if (tab === 'orders') {
         panel.innerHTML = `
             <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">📦 الطلبات الواردة (${state.orders.length})</h2>
-            <div class="grid grid-cols-1 gap-4">
-                ${state.orders.map((o:any)=>`
-                    <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm text-right">
-                        <div class="flex-1">
-                            <div class="font-black text-lg dark:text-white mb-1">${o.name}</div>
-                            <div class="text-xs md:text-sm text-blue-600 font-black mb-1" dir="ltr">${o.phone}</div>
-                            <div class="text-[10px] text-slate-400 font-bold">${o.city}</div>
-                            <div class="text-[9px] text-slate-500 mt-1">المنتج: ${o.items[0]?.name || 'غير معروف'}</div>
+            <div class="grid grid-cols-1 gap-6">
+                ${state.orders.map((o:any)=> {
+                    const status = STATUS_LABELS[o.status || 'pending'];
+                    return `
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm text-right">
+                        <div class="flex-1 space-y-2">
+                            <div class="flex items-center gap-3">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black ${status.class}">${status.label}</span>
+                                <div class="font-black text-lg dark:text-white">${o.name}</div>
+                            </div>
+                            <div class="text-sm text-blue-600 font-black" dir="ltr">${o.phone}</div>
+                            <div class="text-xs text-slate-500 font-bold">${o.city} • المنتج: ${o.items[0]?.name || 'غير معروف'}</div>
+                            <div class="text-[10px] text-slate-400 font-bold">${new Date(o.date).toLocaleString('ar-MA')}</div>
                         </div>
-                        <div class="text-left w-full md:w-auto">
-                            <div class="font-black text-xl text-green-600">${o.total} د.م.</div>
-                            <div class="text-[9px] text-slate-400 mt-1">${new Date(o.date).toLocaleString('ar-MA')}</div>
+                        
+                        <div class="flex flex-col md:items-end gap-3 w-full md:w-auto">
+                            <div class="font-black text-2xl text-green-600">${o.total} د.م.</div>
+                            
+                            <div class="flex gap-2 flex-wrap">
+                                <select onchange="updateOrderStatus('${o.id}', this.value)" class="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold p-2 rounded-lg outline-none cursor-pointer">
+                                    <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>قيد الانتظار</option>
+                                    <option value="confirmed" ${o.status === 'confirmed' ? 'selected' : ''}>تم التأكيد</option>
+                                    <option value="shipped" ${o.status === 'shipped' ? 'selected' : ''}>تم الإرسال</option>
+                                    <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>ملغي</option>
+                                </select>
+                                <button onclick="deleteOrder('${o.id}')" class="bg-red-50 text-red-500 dark:bg-red-900/20 p-2 rounded-lg text-[10px] font-bold hover:bg-red-100 transition">حذف 🗑️</button>
+                            </div>
                         </div>
                     </div>
-                `).join('')}
+                `}).join('')}
                 ${state.orders.length === 0 ? '<div class="text-center py-20 text-slate-400 font-bold">لا توجد طلبات بعد.</div>' : ''}
             </div>
         `;
@@ -334,7 +366,6 @@ const updateUI = () => {
             </footer>
         `;
     }
-    // حقن الإعلانات دائماً عند كل تحديث للواجهة
     if (state.settings.adsterra && state.settings.adsterra.header) {
         safeInject('global-ad-scripts', state.settings.adsterra.header);
     }
