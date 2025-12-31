@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- SEO -->
+    <!-- SEO & Metadata -->
     <title>storehalal | متجر التكنولوجيا والدفع عند الاستلام 🇲🇦</title>
     <meta name="description" content="متجر storehalal هو وجهتك الأولى في المغرب لشراء أحدث المنتجات التقنية بأسعار منافسة مع ميزة الدفع عند الاستلام.">
-    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#2563eb">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
@@ -23,12 +23,15 @@
         }
     </script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         .dark body { background-color: #020617; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        input, button, textarea { font-family: inherit; }
     </style>
 <script type="importmap">
 {
@@ -40,30 +43,33 @@
 }
 </script>
 </head>
-<body class="text-slate-900 dark:text-slate-100">
+<body class="text-slate-900 dark:text-slate-100 selection:bg-blue-100 dark:selection:bg-blue-900">
 
-    <header class="sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <nav class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-            <a href="#/" class="text-xl md:text-2xl font-black text-primary flex items-center gap-2">
-                <span class="bg-primary text-white p-1 rounded-lg px-2 text-sm">S</span>
-                <span>store<span class="text-slate-900 dark:text-white font-light">halal</span></span>
+    <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
+        <nav class="max-w-7xl mx-auto px-4 h-16 md:h-20 flex justify-between items-center">
+            <a href="#/" class="flex items-center gap-2 group">
+                <div class="bg-blue-600 text-white w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-xl font-black text-lg shadow-lg shadow-blue-500/30 group-hover:rotate-6 transition">S</div>
+                <span class="text-xl md:text-2xl font-black tracking-tight">store<span class="text-blue-600">halal</span></span>
             </a>
 
-            <div class="flex items-center gap-4">
-                <a href="#/cart" class="relative p-2 bg-slate-100 dark:bg-slate-900 rounded-full hover:bg-blue-600 hover:text-white transition">
-                    <span class="text-xl">🛒</span>
-                    <span class="cart-badge absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+            <div class="flex items-center gap-2 md:gap-4">
+                <a href="#/cart" class="relative p-2.5 bg-slate-50 dark:bg-slate-900 rounded-2xl hover:bg-blue-600 hover:text-white transition active:scale-90 shadow-sm">
+                    <span class="text-lg md:text-xl">🛒</span>
+                    <span class="cart-badge absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-950 hidden">0</span>
                 </a>
-                <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-full text-sm">🌙</button>
-                <a href="#/dashboard" class="hidden sm:inline-block bg-slate-900 dark:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-blue-500/20">🔐 الإدارة</a>
+                <button onclick="document.documentElement.classList.toggle('dark')" class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-2xl text-lg transition active:scale-90 shadow-sm">🌓</button>
+                <a href="#/dashboard" class="hidden md:flex bg-slate-900 dark:bg-blue-600 text-white px-5 py-2.5 rounded-2xl text-sm font-black shadow-xl shadow-blue-500/10 hover:opacity-90 transition items-center gap-2">
+                    <span>🔐</span>
+                    <span>لوحة الإدارة</span>
+                </a>
             </div>
         </nav>
     </header>
 
-    <!-- Adsterra Global Script Slot -->
+    <!-- Adsterra Scripts Slot -->
     <div id="global-ad-scripts"></div>
 
-    <main id="app-root" class="min-h-[70vh]"></main>
+    <main id="app-root" class="min-h-[75vh]"></main>
 
     <footer id="dynamic-footer"></footer>
 
