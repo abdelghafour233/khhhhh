@@ -1,6 +1,6 @@
 
 /**
- * Halal Digital Blog - Version 7.3 (The Professional Eye Update 👁️)
+ * Halal Digital Blog - Version 7.4 (The Ultra-Responsive Update 📱)
  */
 
 // --- البيانات الافتراضية ---
@@ -62,8 +62,8 @@ const syncUI = () => {
     const footer = document.getElementById('dynamic-footer');
     if (footer) {
         footer.innerHTML = `
-            <footer class="bg-slate-900 text-white py-12 mt-20 border-t border-slate-800 text-center md:text-right">
-                <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <footer class="bg-slate-900 text-white py-12 mt-12 border-t border-slate-800 text-center md:text-right">
+                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <div class="text-2xl font-black text-blue-500 mb-4">${state.settings.siteName}</div>
                         <p class="text-slate-400 text-sm">وكالة تقنية مغربية للتدوين والبرمجة.</p>
@@ -85,20 +85,26 @@ const syncUI = () => {
 const renderHome = () => {
     return `
         <div class="animate-fadeIn">
-            <section class="bg-slate-950 text-white py-24 px-6 text-center">
-                <h1 class="text-4xl md:text-6xl font-black mb-6">المركز التقني لـ <span class="text-blue-500">${state.settings.siteName}</span></h1>
-                <p class="text-slate-400 max-w-2xl mx-auto text-lg">نقدم لكم أفضل المقالات في البرمجة والتكنولوجيا والربح من الإنترنت.</p>
+            <section class="bg-slate-950 text-white py-16 md:py-24 px-4 text-center">
+                <h1 class="text-3xl md:text-6xl font-black mb-6 leading-tight">المركز التقني لـ <span class="text-blue-500">${state.settings.siteName}</span></h1>
+                <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">نقدم لكم أفضل المقالات في البرمجة والتكنولوجيا والربح من الإنترنت.</p>
             </section>
             
-            <section class="max-w-7xl mx-auto px-6 py-16">
-                <div id="ad-header" class="mb-10 text-center">${state.settings.adsterra.header}</div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <section class="max-w-7xl mx-auto px-4 py-12">
+                <div id="ad-header" class="mb-10 text-center overflow-hidden">${state.settings.adsterra.header}</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     ${state.articles.map((a: any) => `
-                        <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition cursor-pointer group">
-                            <img src="${a.image}" class="w-full h-48 object-cover group-hover:scale-105 transition">
-                            <div class="p-6 text-right">
-                                <h3 class="text-xl font-black mb-2 dark:text-white line-clamp-2">${a.title}</h3>
-                                <p class="text-slate-500 text-sm line-clamp-2">${a.excerpt}</p>
+                        <article onclick="window.location.hash='#/article/${a.id}'" class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition cursor-pointer group flex flex-col h-full">
+                            <div class="relative overflow-hidden aspect-video">
+                                <img src="${a.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            </div>
+                            <div class="p-5 text-right flex-1 flex flex-col">
+                                <h3 class="text-lg font-black mb-2 dark:text-white line-clamp-2">${a.title}</h3>
+                                <p class="text-slate-500 text-xs md:text-sm line-clamp-3 mb-4">${a.excerpt}</p>
+                                <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-400">
+                                    <span>بواسطة الإدارة</span>
+                                    <span>${new Date(a.date).toLocaleDateString('ar-MA')}</span>
+                                </div>
                             </div>
                         </article>
                     `).join('')}
@@ -113,15 +119,17 @@ const renderArticle = (id: string) => {
     if (!article) return `<div class="py-20 text-center">المقال غير موجود</div>`;
 
     return `
-        <div class="max-w-4xl mx-auto px-6 py-12 text-right animate-fadeIn">
-            <div id="ad-article-top" class="mb-8 text-center">${state.settings.adsterra.header}</div>
-            <h1 class="text-4xl md:text-6xl font-black mb-8 dark:text-white">${article.title}</h1>
-            <img src="${article.image}" class="w-full rounded-3xl mb-10 shadow-lg">
-            <div id="ad-article-middle" class="my-10 text-center">${state.settings.adsterra.middle}</div>
-            <div class="prose prose-xl dark:prose-invert max-w-none text-slate-700 dark:text-slate-300">
-                ${article.content.split('\n').map((p: string) => `<p class="mb-6 leading-relaxed">${p}</p>`).join('')}
+        <div class="max-w-4xl mx-auto px-4 py-8 text-right animate-fadeIn">
+            <div id="ad-article-top" class="mb-8 text-center overflow-hidden">${state.settings.adsterra.header}</div>
+            <h1 class="text-2xl md:text-5xl font-black mb-6 dark:text-white leading-snug">${article.title}</h1>
+            <div class="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 shadow-xl">
+                <img src="${article.image}" class="w-full h-full object-cover">
             </div>
-            <div id="ad-article-bottom" class="mt-12 text-center">${state.settings.adsterra.bottom}</div>
+            <div id="ad-article-middle" class="my-8 text-center overflow-hidden">${state.settings.adsterra.middle}</div>
+            <div class="prose prose-sm md:prose-xl dark:prose-invert max-w-none text-slate-700 dark:text-slate-300">
+                ${article.content.split('\n').map((p: string) => `<p class="mb-4 leading-relaxed">${p}</p>`).join('')}
+            </div>
+            <div id="ad-article-bottom" class="mt-12 text-center overflow-hidden">${state.settings.adsterra.bottom}</div>
         </div>
     `;
 };
@@ -129,12 +137,12 @@ const renderArticle = (id: string) => {
 const renderDashboard = () => {
     if (!state.isAdmin) {
         return `
-            <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
-                <div class="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-right border dark:border-slate-800">
-                    <h2 class="text-2xl font-black mb-6 dark:text-white flex items-center gap-2 justify-center">المركز السري <span class="text-blue-500">🔐</span></h2>
+            <div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
+                <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-3xl shadow-2xl w-full max-w-md text-right border dark:border-slate-800">
+                    <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white flex items-center gap-2 justify-center">المركز السري <span class="text-blue-500">🔐</span></h2>
                     <div class="relative mb-6">
                         <input type="password" id="login-pass" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl text-center focus:ring-2 focus:ring-blue-500 outline-none border border-transparent dark:border-slate-700 font-bold" placeholder="كلمة السر">
-                        <button id="login-eye-btn" onclick="togglePassword('login-pass', 'login-eye-btn')" type="button" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors" title="رؤية ما أكتب">
+                        <button id="login-eye-btn" onclick="togglePassword('login-pass', 'login-eye-btn')" type="button" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors">
                             ${EYE_ICON}
                         </button>
                     </div>
@@ -146,24 +154,30 @@ const renderDashboard = () => {
 
     return `
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-right">
-            <aside class="w-full md:w-72 bg-slate-900 text-white p-8">
-                <div class="text-xl font-black text-blue-500 mb-10 italic flex items-center gap-2">المركز السري 👁️</div>
-                <nav class="flex flex-col gap-2">
-                    <button onclick="switchDashTab('articles')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition flex items-center justify-between">
+            <!-- Sidebar / Mobile Header -->
+            <aside class="w-full md:w-72 bg-slate-900 text-white p-4 md:p-8 flex flex-col">
+                <div class="text-lg md:text-xl font-black text-blue-500 mb-6 md:mb-10 italic flex items-center justify-between">
+                    <span>المركز السري 👁️</span>
+                    <span class="md:hidden text-[10px] bg-blue-600 px-2 rounded-full py-0.5">${state.articles.length} مقالات</span>
+                </div>
+                
+                <!-- Nav - Horizontal on mobile, vertical on desktop -->
+                <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide">
+                    <button onclick="switchDashTab('articles')" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-white/5 font-bold transition flex items-center gap-2">
                          <span>📚 المقالات</span>
-                         <span class="bg-blue-600 text-[10px] px-2 rounded-full">${state.articles.length}</span>
+                         <span class="hidden md:inline bg-blue-600 text-[10px] px-2 rounded-full">${state.articles.length}</span>
                     </button>
-                    <button onclick="switchDashTab('adsterra')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">💰 Adsterra</button>
-                    <button onclick="switchDashTab('settings')" class="text-right p-4 rounded-xl hover:bg-white/5 font-bold transition">⚙️ الإعدادات</button>
-                    <a href="#/" class="text-right p-4 rounded-xl bg-blue-600/10 text-blue-400 font-bold transition mt-4 flex items-center justify-between">
-                        <span>🏠 المعاينة</span>
-                        <span>←</span>
+                    <button onclick="switchDashTab('adsterra')" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-white/5 font-bold transition">💰 Adsterra</button>
+                    <button onclick="switchDashTab('settings')" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-white/5 font-bold transition">⚙️ الإعدادات</button>
+                    <a href="#/" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl bg-blue-600/10 text-blue-400 font-bold transition flex items-center gap-2">
+                        <span>🏠 الموقع</span>
                     </a>
-                    <hr class="border-slate-800 my-4">
-                    <button onclick="handleLogout()" class="text-right p-4 rounded-xl hover:bg-red-500/20 text-red-400 font-bold transition">🚪 خروج</button>
+                    <button onclick="handleLogout()" class="whitespace-nowrap flex-shrink-0 text-right p-3 md:p-4 rounded-xl hover:bg-red-500/20 text-red-400 font-bold transition md:mt-4">🚪 خروج</button>
                 </nav>
             </aside>
-            <main class="flex-1 p-6 md:p-12 overflow-x-hidden" id="dash-panel"></main>
+
+            <!-- Main Panel -->
+            <main class="flex-1 p-4 md:p-12 overflow-x-hidden" id="dash-panel"></main>
         </div>
     `;
 };
@@ -174,76 +188,95 @@ const renderDashboard = () => {
 
     if (tab === 'articles') {
         panel.innerHTML = `
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-black dark:text-white">إدارة المقالات</h2>
-                <button onclick="openArticleModal()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold">+ مقال جديد</button>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h2 class="text-2xl md:text-3xl font-black dark:text-white text-right">إدارة المقالات</h2>
+                <button onclick="openArticleModal()" class="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">+ مقال جديد</button>
             </div>
-            <div class="grid gap-4">
+            <div class="grid gap-3">
                 ${state.articles.map((a: any) => `
-                    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 hover:shadow-md transition">
-                        <div class="flex items-center gap-4 w-full md:w-auto">
-                            <img src="${a.image}" class="w-16 h-16 rounded-xl object-cover">
-                            <div>
-                                <h4 class="font-bold dark:text-white line-clamp-1">${a.title}</h4>
-                                <span class="text-xs text-slate-500">${new Date(a.date).toLocaleDateString('ar-MA')}</span>
+                    <div class="bg-white dark:bg-slate-900 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-3 hover:shadow-md transition">
+                        <div class="flex items-center gap-3 w-full">
+                            <img src="${a.image}" class="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl object-cover">
+                            <div class="min-w-0">
+                                <h4 class="font-bold dark:text-white line-clamp-1 text-sm md:text-base text-right">${a.title}</h4>
+                                <span class="text-[10px] md:text-xs text-slate-500">${new Date(a.date).toLocaleDateString('ar-MA')}</span>
                             </div>
                         </div>
                         <div class="flex gap-2 w-full md:w-auto">
-                            <a href="#/article/${a.id}" class="flex-1 md:flex-none text-center bg-blue-500/10 text-blue-600 px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-1">
-                                👁️ معاينة
-                            </a>
-                            <button onclick="editArticle('${a.id}')" class="flex-1 md:flex-none bg-yellow-500/10 text-yellow-600 px-4 py-2 rounded-lg font-bold">تعديل</button>
-                            <button onclick="deleteArticle('${a.id}')" class="flex-1 md:flex-none bg-red-500/10 text-red-600 px-4 py-2 rounded-lg font-bold">حذف</button>
+                            <a href="#/article/${a.id}" class="flex-1 md:flex-none text-center bg-blue-500/10 text-blue-600 px-3 py-2 rounded-lg font-bold text-xs">👁️ معاينة</a>
+                            <button onclick="editArticle('${a.id}')" class="flex-1 md:flex-none bg-yellow-500/10 text-yellow-600 px-3 py-2 rounded-lg font-bold text-xs">تعديل</button>
+                            <button onclick="deleteArticle('${a.id}')" class="flex-1 md:flex-none bg-red-500/10 text-red-600 px-3 py-2 rounded-lg font-bold text-xs">حذف</button>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <!-- Modal remains the same but with fadeIn -->
-            <div id="article-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
-                <div class="bg-white dark:bg-slate-900 w-full max-w-2xl p-8 rounded-[2rem] shadow-2xl relative animate-fadeIn">
-                    <h3 id="modal-title" class="text-2xl font-black mb-6 dark:text-white text-right">إضافة مقال جديد</h3>
+
+            <!-- Article Modal -->
+            <div id="article-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
+                <div class="bg-white dark:bg-slate-900 w-full max-w-2xl p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-2xl relative animate-fadeIn max-h-[90vh] overflow-y-auto">
+                    <h3 id="modal-title" class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">إضافة مقال جديد</h3>
                     <div class="space-y-4 text-right">
-                        <input id="art-title" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none" placeholder="عنوان المقال">
-                        <input id="art-image" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-left" dir="ltr" placeholder="رابط الصورة">
-                        <textarea id="art-excerpt" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-20 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="مقتطف"></textarea>
-                        <textarea id="art-content" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-48 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="المحتوى"></textarea>
+                        <div>
+                            <label class="block text-xs font-bold mb-1 text-slate-400">العنوان</label>
+                            <input id="art-title" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="اكتب عنواناً جذاباً">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1 text-slate-400">رابط الصورة</label>
+                            <input id="art-image" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none text-left text-sm" dir="ltr" placeholder="https://...">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1 text-slate-400">المقتطف (Excerpt)</label>
+                            <textarea id="art-excerpt" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-16 md:h-20 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="وصف قصير للمقال"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1 text-slate-400">المحتوى الكامل</label>
+                            <textarea id="art-content" class="w-full p-3 md:p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none h-40 md:h-64 focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="اكتب مقالك هنا..."></textarea>
+                        </div>
                     </div>
-                    <div class="flex gap-4 mt-8">
-                        <button onclick="saveArticle()" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-bold">حفظ</button>
-                        <button onclick="closeArticleModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 dark:text-white py-4 rounded-xl font-bold">إلغاء</button>
+                    <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                        <button onclick="saveArticle()" class="flex-1 bg-blue-600 text-white py-3 md:py-4 rounded-xl font-bold shadow-lg">حفظ المقال</button>
+                        <button onclick="closeArticleModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 dark:text-white py-3 md:py-4 rounded-xl font-bold">إلغاء</button>
                     </div>
                 </div>
             </div>
         `;
     } else if (tab === 'adsterra') {
         panel.innerHTML = `
-            <h2 class="text-3xl font-black mb-8 dark:text-white">إعدادات Adsterra</h2>
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-6">
-                <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24" dir="ltr" placeholder="Header Code">${state.settings.adsterra.header}</textarea>
-                <textarea id="ad-m" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24" dir="ltr" placeholder="Middle Code">${state.settings.adsterra.middle}</textarea>
-                <textarea id="ad-b" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-xs h-24" dir="ltr" placeholder="Bottom Code">${state.settings.adsterra.bottom}</textarea>
-                <button onclick="saveAdsterra()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">تحديث ✅</button>
+            <h2 class="text-2xl md:text-3xl font-black mb-8 dark:text-white text-right">إعدادات Adsterra 💰</h2>
+            <div class="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-6">
+                <div class="text-right">
+                    <label class="block font-bold mb-2 text-slate-500 text-sm">كود الإعلان العلوي (Header)</label>
+                    <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-[10px] h-24" dir="ltr">${state.settings.adsterra.header}</textarea>
+                </div>
+                <div class="text-right">
+                    <label class="block font-bold mb-2 text-slate-500 text-sm">كود الإعلان وسط المقال (Middle)</label>
+                    <textarea id="ad-m" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-[10px] h-24" dir="ltr">${state.settings.adsterra.middle}</textarea>
+                </div>
+                <div class="text-right">
+                    <label class="block font-bold mb-2 text-slate-500 text-sm">كود الإعلان السفلي (Bottom)</label>
+                    <textarea id="ad-b" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl font-mono text-[10px] h-24" dir="ltr">${state.settings.adsterra.bottom}</textarea>
+                </div>
+                <button onclick="saveAdsterra()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-xl">تحديث الإعلانات ✅</button>
             </div>
         `;
     } else if (tab === 'settings') {
         panel.innerHTML = `
-            <h2 class="text-3xl font-black mb-8 dark:text-white">الإعدادات</h2>
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 space-y-8 max-w-2xl mx-auto">
-                <div class="text-right">
-                    <label class="block font-bold mb-2 text-slate-500">اسم الموقع</label>
+            <h2 class="text-2xl md:text-3xl font-black mb-8 dark:text-white text-right">إعدادات الموقع ⚙️</h2>
+            <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-8 max-w-2xl text-right">
+                <div>
+                    <label class="block font-bold mb-2 text-slate-500">اسم الوكالة/الموقع</label>
                     <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="text-right">
-                    <label class="block font-bold mb-2 text-slate-500">كلمة سر المركز السري</label>
+                <div>
+                    <label class="block font-bold mb-2 text-slate-500 text-right">تغيير كلمة السر</label>
                     <div class="relative">
                         <input type="password" id="set-pass" value="${state.settings.adminPass}" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-center font-bold">
-                        <button id="set-eye-btn" onclick="togglePassword('set-pass', 'set-eye-btn')" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors">
+                        <button id="set-eye-btn" onclick="togglePassword('set-pass', 'set-eye-btn')" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                             ${EYE_ICON}
                         </button>
                     </div>
-                    <p class="text-xs text-slate-400 mt-2 text-center italic">انقر على العين لتتأكد مما كتبت</p>
                 </div>
-                <button onclick="saveGeneralSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">حفظ التغييرات ✅</button>
+                <button onclick="saveGeneralSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg">حفظ التغييرات ✅</button>
             </div>
         `;
     }
@@ -272,10 +305,12 @@ const renderDashboard = () => {
     (document.getElementById('art-excerpt') as HTMLTextAreaElement).value = '';
     (document.getElementById('art-content') as HTMLTextAreaElement).value = '';
     document.getElementById('article-modal')?.classList.replace('hidden', 'flex');
+    document.body.style.overflow = 'hidden';
 };
 
 (window as any).closeArticleModal = () => {
     document.getElementById('article-modal')?.classList.replace('flex', 'hidden');
+    document.body.style.overflow = 'auto';
 };
 
 (window as any).saveArticle = () => {
@@ -313,6 +348,7 @@ const renderDashboard = () => {
     (document.getElementById('art-excerpt') as HTMLTextAreaElement).value = art.excerpt;
     (document.getElementById('art-content') as HTMLTextAreaElement).value = art.content;
     document.getElementById('article-modal')?.classList.replace('hidden', 'flex');
+    document.body.style.overflow = 'hidden';
 };
 
 (window as any).deleteArticle = (id: string) => {
@@ -328,7 +364,7 @@ const renderDashboard = () => {
     state.settings.adsterra.middle = (document.getElementById('ad-m') as HTMLTextAreaElement).value;
     state.settings.adsterra.bottom = (document.getElementById('ad-b') as HTMLTextAreaElement).value;
     saveState();
-    alert('✅ تم تحديث الإعلانات');
+    alert('✅ تم تحديث الإعلانات بنجاح');
 };
 
 (window as any).saveGeneralSettings = () => {
@@ -347,6 +383,9 @@ const router = () => {
     const isDashboard = hash.startsWith('#/dashboard');
     if (header) header.style.display = isDashboard && state.isAdmin ? 'none' : 'block';
     
+    // Smooth scroll to top on route change
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     if (hash === '#/') root.innerHTML = renderHome();
     else if (hash === '#/blog') root.innerHTML = renderHome();
     else if (hash.startsWith('#/article/')) root.innerHTML = renderArticle(hash.replace('#/article/', ''));

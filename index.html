@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>حلال ديجيتال | منصة التدوين الاحترافية 🇲🇦</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
@@ -27,13 +27,21 @@
         }
         .dark body { background-color: #020617; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
         
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
-        .dark ::-webkit-scrollbar-track { background: #020617; }
+        
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Ensure images and videos are responsive */
+        img, video, iframe { max-width: 100%; height: auto; }
+        
+        /* Fix prose text for mobile */
+        .prose p { word-break: break-word; }
     </style>
 <script type="importmap">
 {
@@ -47,24 +55,28 @@
 </head>
 <body class="text-slate-900 dark:text-slate-100">
 
-    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
-        <nav class="max-w-7xl mx-auto px-6 h-16 md:h-20 flex justify-between items-center">
-            <a href="#/" class="text-xl md:text-2xl font-black text-primary flex items-center gap-2">
-                <span class="bg-primary text-white p-1 rounded-lg px-2">H</span>
-                <span>حلال<span class="text-slate-900 dark:text-white font-light">ديجيتال</span></span>
+    <header class="sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <nav class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="#/" class="text-lg md:text-2xl font-black text-primary flex items-center gap-2">
+                <span class="bg-primary text-white p-1 rounded-lg px-2 text-sm md:text-base">H</span>
+                <span class="truncate">حلال<span class="text-slate-900 dark:text-white font-light">ديجيتال</span></span>
             </a>
 
-            <div class="hidden md:flex items-center gap-8 font-bold text-sm">
-                <a href="#/" class="hover:text-primary transition">الرئيسية</a>
-                <a href="#/blog" class="hover:text-primary transition">المدونة</a>
-                <a href="#/dashboard" class="bg-slate-100 dark:bg-slate-900 px-4 py-2 rounded-xl text-xs">لوحة التحكم 🔐</a>
+            <div class="flex items-center gap-2 md:gap-8">
+                <div class="hidden sm:flex items-center gap-6 font-bold text-xs md:text-sm">
+                    <a href="#/" class="hover:text-primary transition">الرئيسية</a>
+                    <a href="#/dashboard" class="bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-lg">🔐 الإدارة</a>
+                </div>
+                
+                <div class="flex items-center gap-2 border-r border-slate-200 dark:border-slate-800 pr-2 md:pr-4 mr-2 md:mr-0">
+                    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-full text-sm">🌙</button>
+                    <a href="#/dashboard" class="sm:hidden p-2 bg-slate-100 dark:bg-slate-900 rounded-full text-sm">🔐</a>
+                </div>
             </div>
-
-            <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-900 rounded-full">🌙</button>
         </nav>
     </header>
 
-    <main id="app-root"></main>
+    <main id="app-root" class="min-h-[70vh]"></main>
 
     <footer id="dynamic-footer"></footer>
 
