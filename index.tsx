@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.8 - Password Visibility Toggle 🚀🇲🇦
- * إضافة ميزة إظهار وإخفاء كلمة السر في لوحة التحكم
+ * storehalal v3.9 - Ads Logic Refined 🚀🇲🇦
+ * منع ظهور الإعلانات في لوحة التحكم لضمان عدم التداخل مع زر الإدارة
  */
 
 const FALLBACK_IMAGES = {
@@ -136,18 +136,16 @@ const injectAdsOnce = () => {
     if (order) { order.status = newStatus; save(); (window as any).switchDashTab('orders'); }
 };
 
-// وظيفة إظهار/إخفاء كلمة السر
 (window as any).togglePass = () => {
     const passInput = document.getElementById('pass') as HTMLInputElement;
     const eyeBtn = document.getElementById('eye-icon');
     if (!passInput || !eyeBtn) return;
-    
     if (passInput.type === 'password') {
         passInput.type = 'text';
-        eyeBtn.innerHTML = '👁️'; // عين مفتوحة
+        eyeBtn.innerHTML = '👁️';
     } else {
         passInput.type = 'password';
-        eyeBtn.innerHTML = '🙈'; // قرد يغطي عينيه أو عين مغلقة
+        eyeBtn.innerHTML = '🙈';
     }
 };
 
@@ -285,17 +283,14 @@ const renderDashboard = () => {
         <div class="max-w-md mx-auto py-16 px-4 text-right animate-fadeIn">
             <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border shadow-2xl">
                 <h2 class="text-2xl font-black mb-6 dark:text-white text-center">دخول الإدارة</h2>
-                
                 <div class="relative mb-4">
                     <input id="pass" type="password" placeholder="كلمة السر" 
                         class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition text-center pr-4 pl-12">
-                    
                     <button onclick="togglePass()" id="eye-icon" type="button" 
                         class="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-slate-200 dark:bg-slate-700 rounded-xl hover:opacity-80 transition text-lg">
                         🙈
                     </button>
                 </div>
-                
                 <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition active:scale-95">دخول</button>
             </div>
         </div>
@@ -353,7 +348,17 @@ const updateUI = () => {
             </footer>
         `;
     }
-    injectAdsOnce();
+
+    // إخفاء الإعلانات تلقائياً في لوحة التحكم لمنع التداخل مع زر الإدارة
+    const adContainer = document.getElementById('global-ad-scripts');
+    if (adContainer) {
+        if (window.location.hash.startsWith('#/dashboard')) {
+            adContainer.style.display = 'none';
+        } else {
+            adContainer.style.display = 'block';
+            injectAdsOnce();
+        }
+    }
 };
 
 window.addEventListener('load', () => { initStore(); router(); });
