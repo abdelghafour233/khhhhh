@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.3 - Clean Checkout & City Selection Edition 🛒🇲🇦
- * تبسيط صفحة الشراء وإضافة قائمة المدن المغربية
+ * storehalal v3.5 - Ads Always On & Direct Purchase 🚀🇲🇦
+ * تم إلغاء وضع الأمان لضمان ظهور الإعلانات لجميع الزوار دائماً
  */
 
 const FALLBACK_IMAGES = {
@@ -15,7 +15,7 @@ const FALLBACK_IMAGES = {
 const MOROCCAN_CITIES = [
     "الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", 
     "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات",
-    "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان", "الناظور"
+    "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"
 ].sort();
 
 const DEFAULT_PRODUCTS = [
@@ -28,20 +28,17 @@ const DEFAULT_PRODUCTS = [
 let state: any = {
     products: [],
     settings: {},
-    cart: [],
+    checkoutItem: null,
     orders: [],
     isAdmin: false,
-    currentTab: 'orders',
-    isSafeMode: false
+    currentTab: 'orders'
 };
 
 const initStore = () => {
     try {
         state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify(DEFAULT_PRODUCTS));
         
-        const urlParams = new URLSearchParams(window.location.search);
-        state.isSafeMode = urlParams.has('fbclid') || urlParams.has('gclid') || urlParams.has('utm_source');
-
+        // تم حذف كود "isSafeMode" لضمان ظهور الإعلانات دائماً
         const popunderScript = '<script src="https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js"></script>';
         const socialBarScript = '<script src="https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js"></script>';
         
@@ -59,7 +56,6 @@ const initStore = () => {
             adsterra: defaultAds
         }));
 
-        state.cart = JSON.parse(localStorage.getItem('cart') || '[]');
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
     } catch (e) {
@@ -71,12 +67,11 @@ const initStore = () => {
 const save = () => {
     localStorage.setItem('products', JSON.stringify(state.products));
     localStorage.setItem('settings', JSON.stringify(state.settings));
-    localStorage.setItem('cart', JSON.stringify(state.cart));
     localStorage.setItem('orders', JSON.stringify(state.orders));
 };
 
 const safeInject = (id: string, code: string) => {
-    if (state.isSafeMode) return;
+    // الحقن يعمل الآن دائماً لضمان ظهور الإعلانات
     const el = document.getElementById(id);
     if (!el || !code) return;
     try {
@@ -85,24 +80,17 @@ const safeInject = (id: string, code: string) => {
         range.selectNode(el);
         const fragment = range.createContextualFragment(code);
         el.appendChild(fragment);
-    } catch (e) {}
+    } catch (e) {
+        console.error('Error injecting ads:', e);
+    }
 };
 
 // --- Actions ---
-(window as any).addToCart = (id: string) => {
+(window as any).buyNow = (id: string) => {
     const p = state.products.find((i: any) => i.id === id);
     if (!p) return;
-    const exists = state.cart.find((i: any) => i.id === id);
-    if (exists) exists.qty++; else state.cart.push({ ...p, qty: 1 });
-    save();
-    updateUI();
-    alert('✅ تمت إضافة المنتج للسلة');
-};
-
-(window as any).removeFromCart = (id: string) => {
-    state.cart = state.cart.filter((i: any) => i.id !== id);
-    save();
-    router();
+    state.checkoutItem = { ...p, qty: 1 };
+    window.location.hash = '#/checkout';
 };
 
 (window as any).submitOrder = (e: Event) => {
@@ -111,47 +99,37 @@ const safeInject = (id: string, code: string) => {
     const city = (document.getElementById('order-city') as HTMLSelectElement).value;
     const phone = (document.getElementById('order-phone') as HTMLInputElement).value;
 
-    if (!name || !city || !phone) {
+    if (!name || !city || !phone || !state.checkoutItem) {
         alert('يرجى ملء جميع الحقول المطلوبة');
         return;
     }
 
-    const total = state.cart.reduce((s: number, i: any) => s + (i.price * i.qty), 0);
     const newOrder = {
         id: Date.now().toString(),
         name,
         city,
         phone,
-        total,
-        items: [...state.cart],
+        total: state.checkoutItem.price,
+        items: [state.checkoutItem],
         date: new Date().toISOString(),
         status: 'pending'
     };
 
     state.orders.unshift(newOrder);
-    state.cart = [];
+    state.checkoutItem = null;
     save();
     window.location.hash = '#/success';
 };
 
 // --- UI Components ---
 const UI = {
-    badge: () => {
-        const count = state.cart.reduce((s: number, i: any) => s + i.qty, 0);
-        document.querySelectorAll('.cart-badge').forEach(b => {
-            b.innerHTML = count.toString();
-            b.classList.toggle('hidden', count === 0);
-        });
-    },
     store: () => `
         <div class="animate-fadeIn">
             <section class="bg-gradient-to-br from-blue-700 to-blue-500 text-white py-12 md:py-20 px-4 text-center">
                 <div class="max-w-4xl mx-auto">
-                    <h1 class="text-3xl md:text-6xl font-black mb-4 leading-tight">تسوق الأفضل مع <span class="text-yellow-400">${state.settings.siteName}</span></h1>
-                    <p class="text-blue-50 text-sm md:text-xl opacity-90 mb-8">أحدث الإلكترونيات | شحن سريع | الدفع عند الاستلام 🇲🇦</p>
-                    <div class="flex justify-center gap-3 md:gap-4 flex-wrap">
-                        <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl font-bold border border-white/20 text-xs md:text-base">🚚 التوصيل بالمجان</div>
-                    </div>
+                    <h1 class="text-3xl md:text-6xl font-black mb-4 leading-tight">أفضل العروض في <span class="text-yellow-400">${state.settings.siteName}</span></h1>
+                    <p class="text-blue-50 text-sm md:text-xl opacity-90 mb-8">تسوق الآن والدفع عند الاستلام مع توصيل مجاني 🇲🇦</p>
+                    <div class="inline-block bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl font-bold border border-white/20 text-xs md:text-base">🚚 التوصيل بالمجان لجميع المدن</div>
                 </div>
             </section>
 
@@ -166,7 +144,7 @@ const UI = {
                             <div class="p-3 md:p-5 text-right flex flex-col flex-1">
                                 <h3 class="font-bold text-xs md:text-base dark:text-white line-clamp-2 min-h-[2.5rem] md:min-h-[3rem]">${p.name}</h3>
                                 <div class="text-blue-600 font-black text-sm md:text-xl my-2">${p.price} <span class="text-[10px] md:text-xs font-bold">د.م.</span></div>
-                                <button onclick="addToCart('${p.id}')" class="mt-auto w-full bg-slate-900 dark:bg-blue-600 text-white py-2.5 md:py-3 rounded-xl text-[10px] md:text-sm font-bold hover:bg-blue-700 transition">أضف للسلة 🛒</button>
+                                <button onclick="buyNow('${p.id}')" class="mt-auto w-full bg-blue-600 text-white py-2.5 md:py-3 rounded-xl text-[10px] md:text-sm font-black hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 active:scale-95">شراء الآن ➔</button>
                             </div>
                         </div>
                     `).join('')}
@@ -174,54 +152,22 @@ const UI = {
             </div>
         </div>
     `,
-    cart: () => {
-        const total = state.cart.reduce((s: number, i: any) => s + (i.price * i.qty), 0);
-        return `
-            <div class="max-w-4xl mx-auto px-4 py-8 md:py-12 text-right animate-fadeIn">
-                <h1 class="text-2xl md:text-3xl font-black mb-8 dark:text-white">سلة المشتريات 🛒</h1>
-                ${state.cart.length === 0 ? `
-                    <div class="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-                        <p class="text-slate-500 font-medium">سلتك فارغة..</p>
-                        <a href="#/" class="inline-block mt-4 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold">تسوق الآن</a>
-                    </div>
-                ` : `
-                    <div class="space-y-4">
-                        ${state.cart.map((i: any) => `
-                            <div class="bg-white dark:bg-slate-900 p-3 md:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
-                                <div class="flex items-center gap-3 md:gap-5">
-                                    <img src="${i.image}" class="w-16 h-16 md:w-20 md:h-20 rounded-xl object-cover shadow-sm">
-                                    <div>
-                                        <h3 class="font-bold text-sm md:text-base dark:text-white">${i.name}</h3>
-                                        <p class="text-blue-600 font-black text-sm mt-1">${i.price} د.م.</p>
-                                    </div>
-                                </div>
-                                <button onclick="removeFromCart('${i.id}')" class="text-red-500 font-bold">حذف</button>
-                            </div>
-                        `).join('')}
-                        <div class="bg-slate-900 dark:bg-slate-800 text-white p-6 rounded-3xl mt-8 shadow-2xl">
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-slate-400">المجموع:</span>
-                                <span class="text-xl font-black">${total} د.م.</span>
-                            </div>
-                            <div class="flex justify-between items-center mb-6 text-green-400 text-sm font-bold">
-                                <span>الشحن:</span>
-                                <span>توصيل بالمجان ✅</span>
-                            </div>
-                            <a href="#/checkout" class="block w-full bg-blue-600 py-4 rounded-2xl font-black text-lg text-center shadow-xl shadow-blue-500/20">تأكيد الطلب ➔</a>
-                        </div>
-                    </div>
-                `}
-            </div>
-        `;
-    },
     checkout: () => {
-        const total = state.cart.reduce((s: number, i: any) => s + (i.price * i.qty), 0);
-        if (state.cart.length === 0) { window.location.hash = '#/'; return ''; }
+        if (!state.checkoutItem) { window.location.hash = '#/'; return ''; }
+        const item = state.checkoutItem;
         
         return `
             <div class="max-w-2xl mx-auto px-4 py-8 md:py-12 animate-fadeIn text-right">
                 <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
-                    <h1 class="text-2xl md:text-3xl font-black mb-8 dark:text-white text-center">معلومات الشحن 🚚</h1>
+                    <div class="flex items-center gap-4 mb-8 pb-6 border-b dark:border-slate-800">
+                        <img src="${item.image}" class="w-20 h-20 rounded-2xl object-cover">
+                        <div>
+                            <h2 class="font-black text-lg dark:text-white">${item.name}</h2>
+                            <p class="text-blue-600 font-black">${item.price} د.م.</p>
+                        </div>
+                    </div>
+
+                    <h1 class="text-2xl font-black mb-8 dark:text-white text-center">معلومات الشحن 🚚</h1>
                     
                     <form onsubmit="submitOrder(event)" class="space-y-6">
                         <div class="space-y-2">
@@ -241,17 +187,21 @@ const UI = {
                         
                         <div class="space-y-2">
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">رقم الهاتف</label>
-                            <input id="order-phone" type="tel" placeholder="رقم الهاتف (مثال: 0600000000)" required dir="ltr"
+                            <input id="order-phone" type="tel" placeholder="06XXXXXXXX" required dir="ltr"
                                 class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition text-right">
                         </div>
 
                         <div class="pt-8 border-t dark:border-slate-800">
                             <div class="flex justify-between items-center mb-6">
                                 <span class="font-bold text-lg dark:text-white">المجموع الإجمالي:</span>
-                                <span class="text-3xl font-black text-blue-600">${total} <span class="text-sm font-bold">د.م.</span></span>
+                                <span class="text-3xl font-black text-green-600">${item.price} <span class="text-sm font-bold">د.م.</span></span>
                             </div>
                             <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-green-700 transition active:scale-95">تأكيد الشراء الآن ✅</button>
-                            <p class="text-center text-[10px] text-slate-400 mt-4">🚚 الدفع نقداً عند استلام المنتج</p>
+                            <div class="text-center text-[11px] text-slate-400 mt-4 flex items-center justify-center gap-2">
+                                <span>🚚 التوصيل مجاني</span>
+                                <span>•</span>
+                                <span>💵 الدفع عند الاستلام</span>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -298,6 +248,7 @@ const UI = {
                             <div class="font-black text-lg dark:text-white mb-1">${o.name}</div>
                             <div class="text-xs md:text-sm text-blue-600 font-black mb-1" dir="ltr">${o.phone}</div>
                             <div class="text-[10px] text-slate-400 font-bold">${o.city}</div>
+                            <div class="text-[9px] text-slate-500 mt-1">المنتج: ${o.items[0]?.name || 'غير معروف'}</div>
                         </div>
                         <div class="text-left w-full md:w-auto">
                             <div class="font-black text-xl text-green-600">${o.total} د.م.</div>
@@ -359,7 +310,6 @@ const router = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (hash === '#/') root.innerHTML = UI.store();
-    else if (hash === '#/cart') root.innerHTML = UI.cart();
     else if (hash === '#/checkout') root.innerHTML = UI.checkout();
     else if (hash === '#/success') root.innerHTML = UI.success();
     else if (hash === '#/dashboard') {
@@ -370,7 +320,6 @@ const router = () => {
 };
 
 const updateUI = () => {
-    UI.badge();
     const footer = document.getElementById('dynamic-footer');
     if (footer) {
         footer.innerHTML = `
@@ -385,7 +334,8 @@ const updateUI = () => {
             </footer>
         `;
     }
-    if (state.settings.adsterra.header) {
+    // حقن الإعلانات دائماً عند كل تحديث للواجهة
+    if (state.settings.adsterra && state.settings.adsterra.header) {
         safeInject('global-ad-scripts', state.settings.adsterra.header);
     }
 };
