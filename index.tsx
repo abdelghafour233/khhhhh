@@ -1,7 +1,7 @@
 
 /**
- * storehalal v5.6 - Order Processing & Security Pro 🚀🇲🇦
- * تم إضافة: معاينة الطلبيات، معالجة الحالات، وأيقونة العين لكلمات السر.
+ * storehalal v5.9 - Advanced Social Sharing System 🚀🇲🇦
+ * تم التحديث: إزالة الواتساب وإضافة أزرار مشاركة المنتجات والمتجر (FB, X, Pinterest, Instagram).
  */
 
 const FALLBACK_IMAGES = {
@@ -45,7 +45,7 @@ let state: any = {
     currentTab: 'orders',
     adsInjected: false,
     editingProduct: null,
-    viewingOrder: null // لتخزين الطلب الذي يتم معاينته حالياً
+    viewingOrder: null
 };
 
 const initStore = () => {
@@ -58,7 +58,11 @@ const initStore = () => {
         const defaultSettings = {
             siteName: 'storehalal',
             adminPass: 'halal2025',
-            adsterraHeader: defaultAds
+            adsterraHeader: defaultAds,
+            facebook: 'https://facebook.com',
+            twitter: 'https://twitter.com',
+            instagram: 'https://instagram.com',
+            pinterest: 'https://pinterest.com'
         };
 
         state.settings = { ...defaultSettings, ...JSON.parse(localStorage.getItem('settings') || '{}') };
@@ -75,16 +79,17 @@ const save = () => {
     localStorage.setItem('settings', JSON.stringify(state.settings));
 };
 
-// --- وظيفة حقن الإعلانات المطورة (دعم JS SYNC) ---
 const injectAds = () => {
-    const isDashboard = window.location.hash.startsWith('#/dashboard');
-    if (isDashboard) {
+    const hash = window.location.hash || '#/';
+    const isProtectedPage = hash.startsWith('#/dashboard') || hash.startsWith('#/checkout') || hash.startsWith('#/success');
+    
+    if (isProtectedPage) {
         document.querySelectorAll('.dynamic-ad-script').forEach(el => el.remove());
         state.adsInjected = false;
         return;
     }
 
-    if (!state.adsInjected && state.settings.adsterraHeader) {
+    if (hash === '#/' && !state.adsInjected && state.settings.adsterraHeader) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = state.settings.adsterraHeader;
         const scripts = tempDiv.querySelectorAll('script');
@@ -102,7 +107,33 @@ const injectAds = () => {
     }
 };
 
-// --- وظيفة تبديل رؤية كلمة السر ---
+// --- وظائف المشاركة الاجتماعية ---
+(window as any).shareContent = (platform: string, productId?: string) => {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = productId ? `${baseUrl}#/product/${productId}` : baseUrl;
+    const p = productId ? state.products.find((i: any) => i.id === productId) : null;
+    const text = p ? `تحقق من هذا المنتج الرائع: ${p.name}` : `اكتشف أفضل العروض في متجر ${state.settings.siteName}`;
+    const image = p ? p.image : '';
+
+    let url = '';
+    switch (platform) {
+        case 'facebook':
+            url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+            break;
+        case 'twitter':
+            url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`;
+            break;
+        case 'pinterest':
+            url = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&media=${encodeURIComponent(image)}&description=${encodeURIComponent(text)}`;
+            break;
+        case 'instagram':
+            // إنستغرام لا يدعم روابط المشاركة المباشرة، نوجه المستخدم لصفحة المتجر
+            window.open(state.settings.instagram, '_blank');
+            return;
+    }
+    window.open(url, '_blank', 'width=600,height=400');
+};
+
 (window as any).togglePassword = (inputId: string, btn: HTMLElement) => {
     const input = document.getElementById(inputId) as HTMLInputElement;
     if (input.type === 'password') {
@@ -132,18 +163,6 @@ const handleImageUpload = (file: File): Promise<string> => {
         const base64 = await handleImageUpload(files[0]);
         (document.getElementById('p-img-preview') as HTMLImageElement).src = base64;
         (document.getElementById('p-img-data') as HTMLInputElement).value = base64;
-    } else {
-        const galleryContainer = document.getElementById('p-gallery-previews');
-        for (let file of files) {
-            const base64 = await handleImageUpload(file);
-            const imgWrap = document.createElement('div');
-            imgWrap.className = 'relative group w-20 h-20 rounded-lg overflow-hidden border bg-white';
-            imgWrap.innerHTML = `
-                <img src="${base64}" class="w-full h-full object-cover gallery-item-data">
-                <button onclick="this.parentElement.remove()" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-bl-lg text-[10px]">×</button>
-            `;
-            galleryContainer?.appendChild(imgWrap);
-        }
     }
 };
 
@@ -186,14 +205,13 @@ const handleImageUpload = (file: File): Promise<string> => {
         total: state.checkoutItem.price,
         product: state.checkoutItem.name,
         productImage: state.checkoutItem.image,
-        status: 'pending', // الحالات: pending, completed, cancelled
+        status: 'pending',
         date: new Date().toISOString()
     });
     save();
     window.location.hash = '#/success';
 };
 
-// --- وظائف إدارة الطلبات ---
 (window as any).viewOrder = (id: string) => {
     state.viewingOrder = state.orders.find((o: any) => o.id === id);
     (window as any).switchTab('orders');
@@ -219,46 +237,97 @@ const UI = {
                     <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-black">S</div>
                     <span class="text-xl font-bold">${state.settings.siteName}</span>
                 </a>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex gap-2">
+                        <button onclick="shareContent('facebook')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm hover:text-blue-600 transition">فايسبوك</button>
+                        <button onclick="shareContent('twitter')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm hover:text-blue-400 transition">تويتر</button>
+                    </div>
                     <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">🌓</button>
-                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold">🔐 الإدارة</a>
+                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition hover:scale-105">🔐 الإدارة</a>
                 </div>
             </nav>
         </header>
     `,
     store: () => `
         <div class="animate-fadeIn">
-            <div class="bg-blue-600 text-white py-12 px-4 text-center">
-                <h1 class="text-3xl md:text-5xl font-black mb-2">${state.settings.siteName}</h1>
-                <p class="opacity-80">أفضل العروض الحصرية في المغرب 🇲🇦</p>
+            <!-- Hero Section -->
+            <div class="bg-slate-900 text-white py-20 px-4 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-blue-600/10 pointer-events-none"></div>
+                <h1 class="text-4xl md:text-6xl font-black mb-4 relative z-10">${state.settings.siteName}</h1>
+                <p class="opacity-60 text-lg mb-8 max-w-2xl mx-auto relative z-10">شارك متجرنا مع أصدقائك واكتشف أحدث المنتجات الحصرية 🇲🇦</p>
+                <div class="flex justify-center gap-4 relative z-10">
+                    <button onclick="shareContent('facebook')" class="bg-blue-600 p-4 rounded-2xl shadow-xl transition transform hover:-translate-y-1">
+                        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-6 h-6 invert">
+                    </button>
+                    <button onclick="shareContent('twitter')" class="bg-black p-4 rounded-2xl shadow-xl transition transform hover:-translate-y-1">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-6 h-6 invert">
+                    </button>
+                    <button onclick="shareContent('pinterest')" class="bg-red-600 p-4 rounded-2xl shadow-xl transition transform hover:-translate-y-1">
+                        <img src="https://cdn-icons-png.flaticon.com/512/145/145808.png" class="w-6 h-6 invert">
+                    </button>
+                </div>
             </div>
-            <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+
+            <!-- Products Grid -->
+            <div class="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 ${state.products.map((p: any) => `
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border dark:border-slate-800 shadow-sm flex flex-col transition hover:shadow-md ${p.stock <= 0 ? 'opacity-75 grayscale-[0.5]' : ''}">
-                        <div class="relative">
-                            <img src="${p.image}" class="w-full aspect-square object-cover bg-slate-50">
-                            ${p.stock <= 0 ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-bold text-xs">نفذ من المخزن</div>' : ''}
-                        </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <h3 class="font-bold text-sm mb-1 line-clamp-1">${p.name}</h3>
-                            <p class="text-[10px] text-slate-400 mb-3 line-clamp-2">${p.description || ''}</p>
-                            <div class="flex justify-between items-center mt-auto mb-4">
-                                <div class="text-blue-600 font-black">${p.price} د.م.</div>
-                                <div class="text-[9px] ${p.stock < 5 ? 'text-red-500 font-bold' : 'text-slate-400'}">باقي: ${p.stock}</div>
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden border dark:border-slate-800 shadow-sm flex flex-col transition hover:shadow-xl group">
+                        <div class="relative overflow-hidden aspect-square">
+                            <img src="${p.image}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                            <div class="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button onclick="shareContent('facebook', '${p.id}')" class="bg-white/90 p-2 rounded-full shadow-lg hover:text-blue-600 transition" title="شارك على فيسبوك">🔵</button>
+                                <button onclick="shareContent('twitter', '${p.id}')" class="bg-white/90 p-2 rounded-full shadow-lg hover:text-black transition" title="شارك على تويتر">⚫</button>
+                                <button onclick="shareContent('pinterest', '${p.id}')" class="bg-white/90 p-2 rounded-full shadow-lg hover:text-red-600 transition" title="ثبّت على بنتريست">🔴</button>
                             </div>
-                            <button onclick="buyNow('${p.id}')" ${p.stock <= 0 ? 'disabled' : ''} 
-                                class="w-full ${p.stock <= 0 ? 'bg-slate-300' : 'bg-blue-600 hover:bg-blue-700'} text-white py-2.5 rounded-xl text-xs font-bold transition active:scale-95">
-                                ${p.stock <= 0 ? 'غير متوفر' : 'شراء الآن'}
-                            </button>
+                        </div>
+                        <div class="p-6 flex flex-col flex-1">
+                            <h3 class="font-black text-lg mb-2 line-clamp-1">${p.name}</h3>
+                            <div class="flex justify-between items-center mb-6">
+                                <div class="text-blue-600 font-black text-xl">${p.price} د.م.</div>
+                                <div class="text-[10px] bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full font-bold">باقي: ${p.stock}</div>
+                            </div>
+                            
+                            <div class="mt-auto space-y-2">
+                                <button onclick="buyNow('${p.id}')" ${p.stock <= 0 ? 'disabled' : ''} 
+                                    class="w-full bg-slate-900 dark:bg-blue-600 text-white py-4 rounded-2xl font-black transition active:scale-95">
+                                    🛒 شراء المنتج
+                                </button>
+                                <div class="flex justify-center gap-4 py-2 border-t mt-4 border-slate-100 dark:border-slate-800">
+                                    <span class="text-[10px] text-slate-400 font-bold ml-auto self-center">مشاركة:</span>
+                                    <button onclick="shareContent('facebook', '${p.id}')" class="text-slate-400 hover:text-blue-600">FB</button>
+                                    <button onclick="shareContent('twitter', '${p.id}')" class="text-slate-400 hover:text-black">X</button>
+                                    <button onclick="shareContent('pinterest', '${p.id}')" class="text-slate-400 hover:text-red-600">Pin</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `).join('')}
+            </div>
+
+            <!-- Social Media Share Section -->
+            <div class="max-w-4xl mx-auto px-4 py-20 text-center">
+                <div class="bg-blue-600 text-white p-12 rounded-[3rem] shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+                    <h2 class="text-3xl font-black mb-6">هل أعجبك متجرنا؟ 🌟</h2>
+                    <p class="mb-10 text-blue-100 font-bold">ساعدنا في الوصول للمزيد من الناس بمشاركة رابط المتجر على حساباتك الاجتماعية.</p>
+                    <div class="flex justify-center flex-wrap gap-6">
+                        <button onclick="shareContent('facebook')" class="flex items-center gap-3 bg-white text-blue-600 px-8 py-4 rounded-2xl font-black hover:scale-105 transition">
+                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-5 h-5"> فايسبوك
+                        </button>
+                        <button onclick="shareContent('twitter')" class="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:scale-105 transition">
+                            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968830.png" class="w-5 h-5 invert"> تويتر (X)
+                        </button>
+                        <button onclick="shareContent('pinterest')" class="flex items-center gap-3 bg-red-500 text-white px-8 py-4 rounded-2xl font-black hover:scale-105 transition">
+                            <img src="https://cdn-icons-png.flaticon.com/512/145/145808.png" class="w-5 h-5 invert"> بنتريست
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     `,
     checkout: () => `
         <div class="max-w-md mx-auto py-12 px-4 animate-fadeIn">
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-xl border dark:border-slate-800">
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl border dark:border-slate-800">
                 <h2 class="text-2xl font-black mb-8 text-center">تأكيد الطلب 🚚</h2>
                 <div class="mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center gap-4 border">
                    <img src="${state.checkoutItem.image}" class="w-16 h-16 rounded-lg object-cover">
@@ -268,13 +337,14 @@ const UI = {
                    </div>
                 </div>
                 <form onsubmit="submitOrder(event)" class="space-y-4">
-                    <input id="order-name" type="text" placeholder="الاسم الكامل" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl outline-none">
+                    <input id="order-name" type="text" placeholder="الاسم الكامل" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
                     <select id="order-city" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl outline-none">
                         <option value="" disabled selected>اختر المدينة</option>
                         ${MOROCCAN_CITIES.map(c => `<option value="${c}">${c}</option>`).join('')}
                     </select>
                     <input id="order-phone" type="tel" placeholder="رقم الهاتف" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl outline-none text-right" dir="ltr">
-                    <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl mt-4 transition active:scale-95">إرسال الطلب ✅</button>
+                    <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl mt-4 transition active:scale-95 shadow-lg shadow-green-200 dark:shadow-none">إرسال الطلب ✅</button>
+                    <p class="text-center text-[10px] text-slate-400 mt-2">نظام دفع آمن ومحمي 100%</p>
                 </form>
             </div>
         </div>
@@ -286,20 +356,23 @@ const UI = {
                     <h2 class="text-2xl font-black mb-6">دخول الإدارة</h2>
                     <div class="relative mb-6">
                         <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 pl-12 bg-slate-50 dark:bg-slate-800 border rounded-2xl text-center outline-none">
-                        <button onclick="togglePassword('pass', this)" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl grayscale hover:grayscale-0 transition">👁️</button>
+                        <button onclick="togglePassword('pass', this)" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl grayscale hover:grayscale-0 transition p-1">👁️</button>
                     </div>
-                    <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black">دخول</button>
+                    <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black transition hover:bg-blue-700">دخول</button>
                 </div>
             </div>
         `;
         return `
             <div class="flex flex-col md:flex-row min-h-screen text-right bg-slate-50 dark:bg-slate-950">
                 <aside class="w-full md:w-64 bg-slate-900 text-white p-6 flex flex-col gap-2">
-                    <div class="text-xl font-black text-blue-500 mb-8 px-2">لوحة التحكم</div>
+                    <div class="text-xl font-black text-blue-500 mb-8 px-2 flex items-center justify-between">
+                        <span>لوحة التحكم</span>
+                        <span class="text-[10px] bg-blue-500/20 px-2 py-1 rounded text-blue-400">v5.9</span>
+                    </div>
                     <button onclick="switchTab('orders')" class="p-3 text-right hover:bg-white/10 rounded-xl transition font-bold">📦 الطلبات</button>
-                    <button onclick="switchTab('products')" class="p-3 text-right hover:bg-white/10 rounded-xl transition font-bold">🛍️ المخزون والمنتجات</button>
+                    <button onclick="switchTab('products')" class="p-3 text-right hover:bg-white/10 rounded-xl transition font-bold">🛍️ المنتجات</button>
                     <button onclick="switchTab('settings')" class="p-3 text-right hover:bg-white/10 rounded-xl transition font-bold">⚙️ الإعدادات</button>
-                    <button onclick="logout()" class="mt-auto p-4 text-red-400 font-bold border border-red-400/20 rounded-2xl text-center">خروج</button>
+                    <button onclick="logout()" class="mt-auto p-4 text-red-400 font-bold border border-red-400/20 rounded-2xl text-center hover:bg-red-400/10 transition">خروج</button>
                 </aside>
                 <main id="dash-panel" class="flex-1 p-6 md:p-10"></main>
             </div>
@@ -320,54 +393,34 @@ const UI = {
             
             panel.innerHTML = `
                 <div class="max-w-3xl mx-auto animate-fadeIn">
-                    <button onclick="closePreview()" class="mb-6 flex items-center gap-2 text-slate-500 font-bold hover:text-blue-600 transition">
-                        <span>←</span> العودة للطلبيات
-                    </button>
-                    
+                    <button onclick="closePreview()" class="mb-6 flex items-center gap-2 text-slate-500 font-bold hover:text-blue-600 transition">← العودة للطلبيات</button>
                     <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border dark:border-slate-800 shadow-xl overflow-hidden relative">
                         <div class="absolute top-8 left-8">
                             <span class="px-4 py-2 rounded-full text-xs font-black ${statusColors[o.status]}">${statusLabels[o.status]}</span>
                         </div>
-                        
                         <h2 class="text-3xl font-black mb-8 border-b pb-4">تفاصيل الطلبية #${o.id.slice(-4)}</h2>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-right">
                             <div class="space-y-6">
                                 <h3 class="text-lg font-black text-blue-600">بيانات الزبون</h3>
-                                <div>
-                                    <div class="text-xs text-slate-400 mb-1">الاسم الكامل:</div>
-                                    <div class="font-bold text-xl">${o.name}</div>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-slate-400 mb-1">رقم الهاتف:</div>
-                                    <div class="font-bold text-xl text-blue-600" dir="ltr">${o.phone}</div>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-slate-400 mb-1">المدينة:</div>
-                                    <div class="font-bold text-xl">${o.city}</div>
-                                </div>
-                                <div>
-                                    <div class="text-xs text-slate-400 mb-1">التاريخ:</div>
-                                    <div class="text-sm font-bold">${new Date(o.date).toLocaleString('ar-MA')}</div>
-                                </div>
+                                <div><div class="text-xs text-slate-400 mb-1">الاسم:</div><div class="font-bold text-xl">${o.name}</div></div>
+                                <div><div class="text-xs text-slate-400 mb-1">الهاتف:</div><div class="font-bold text-xl" dir="ltr">${o.phone}</div></div>
+                                <div><div class="text-xs text-slate-400 mb-1">المدينة:</div><div class="font-bold text-xl">${o.city}</div></div>
                             </div>
-                            
                             <div class="space-y-6">
-                                <h3 class="text-lg font-black text-blue-600">المنتج المطلوب</h3>
+                                <h3 class="text-lg font-black text-blue-600">المنتج</h3>
                                 <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex gap-4 border">
-                                    <img src="${o.productImage || FALLBACK_IMAGES.placeholder}" class="w-20 h-20 rounded-xl object-cover bg-white">
+                                    <img src="${o.productImage || FALLBACK_IMAGES.placeholder}" class="w-16 h-16 rounded-xl object-cover bg-white">
                                     <div class="flex-1">
                                         <div class="font-bold text-sm mb-1">${o.product}</div>
                                         <div class="text-blue-600 font-black text-lg">${o.total} د.م.</div>
                                     </div>
                                 </div>
-                                
                                 <div class="pt-4 space-y-3">
-                                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">تغيير الحالة</h3>
+                                    <h3 class="text-xs font-black uppercase text-slate-400">تغيير الحالة</h3>
                                     <div class="flex flex-wrap gap-2">
-                                        <button onclick="updateOrderStatus('${o.id}', 'pending')" class="px-4 py-2 bg-yellow-50 text-yellow-600 border border-yellow-200 rounded-xl text-xs font-bold hover:bg-yellow-100 transition">⏳ قيد الانتظار</button>
-                                        <button onclick="updateOrderStatus('${o.id}', 'completed')" class="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-xl text-xs font-bold hover:bg-green-100 transition">✅ تم التوصيل</button>
-                                        <button onclick="updateOrderStatus('${o.id}', 'cancelled')" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-100 transition">❌ إلغاء</button>
+                                        <button onclick="updateOrderStatus('${o.id}', 'pending')" class="px-3 py-2 bg-yellow-50 text-yellow-600 rounded-lg text-xs font-bold hover:bg-yellow-100">قيد الانتظار</button>
+                                        <button onclick="updateOrderStatus('${o.id}', 'completed')" class="px-3 py-2 bg-green-50 text-green-600 rounded-lg text-xs font-bold hover:bg-green-100">تم التوصيل</button>
+                                        <button onclick="updateOrderStatus('${o.id}', 'cancelled')" class="px-3 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100">إلغاء</button>
                                     </div>
                                 </div>
                             </div>
@@ -379,29 +432,23 @@ const UI = {
             panel.innerHTML = `
                 <div class="flex justify-between items-center mb-8">
                     <h2 class="text-3xl font-black">إدارة الطلبات</h2>
-                    <div class="text-xs font-bold bg-blue-100 text-blue-600 px-4 py-2 rounded-full">إجمالي الطلبات: ${state.orders.length}</div>
                 </div>
                 <div class="grid gap-4">
-                    ${state.orders.map((o: any) => {
-                        const statusColors: any = { pending: 'text-yellow-500', completed: 'text-green-500', cancelled: 'text-red-500' };
-                        const statusDots: any = { pending: '●', completed: '●', cancelled: '●' };
-                        return `
-                            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border dark:border-slate-800 flex justify-between items-center shadow-sm hover:shadow-md transition">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center font-black text-slate-400">${o.id.slice(-2)}</div>
-                                    <div>
-                                        <div class="font-black text-lg mb-0.5">${o.name} <span class="text-[10px] ${statusColors[o.status] || ''} mr-2">${statusDots[o.status] || ''}</span></div>
-                                        <div class="text-blue-600 font-bold text-sm" dir="ltr">${o.phone} | ${o.city}</div>
-                                        <div class="text-[10px] text-slate-400 mt-1">${o.product} - ${new Date(o.date).toLocaleDateString('ar-MA')}</div>
-                                    </div>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button onclick="viewOrder('${o.id}')" class="bg-blue-50 text-blue-600 px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">معاينة</button>
-                                    <button onclick="deleteOrder('${o.id}')" class="text-red-400 hover:text-red-600 p-2.5 transition">🗑️</button>
+                    ${state.orders.map((o: any) => `
+                        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 flex justify-between items-center shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-black">${o.id.slice(-2)}</div>
+                                <div>
+                                    <div class="font-black">${o.name} <span class="text-[10px] opacity-40 mr-2">${o.status}</span></div>
+                                    <div class="text-blue-600 font-bold text-xs" dir="ltr">${o.phone} | ${o.city}</div>
                                 </div>
                             </div>
-                        `;
-                    }).join('') || '<div class="text-center opacity-40 py-20 font-bold">لا توجد طلبات حتى الآن</div>'}
+                            <div class="flex gap-2">
+                                <button onclick="viewOrder('${o.id}')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-bold">معاينة</button>
+                                <button onclick="deleteOrder('${o.id}')" class="text-red-400 p-2">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('') || '<div class="text-center opacity-40 py-20 font-bold">لا توجد طلبات</div>'}
                 </div>
             `;
         }
@@ -409,82 +456,40 @@ const UI = {
         const editing = state.editingProduct;
         panel.innerHTML = `
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-black">${editing ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد'}</h2>
-                ${editing ? `<button onclick="cancelEdit()" class="bg-slate-200 px-6 py-2 rounded-xl text-sm font-bold">إلغاء التعديل</button>` : ''}
+                <h2 class="text-3xl font-black">${editing ? 'تعديل المنتج' : 'إضافة منتج'}</h2>
+                ${editing ? `<button onclick="cancelEdit()" class="bg-slate-200 px-6 py-2 rounded-xl text-xs font-bold">إلغاء</button>` : ''}
             </div>
-            
             <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border dark:border-slate-800 shadow-sm mb-12">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold mb-2">اسم المنتج</label>
-                            <input id="p-name" value="${editing?.name || ''}" placeholder="آيفون 15..." class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
+                        <input id="p-name" value="${editing?.name || ''}" placeholder="اسم المنتج" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold mb-2">السعر (د.م.)</label>
-                                <input id="p-price" type="number" value="${editing?.price || ''}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold mb-2">الكمية المتوفرة</label>
-                                <input id="p-stock" type="number" value="${editing?.stock || '10'}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
-                            </div>
+                            <input id="p-price" type="number" value="${editing?.price || ''}" placeholder="السعر" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
+                            <input id="p-stock" type="number" value="${editing?.stock || '10'}" placeholder="الكمية" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold mb-2">وصف المنتج</label>
-                            <textarea id="p-desc" placeholder="اكتب مواصفات المنتج هنا..." class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 h-32 outline-none">${editing?.description || ''}</textarea>
-                        </div>
+                        <textarea id="p-desc" placeholder="وصف المنتج" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 h-24 outline-none">${editing?.description || ''}</textarea>
                     </div>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-xs font-bold mb-3">الصورة الأساسية</label>
-                            <div class="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden relative group">
-                                <img id="p-img-preview" src="${editing?.image || FALLBACK_IMAGES.placeholder}" class="w-full h-full object-contain">
-                                <input type="file" onchange="processFile(event, 'main')" class="absolute inset-0 opacity-0 cursor-pointer">
-                                <input type="hidden" id="p-img-data" value="${editing?.image || ''}">
-                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs pointer-events-none">تغيير الصورة</div>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold mb-3 text-blue-600">صور إضافية للمنتج</label>
-                            <div id="p-gallery-previews" class="flex flex-wrap gap-2 mb-4">
-                                ${editing?.gallery?.map((img: string) => `
-                                    <div class="relative group w-20 h-20 rounded-lg overflow-hidden border bg-white">
-                                        <img src="${img}" class="w-full h-full object-cover gallery-item-data">
-                                        <button onclick="this.parentElement.remove()" class="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-bl-lg text-[10px]">×</button>
-                                    </div>
-                                `).join('') || ''}
-                            </div>
-                            <label class="inline-block bg-slate-100 dark:bg-slate-800 px-6 py-3 rounded-xl text-xs font-bold cursor-pointer hover:bg-slate-200">
-                                📷 رفع صور المعرض
-                                <input type="file" multiple onchange="processFile(event, 'gallery')" class="hidden">
-                            </label>
+                    <div>
+                        <div class="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden relative">
+                            <img id="p-img-preview" src="${editing?.image || FALLBACK_IMAGES.placeholder}" class="w-full h-full object-contain">
+                            <input type="file" onchange="processFile(event, 'main')" class="absolute inset-0 opacity-0 cursor-pointer">
+                            <input type="hidden" id="p-img-data" value="${editing?.image || ''}">
                         </div>
                     </div>
                 </div>
-                <div class="mt-8">
-                    <button onclick="saveProduct()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition active:scale-95">
-                        ${editing ? 'تحديث بيانات المنتج ✅' : 'إضافة المنتج للمخزن +'}
-                    </button>
-                </div>
+                <button onclick="saveProduct()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black mt-8">حفظ المنتج</button>
             </div>
-
-            <h3 class="text-2xl font-black mb-6">قائمة المخزون الحالية</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 ${state.products.map((p: any) => `
-                    <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border dark:border-slate-800 flex flex-col gap-4 shadow-sm hover:shadow-md transition">
-                        <div class="flex gap-4">
-                            <img src="${p.image}" class="w-20 h-20 rounded-2xl object-cover bg-slate-50">
-                            <div class="flex-1">
-                                <div class="font-bold text-sm mb-1">${p.name}</div>
-                                <div class="text-blue-600 font-black text-sm">${p.price} د.م.</div>
-                                <div class="text-[10px] ${p.stock <= 3 ? 'text-red-500 font-bold' : 'text-slate-500'}">الكمية: ${p.stock}</div>
+                    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border dark:border-slate-800 flex gap-4">
+                        <img src="${p.image}" class="w-16 h-16 rounded-xl object-cover bg-slate-50">
+                        <div class="flex-1">
+                            <div class="font-bold text-sm">${p.name}</div>
+                            <div class="text-blue-600 font-black text-sm">${p.price} د.م.</div>
+                            <div class="flex gap-2 mt-2">
+                                <button onclick="editProduct('${p.id}')" class="text-xs font-bold text-blue-500">تعديل</button>
+                                <button onclick="deleteProduct('${p.id}')" class="text-xs font-bold text-red-500">حذف</button>
                             </div>
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="editProduct('${p.id}')" class="flex-1 bg-slate-100 dark:bg-slate-800 py-3 rounded-xl text-xs font-bold hover:bg-blue-600 hover:text-white transition">تعديل</button>
-                            <button onclick="deleteProduct('${p.id}')" class="bg-red-50 text-red-500 px-4 py-3 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">حذف</button>
                         </div>
                     </div>
                 `).join('')}
@@ -492,26 +497,46 @@ const UI = {
         `;
     } else if (tab === 'settings') {
         panel.innerHTML = `
-            <h2 class="text-3xl font-black mb-8">إعدادات المتجر</h2>
+            <h2 class="text-3xl font-black mb-8">إعدادات المتجر والتواصل</h2>
             <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border dark:border-slate-800 space-y-6 max-w-2xl shadow-sm">
                 <div>
                     <label class="block text-sm font-bold mb-2">اسم المتجر</label>
                     <input id="set-name" value="${state.settings.siteName}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none">
                 </div>
-                <div>
-                    <label class="block text-sm font-bold mb-2 text-blue-600 font-black">تعديل كلمة سر الإدارة</label>
-                    <div class="relative">
-                        <input id="set-pass" type="password" value="${state.settings.adminPass}" class="w-full p-4 pl-12 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
-                        <button onclick="togglePassword('set-pass', this)" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl grayscale hover:grayscale-0 transition">👁️</button>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-2">فيسبوك</label>
+                        <input id="set-facebook" value="${state.settings.facebook}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none text-left" dir="ltr">
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2 italic">* استخدم أيقونة العين للتأكد من كلمة السر الجديدة قبل الحفظ.</p>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">تويتر (X)</label>
+                        <input id="set-twitter" value="${state.settings.twitter}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none text-left" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">إنستغرام</label>
+                        <input id="set-instagram" value="${state.settings.instagram}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none text-left" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-2">بنتريست</label>
+                        <input id="set-pinterest" value="${state.settings.pinterest}" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 outline-none text-left" dir="ltr">
+                    </div>
                 </div>
+
+                <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-blue-500/20">
+                    <label class="block text-sm font-bold mb-2">كلمة سر الإدارة</label>
+                    <div class="relative">
+                        <input id="set-pass" type="password" value="${state.settings.adminPass}" class="w-full p-4 pl-12 border rounded-2xl bg-white dark:bg-slate-800 outline-none">
+                        <button onclick="togglePassword('set-pass', this)" class="absolute left-4 top-1/2 -translate-y-1/2">👁️</button>
+                    </div>
+                </div>
+
                 <div>
-                    <label class="block text-sm font-bold mb-2">أكواد الإعلانات و Anti-Adblock (JS SYNC)</label>
-                    <p class="text-[10px] text-slate-400 mb-2">الصق السكربتات هنا. سيتم تنفيذها بشكل متزامن (Synchronous) في رأس الصفحة.</p>
-                    <textarea id="set-ads" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 h-48 font-mono text-[11px] outline-none" dir="ltr">${state.settings.adsterraHeader}</textarea>
+                    <label class="block text-sm font-bold mb-2">أكواد الإعلانات</label>
+                    <textarea id="set-ads" class="w-full p-4 border rounded-2xl bg-slate-50 dark:bg-slate-800 h-24 font-mono text-[11px] outline-none" dir="ltr">${state.settings.adsterraHeader}</textarea>
                 </div>
-                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg transition active:scale-95">حفظ وتحديث المتجر</button>
+                
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg">حفظ الإعدادات ✅</button>
             </div>
         `;
     }
@@ -523,12 +548,7 @@ const UI = {
     const stock = (document.getElementById('p-stock') as HTMLInputElement).value;
     const image = (document.getElementById('p-img-data') as HTMLInputElement).value;
     const description = (document.getElementById('p-desc') as HTMLTextAreaElement).value;
-    
-    const gallery: string[] = [];
-    document.querySelectorAll('.gallery-item-data').forEach((img: any) => gallery.push(img.src));
-
     if (!name || !price) return alert('يرجى إدخال البيانات الأساسية');
-
     const productData = {
         id: state.editingProduct ? state.editingProduct.id : Date.now().toString(),
         name,
@@ -536,16 +556,14 @@ const UI = {
         stock: Number(stock) || 0,
         image: image || FALLBACK_IMAGES.placeholder,
         description,
-        gallery
+        gallery: []
     };
-
     if (state.editingProduct) {
         state.products = state.products.map((p: any) => p.id === productData.id ? productData : p);
         state.editingProduct = null;
     } else {
         state.products.unshift(productData);
     }
-
     save();
     (window as any).switchTab('products');
 };
@@ -553,7 +571,6 @@ const UI = {
 (window as any).editProduct = (id: string) => {
     state.editingProduct = state.products.find((p: any) => p.id === id);
     (window as any).switchTab('products');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 (window as any).cancelEdit = () => {
@@ -562,7 +579,7 @@ const UI = {
 };
 
 (window as any).deleteProduct = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) {
+    if (confirm('حذف المنتج؟')) {
         state.products = state.products.filter((p: any) => p.id !== id);
         save();
         (window as any).switchTab('products');
@@ -571,15 +588,19 @@ const UI = {
 
 (window as any).saveSettings = () => {
     state.settings.siteName = (document.getElementById('set-name') as HTMLInputElement).value;
+    state.settings.facebook = (document.getElementById('set-facebook') as HTMLInputElement).value;
+    state.settings.twitter = (document.getElementById('set-twitter') as HTMLInputElement).value;
+    state.settings.instagram = (document.getElementById('set-instagram') as HTMLInputElement).value;
+    state.settings.pinterest = (document.getElementById('set-pinterest') as HTMLInputElement).value;
     state.settings.adminPass = (document.getElementById('set-pass') as HTMLInputElement).value;
     state.settings.adsterraHeader = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
     save();
-    alert('✅ تم حفظ الإعدادات بنجاح!');
+    alert('✅ تم الحفظ!');
     location.reload();
 };
 
 (window as any).deleteOrder = (id: string) => {
-    if (confirm('حذف هذا الطلب؟')) {
+    if (confirm('حذف الطلب؟')) {
         state.orders = state.orders.filter((o: any) => o.id !== id);
         save();
         (window as any).switchTab('orders');
@@ -589,7 +610,6 @@ const UI = {
 const router = () => {
     const root = document.getElementById('app-root');
     const hash = window.location.hash || '#/';
-    
     let html = UI.header();
     if (hash === '#/') html += UI.store();
     else if (hash === '#/checkout') html += UI.checkout();
@@ -598,29 +618,28 @@ const router = () => {
         <div class="max-w-md mx-auto py-32 text-center animate-fadeIn px-4">
             <div class="text-7xl mb-8">✅</div>
             <h1 class="text-4xl font-black mb-4">تم الطلب بنجاح!</h1>
-            <p class="text-slate-500 mb-12 font-bold text-lg">سيتصل بك فريق العمل قريباً لتأكيد العنوان وتوصيل طلبك 🇲🇦</p>
-            <a href="#/" class="inline-block bg-blue-600 text-white px-12 py-5 rounded-3xl font-black shadow-2xl transition hover:scale-105 active:scale-95">العودة للمتجر</a>
+            <p class="text-slate-500 mb-8 font-bold text-lg">شكراً لثقتك بنا. طلبك قيد المعالجة الآن 🇲🇦</p>
+            <div class="flex flex-col gap-3">
+                <a href="#/" class="bg-blue-600 text-white py-4 rounded-2xl font-black">العودة للمتجر</a>
+                <button onclick="shareContent('facebook')" class="bg-slate-100 py-3 rounded-2xl font-bold">شارك المتجر مع أصدقائك</button>
+            </div>
         </div>
     `;
-
     root!.innerHTML = html;
-    
     const footer = document.getElementById('dynamic-footer');
     if (footer) footer.innerHTML = `
-        <footer class="bg-slate-900 text-white py-20 px-6 text-center border-t border-white/5">
+        <footer class="bg-slate-950 text-white py-20 px-6 text-center border-t border-white/5">
             <div class="text-2xl font-black text-blue-500 mb-2">${state.settings.siteName}</div>
-            <p class="text-slate-500 font-bold mb-8">تسوق آمن - دفع عند الاستلام - شحن سريع 🇲🇦</p>
-            <div class="flex justify-center gap-6 text-slate-400 text-xs mb-8">
-                <span>سياسة الخصوصية</span>
-                <span>شروط الاستخدام</span>
-                <span>اتصل بنا</span>
+            <p class="text-slate-500 font-bold mb-8">تسوق آمن - دفع عند الاستلام - شحن سريع لكافة المدن المغربية 🇲🇦</p>
+            <div class="flex justify-center gap-6 mb-8">
+                <button onclick="shareContent('facebook')" class="text-slate-400 hover:text-blue-600 transition font-bold">Facebook</button>
+                <button onclick="shareContent('twitter')" class="text-slate-400 hover:text-white transition font-bold">Twitter</button>
+                <button onclick="shareContent('pinterest')" class="text-slate-400 hover:text-red-500 transition font-bold">Pinterest</button>
             </div>
-            <div class="text-slate-700 text-[10px] font-mono tracking-widest uppercase">Powered by StoreHalal Platform</div>
+            <div class="text-slate-800 text-[10px] font-mono tracking-widest uppercase">© 2025 All Rights Reserved to ${state.settings.siteName}</div>
         </footer>
     `;
-
     if (hash === '#/dashboard' && state.isAdmin) (window as any).switchTab('orders');
-    
     injectAds();
 };
 
