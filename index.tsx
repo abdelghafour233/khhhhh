@@ -1,7 +1,7 @@
 
 /**
- * storehalal v3.0 - FB Ads Safe Edition 🛡️
- * نظام حماية تلقائي عند اكتشاف ترافيك من فيسبوك
+ * storehalal v3.1 - Checkout & Free Delivery Edition 🚚
+ * إضافة صفحة إتمام الطلب المتوافقة مع السوق المغربي
  */
 
 const FALLBACK_IMAGES = {
@@ -26,14 +26,13 @@ let state: any = {
     orders: [],
     isAdmin: false,
     currentTab: 'orders',
-    isSafeMode: false // وضع الحماية من حظر فيسبوك
+    isSafeMode: false
 };
 
 const initStore = () => {
     try {
         state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify(DEFAULT_PRODUCTS));
         
-        // التحقق مما إذا كان الزائر قادماً من فيسبوك (الوضع الآمن)
         const urlParams = new URLSearchParams(window.location.search);
         state.isSafeMode = urlParams.has('fbclid') || urlParams.has('gclid') || urlParams.has('utm_source');
 
@@ -71,12 +70,7 @@ const save = () => {
 };
 
 const safeInject = (id: string, code: string) => {
-    // إذا كان الوضع الآمن مفعلاً، لا تحقن أكواد الإعلانات المزعجة
-    if (state.isSafeMode) {
-        console.log("🛡️ FB Safe Mode Active: Intrusive ads blocked to protect your account.");
-        return;
-    }
-
+    if (state.isSafeMode) return;
     const el = document.getElementById(id);
     if (!el || !code) return;
     try {
@@ -85,7 +79,7 @@ const safeInject = (id: string, code: string) => {
         range.selectNode(el);
         const fragment = range.createContextualFragment(code);
         el.appendChild(fragment);
-    } catch (e) { console.warn("Ad Injection Status", "Safe-mode check"); }
+    } catch (e) {}
 };
 
 // --- Actions ---
@@ -105,6 +99,38 @@ const safeInject = (id: string, code: string) => {
     router();
 };
 
+(window as any).submitOrder = (e: Event) => {
+    e.preventDefault();
+    const name = (document.getElementById('order-name') as HTMLInputElement).value;
+    const city = (document.getElementById('order-city') as HTMLInputElement).value;
+    const phone = (document.getElementById('order-phone') as HTMLInputElement).value;
+
+    if (!name || !city || !phone) {
+        alert('يرجى ملء جميع الحقول المطلوبة');
+        return;
+    }
+
+    const total = state.cart.reduce((s: number, i: any) => s + (i.price * i.qty), 0);
+    const newOrder = {
+        id: Date.now().toString(),
+        name,
+        city,
+        phone,
+        total,
+        items: [...state.cart],
+        date: new Date().toISOString(),
+        status: 'pending'
+    };
+
+    state.orders.unshift(newOrder);
+    state.cart = [];
+    save();
+    
+    // توجيه لصفحة النجاح أو الواتساب
+    const message = `طلب جديد من: ${name}%0Aالمدينة: ${city}%0Aالهاتف: ${phone}%0Aالمجموع: ${total} د.م.%0Aالتوصيل مجاني 🚚`;
+    window.location.href = `https://wa.me/${state.settings.whatsapp}?text=${message}`;
+};
+
 // --- UI Components ---
 const UI = {
     badge: () => {
@@ -120,31 +146,28 @@ const UI = {
                 <div class="max-w-4xl mx-auto">
                     <h1 class="text-3xl md:text-6xl font-black mb-4 leading-tight">تسوق الأفضل مع <span class="text-yellow-400">${state.settings.siteName}</span></h1>
                     <p class="text-blue-50 text-sm md:text-xl opacity-90 mb-8">أحدث الإلكترونيات | شحن سريع | الدفع عند الاستلام 🇲🇦</p>
-                    ${state.settings.smartlink ? `<a href="${state.settings.smartlink}" target="_blank" class="inline-block bg-yellow-400 text-blue-900 px-10 py-4 rounded-2xl font-black animate-bounce shadow-2xl text-lg">🔥 اكتشف عروض اليوم</a>` : ''}
+                    <div class="flex justify-center gap-3 md:gap-4 flex-wrap">
+                        ${state.settings.smartlink ? `<a href="${state.settings.smartlink}" target="_blank" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black animate-bounce shadow-xl text-sm md:text-lg">🔥 عروض حصرية</a>` : ''}
+                        <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl font-bold border border-white/20 text-xs md:text-base">🚚 التوصيل بالمجان</div>
+                    </div>
                 </div>
             </section>
 
             <div class="max-w-7xl mx-auto px-4 py-8 md:py-16">
-                ${state.isSafeMode ? `
-                    <div class="mb-8 p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-xs font-bold text-center">
-                        🛡️ أنت تتصفح النسخة الآمنة للمتجر (متوافق مع سياسات فيسبوك)
-                    </div>
-                ` : ''}
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-black dark:text-white">جديد المنتجات 🔥</h2>
-                    <span class="text-blue-600 text-sm font-bold">عرض الكل</span>
+                    <h2 class="text-2xl font-black dark:text-white">أحدث المنتجات</h2>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-8">
                     ${state.products.map((p: any) => `
                         <div class="bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full">
                             <div class="relative aspect-square overflow-hidden bg-slate-50">
                                 <img src="${p.image}" onerror="this.src='${FALLBACK_IMAGES.placeholder}'" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                                <div class="absolute top-2 right-2 bg-blue-600/90 backdrop-blur-sm text-white text-[9px] md:text-[10px] font-bold px-2 py-1 rounded-lg">${p.category}</div>
+                                <div class="absolute top-2 right-2 bg-green-500 text-white text-[8px] md:text-[10px] font-black px-2 py-1 rounded-lg">شحن مجاني 🚚</div>
                             </div>
                             <div class="p-3 md:p-5 text-right flex flex-col flex-1">
                                 <h3 class="font-bold text-xs md:text-base dark:text-white line-clamp-2 min-h-[2.5rem] md:min-h-[3rem]">${p.name}</h3>
-                                <div class="text-blue-600 font-black text-sm md:text-xl my-2">${p.price} <span class="text-[10px] md:text-xs">د.م.</span></div>
-                                <button onclick="addToCart('${p.id}')" class="mt-auto w-full bg-slate-900 dark:bg-blue-600 text-white py-2.5 md:py-3 rounded-xl text-[10px] md:text-sm font-bold hover:bg-blue-700 transition active:scale-95 shadow-lg shadow-blue-500/10">أضف للسلة 🛒</button>
+                                <div class="text-blue-600 font-black text-sm md:text-xl my-2">${p.price} <span class="text-[10px] md:text-xs font-bold">د.م.</span></div>
+                                <button onclick="addToCart('${p.id}')" class="mt-auto w-full bg-slate-900 dark:bg-blue-600 text-white py-2.5 md:py-3 rounded-xl text-[10px] md:text-sm font-bold hover:bg-blue-700 transition">أضف للسلة 🛒</button>
                             </div>
                         </div>
                     `).join('')}
@@ -159,40 +182,88 @@ const UI = {
                 <h1 class="text-2xl md:text-3xl font-black mb-8 dark:text-white">سلة المشتريات 🛒</h1>
                 ${state.cart.length === 0 ? `
                     <div class="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-                        <div class="text-5xl mb-4">🛒</div>
-                        <p class="text-slate-500 font-medium">سلتك فارغة حالياً..</p>
-                        <a href="#/" class="inline-block mt-6 bg-blue-600 text-white px-10 py-3 rounded-2xl font-bold shadow-lg shadow-blue-500/20">ابدأ التسوق</a>
+                        <p class="text-slate-500 font-medium">سلتك فارغة..</p>
+                        <a href="#/" class="inline-block mt-4 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold">تسوق الآن</a>
                     </div>
                 ` : `
                     <div class="space-y-4">
                         ${state.cart.map((i: any) => `
                             <div class="bg-white dark:bg-slate-900 p-3 md:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
                                 <div class="flex items-center gap-3 md:gap-5">
-                                    <img src="${i.image}" class="w-16 h-16 md:w-24 md:h-24 rounded-xl object-cover shadow-sm">
+                                    <img src="${i.image}" class="w-16 h-16 md:w-20 md:h-20 rounded-xl object-cover shadow-sm">
                                     <div>
-                                        <h3 class="font-bold text-sm md:text-lg dark:text-white">${i.name}</h3>
-                                        <p class="text-blue-600 font-black text-sm md:text-lg mt-1">${i.price} د.م.</p>
-                                        <div class="text-[10px] text-slate-400 mt-1">الكمية: ${i.qty}</div>
+                                        <h3 class="font-bold text-sm md:text-base dark:text-white">${i.name}</h3>
+                                        <p class="text-blue-600 font-black text-sm mt-1">${i.price} د.م.</p>
                                     </div>
                                 </div>
-                                <button onclick="removeFromCart('${i.id}')" class="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition active:scale-90">🗑️</button>
+                                <button onclick="removeFromCart('${i.id}')" class="text-red-500 font-bold">حذف</button>
                             </div>
                         `).join('')}
-                        <div class="bg-slate-900 dark:bg-slate-800 text-white p-6 md:p-8 rounded-3xl flex flex-col md:flex-row justify-between items-center mt-10 gap-6">
-                            <div class="text-center md:text-right">
-                                <p class="text-slate-400 text-sm mb-1 font-medium">المجموع الإجمالي:</p>
-                                <h2 class="text-3xl md:text-4xl font-black text-yellow-400">${total} <span class="text-sm font-normal text-white">درهم</span></h2>
+                        <div class="bg-slate-900 dark:bg-slate-800 text-white p-6 rounded-3xl mt-8 shadow-2xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-slate-400">المجموع:</span>
+                                <span class="text-xl font-black">${total} د.م.</span>
                             </div>
-                            <a href="#/checkout" class="w-full md:w-auto bg-blue-600 px-12 py-4 rounded-2xl font-black text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-500/20 text-center">إتمام الطلب ➔</a>
+                            <div class="flex justify-between items-center mb-6 text-green-400 text-sm font-bold">
+                                <span>الشحن:</span>
+                                <span>توصيل بالمجان ✅</span>
+                            </div>
+                            <a href="#/checkout" class="block w-full bg-blue-600 py-4 rounded-2xl font-black text-lg text-center shadow-xl shadow-blue-500/20">تأكيد الطلب (الدفع عند الاستلام) ➔</a>
                         </div>
                     </div>
                 `}
             </div>
         `;
+    },
+    checkout: () => {
+        const total = state.cart.reduce((s: number, i: any) => s + (i.price * i.qty), 0);
+        if (state.cart.length === 0) { window.location.hash = '#/'; return ''; }
+        
+        return `
+            <div class="max-w-2xl mx-auto px-4 py-8 md:py-12 animate-fadeIn text-right">
+                <div class="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
+                    <h1 class="text-2xl md:text-3xl font-black mb-2 dark:text-white">إتمام الطلب 🚚</h1>
+                    <p class="text-slate-500 mb-8 text-sm">أدخل معلوماتك لنقوم بشحن طلبك فوراً. الدفع عند الاستلام.</p>
+                    
+                    <form onsubmit="submitOrder(event)" class="space-y-5">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">الاسم الكامل</label>
+                            <input id="order-name" type="text" placeholder="مثال: أحمد العلوي" required 
+                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">المدينة</label>
+                            <input id="order-city" type="text" placeholder="مثال: الدار البيضاء" required 
+                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300">رقم الهاتف</label>
+                            <input id="order-phone" type="tel" placeholder="06XXXXXXXX" required dir="ltr"
+                                class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition text-right">
+                        </div>
+
+                        <div class="pt-6 border-t dark:border-slate-800">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold dark:text-white">المجموع الإجمالي:</span>
+                                <span class="text-2xl font-black text-blue-600">${total} د.م.</span>
+                            </div>
+                            <div class="text-green-600 font-bold text-sm mb-6 flex items-center gap-2">
+                                <span>✨ التوصيل بالمجان لجميع المدن</span>
+                                <span class="text-lg">🚚</span>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl shadow-green-500/20 hover:bg-green-700 transition active:scale-95">تأكيد الطلب الآن ✅</button>
+                            <p class="text-center text-[10px] text-slate-400 mt-4">بالضغط على الزر، أنت توافق على شروط الخدمة. سيتم التواصل معك هاتفياً.</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
     }
 };
 
-// --- Dashboard & Ads Management ---
+// --- Dashboard Logic (Modified for Layout) ---
 (window as any).switchDashTab = (tab: string) => {
     state.currentTab = tab;
     const panel = document.getElementById('dash-panel');
@@ -200,42 +271,32 @@ const UI = {
 
     if (tab === 'ads') {
         panel.innerHTML = `
-            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">💰 إعدادات الأرباح (Adsterra)</h2>
+            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">💰 إعدادات الأرباح</h2>
             <div class="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-6 text-right shadow-sm">
-                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/30 text-right">
-                    <p class="text-xs text-blue-700 dark:text-blue-300 font-bold">🛡️ نظام الحماية من فيسبوك مفعّل.</p>
-                    <p class="text-[10px] text-blue-600 dark:text-blue-400 mt-1">سيتم إخفاء النوافذ المنبثقة تلقائياً لأي زائر يأتي من إعلان ممول لتجنب حظر حسابك الإعلاني.</p>
-                </div>
                 <div>
-                    <label class="block text-sm font-bold mb-2 dark:text-slate-300">أكواد الإعلانات (Header Scripts)</label>
-                    <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white font-mono text-[10px] h-48 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition" dir="ltr"></textarea>
+                    <label class="block text-sm font-bold mb-2 dark:text-slate-300">أكواد Adsterra</label>
+                    <textarea id="ad-h" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white font-mono text-[10px] h-48 border rounded-2xl outline-none" dir="ltr"></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold mb-2 dark:text-slate-300">رابط Smartlink (عروض)</label>
-                    <input id="ad-smart" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border rounded-2xl text-xs outline-none focus:ring-2 focus:ring-blue-500" dir="ltr" value="${state.settings.smartlink}">
-                </div>
-                <button onclick="saveDashAds()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg hover:bg-blue-700 transition active:scale-95">تحديث الأرباح 🚀</button>
+                <button onclick="saveDashAds()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg hover:bg-blue-700 transition">حفظ التغييرات</button>
             </div>
         `;
         (document.getElementById('ad-h') as any).value = state.settings.adsterra.header;
     } else if (tab === 'orders') {
         panel.innerHTML = `
-            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">📦 الطلبات الواردة (${state.orders.length})</h2>
+            <h2 class="text-xl md:text-2xl font-black mb-6 dark:text-white text-right">📦 الطلبات (${state.orders.length})</h2>
             <div class="grid grid-cols-1 gap-4">
                 ${state.orders.map((o:any)=>`
                     <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm text-right">
                         <div class="flex-1">
                             <div class="font-black text-lg dark:text-white mb-1">${o.name}</div>
                             <div class="text-xs md:text-sm text-blue-600 font-black mb-1" dir="ltr">${o.phone}</div>
-                            <div class="text-[10px] text-slate-400 font-bold">${o.city} | ${new Date(o.date || Date.now()).toLocaleDateString('ar-MA')}</div>
+                            <div class="text-[10px] text-slate-400 font-bold">${o.city}</div>
                         </div>
-                        <div class="text-left w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0">
+                        <div class="text-left w-full md:w-auto">
                             <div class="font-black text-xl text-green-600">${o.total} د.م.</div>
-                            <button class="text-[10px] font-bold text-slate-400 mt-2 bg-slate-100 px-3 py-1 rounded-lg">قيد الانتظار ⏳</button>
                         </div>
                     </div>
                 `).join('')}
-                ${state.orders.length === 0 ? '<div class="text-center py-20 text-slate-400 font-bold">لا توجد طلبات بعد.</div>' : ''}
             </div>
         `;
     }
@@ -243,50 +304,30 @@ const UI = {
 
 (window as any).saveDashAds = () => {
     state.settings.adsterra.header = (document.getElementById('ad-h') as any).value;
-    state.settings.smartlink = (document.getElementById('ad-smart') as any).value;
     save();
-    alert('✅ تم التحديث بنجاح! الإعلانات الجديدة تعمل الآن.');
+    alert('✅ تم الحفظ!');
     location.reload();
 };
 
 const renderDashboard = () => {
     if (!state.isAdmin) return `
         <div class="max-w-md mx-auto py-16 px-4 text-right animate-fadeIn">
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl">
-                <div class="text-4xl text-center mb-6">🔐</div>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border shadow-2xl">
                 <h2 class="text-2xl font-black mb-6 dark:text-white text-center">دخول الإدارة</h2>
-                <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border rounded-2xl mb-4 text-center outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition active:scale-95">دخول لوحة التحكم</button>
+                <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-4 bg-slate-50 dark:bg-slate-800 dark:text-white border rounded-2xl mb-4 text-center">
+                <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl">دخول</button>
             </div>
         </div>
     `;
     return `
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row text-right animate-fadeIn">
             <aside class="w-full md:w-72 bg-slate-900 text-white p-6 md:p-8 flex flex-col gap-2 shadow-2xl z-20">
-                <div class="flex items-center justify-between md:flex-col md:items-center mb-8 gap-4">
-                    <div class="text-xl font-black text-blue-500">storehalal <span class="text-white font-light text-sm">Admin</span></div>
-                    <button onclick="logout()" class="md:hidden p-2 bg-white/10 rounded-lg text-xs">خروج 🚪</button>
-                </div>
-                
+                <div class="text-xl font-black text-blue-500 mb-8">إدارة المتجر</div>
                 <nav class="flex md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                    <button onclick="switchDashTab('orders')" class="flex-shrink-0 md:flex-shrink-1 p-4 bg-white/5 hover:bg-white/10 rounded-2xl text-right font-bold transition flex items-center gap-3">
-                        <span class="text-xl">📦</span>
-                        <span>الطلبات (${state.orders.length})</span>
-                    </button>
-                    <button onclick="switchDashTab('ads')" class="flex-shrink-0 md:flex-shrink-1 p-4 hover:bg-white/5 rounded-2xl text-right font-bold transition flex items-center gap-3">
-                        <span class="text-xl">💰</span>
-                        <span>إعدادات الأرباح</span>
-                    </button>
-                    <button onclick="window.location.hash='#/'" class="flex-shrink-0 md:flex-shrink-1 p-4 hover:bg-white/5 rounded-2xl text-right font-bold transition flex items-center gap-3">
-                        <span class="text-xl">🏠</span>
-                        <span>عرض المتجر</span>
-                    </button>
+                    <button onclick="switchDashTab('orders')" class="flex-shrink-0 p-4 bg-white/5 rounded-2xl font-bold">📦 الطلبات</button>
+                    <button onclick="switchDashTab('ads')" class="flex-shrink-0 p-4 hover:bg-white/5 rounded-2xl font-bold">💰 الأرباح</button>
+                    <button onclick="logout()" class="p-4 text-red-400 font-black mt-auto">🚪 تسجيل الخروج</button>
                 </nav>
-
-                <button onclick="logout()" class="hidden md:flex p-4 text-red-400 mt-auto font-black border-t border-white/5 items-center gap-3 hover:text-red-300 transition">
-                    <span>🚪</span>
-                    <span>تسجيل الخروج</span>
-                </button>
             </aside>
             <main class="flex-1 p-4 md:p-12 overflow-x-hidden" id="dash-panel"></main>
         </div>
@@ -310,6 +351,7 @@ const router = () => {
 
     if (hash === '#/') root.innerHTML = UI.store();
     else if (hash === '#/cart') root.innerHTML = UI.cart();
+    else if (hash === '#/checkout') root.innerHTML = UI.checkout();
     else if (hash === '#/dashboard') {
         root.innerHTML = renderDashboard();
         if(state.isAdmin) (window as any).switchDashTab('orders');
@@ -322,15 +364,12 @@ const updateUI = () => {
     const footer = document.getElementById('dynamic-footer');
     if (footer) {
         footer.innerHTML = `
-            <footer class="bg-slate-900 text-white py-12 px-6 text-center text-sm">
+            <footer class="bg-slate-900 text-white py-12 px-6 text-center text-sm border-t border-white/5">
                 <div class="max-w-4xl mx-auto">
                     <div class="text-2xl font-black text-blue-500 mb-4 text-center">storehalal</div>
-                    <p class="text-slate-400 mb-8 max-w-sm mx-auto text-center">متجرك المغربي الأول للجودة والسعر المناسب. توصيل في أقل من 48 ساعة.</p>
-                    <div class="flex justify-center gap-6 mb-8">
-                        <a href="https://wa.me/${state.settings.whatsapp}" class="text-2xl hover:scale-110 transition">💬</a>
-                    </div>
+                    <p class="text-slate-400 mb-8 text-center">توصيل مجاني لجميع المدن المغربية 🇲🇦 | الدفع عند الاستلام</p>
                     <div class="border-t border-white/5 pt-8 text-slate-500 font-bold text-center">
-                        © ${new Date().getFullYear()} ${state.settings.siteName}. جميع الحقوق محفوظة 🇲🇦
+                        © ${new Date().getFullYear()} ${state.settings.siteName}. جميع الحقوق محفوظة
                     </div>
                 </div>
             </footer>
