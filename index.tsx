@@ -1,6 +1,6 @@
 
 /**
- * storehalal v7.3 - Local Image Upload Support 🚀🇲🇦
+ * storehalal v7.5 - Password Visibility Toggle 👁️🇲🇦
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -19,7 +19,8 @@ let state: any = {
     isAdmin: false,
     currentTab: 'orders',
     editingId: null,
-    tempImage: null // لتخزين الصورة المختارة مؤقتاً بصيغة Base64
+    tempImage: null,
+    tempGallery: [] 
 };
 
 const injectAds = () => {
@@ -96,12 +97,12 @@ const UI = {
         <header class="sticky top-0 z-[99999] bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b dark:border-slate-800 shadow-sm h-16 flex items-center">
             <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
                 <a href="#/" class="flex items-center gap-2 group">
-                    <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-black">S</div>
+                    <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-black transition">S</div>
                     <span class="text-lg font-black">${state.settings.siteName}</span>
                 </a>
                 <div class="flex items-center gap-2 admin-btn-layer">
                     <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">🌓</button>
-                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black shadow-md">🔐 الإدارة</a>
+                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black shadow-md hover:scale-105 transition">🔐 الإدارة</a>
                 </div>
             </nav>
         </header>
@@ -115,8 +116,9 @@ const UI = {
             <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-4">
                 ${state.products.map((p: any) => `
                     <div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border dark:border-slate-800 shadow-sm flex flex-col group transition-all">
-                        <div class="aspect-square w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <div class="aspect-square w-full overflow-hidden bg-slate-100 dark:bg-slate-800 relative">
                            <img src="${p.image}" class="w-full h-full object-cover img-stable">
+                           ${p.gallery && p.gallery.length > 0 ? `<div class="absolute bottom-2 right-2 bg-black/50 text-white text-[8px] px-2 py-1 rounded-md backdrop-blur-md">+${p.gallery.length} صور</div>` : ''}
                         </div>
                         <div class="p-4 flex flex-col flex-1">
                             <h3 class="font-black text-[11px] mb-2 line-clamp-1">${p.name}</h3>
@@ -133,7 +135,10 @@ const UI = {
             <div class="max-w-sm mx-auto py-32 px-4">
                 <div class="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border dark:border-slate-800 text-center shadow-2xl">
                     <h2 class="text-xl font-black mb-6">دخول الإدارة</h2>
-                    <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-3 mb-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-800 rounded-xl text-center outline-none font-black">
+                    <div class="relative mb-4">
+                        <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-3 bg-slate-50 dark:bg-slate-800 border dark:border-slate-800 rounded-xl text-center outline-none font-black pl-10">
+                        <button type="button" onclick="togglePass()" id="eye-btn" class="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-100 transition-opacity text-lg p-1">👁️</button>
+                    </div>
                     <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black active:scale-95 transition">دخول</button>
                 </div>
             </div>
@@ -182,6 +187,18 @@ const UI = {
             <a href="#/" class="inline-block w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm shadow-xl active:scale-95 transition">العودة للرئيسية</a>
         </div>
     `
+};
+
+(window as any).togglePass = () => {
+    const input = document.getElementById('pass') as HTMLInputElement;
+    const btn = document.getElementById('eye-btn');
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (btn) btn.innerText = '👓';
+    } else {
+        input.type = 'password';
+        if (btn) btn.innerText = '👁️';
+    }
 };
 
 (window as any).switchTab = (tab: string) => {
@@ -251,7 +268,7 @@ const renderProductTab = (panel: HTMLElement) => {
         <div id="product-form-container" class="hidden mb-10"></div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             ${state.products.map((p: any) => `
-                <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-800 flex items-center gap-3">
+                <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-800 flex items-center gap-3 shadow-sm hover:shadow-md transition">
                     <div class="img-container"><img src="${p.image}" class="img-stable"></div>
                     <div class="flex-1">
                         <div class="font-bold text-[10px] line-clamp-1">${p.name}</div>
@@ -267,12 +284,20 @@ const renderProductTab = (panel: HTMLElement) => {
     `;
 };
 
-(window as any).handleFileSelect = (input: HTMLInputElement) => {
-    const file = input.files?.[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const base64 = e.target?.result as string;
+(window as any).handleFileSelect = (input: HTMLInputElement, type: 'main' | 'gallery') => {
+    const files = input.files;
+    if (!files || files.length === 0) return;
+
+    const processFile = (file: File): Promise<string> => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.readAsDataURL(file);
+        });
+    };
+
+    if (type === 'main') {
+        processFile(files[0]).then(base64 => {
             state.tempImage = base64;
             const preview = document.getElementById('image-preview') as HTMLImageElement;
             if (preview) {
@@ -280,9 +305,30 @@ const renderProductTab = (panel: HTMLElement) => {
                 preview.classList.remove('hidden');
                 document.getElementById('upload-placeholder')?.classList.add('hidden');
             }
-        };
-        reader.readAsDataURL(file);
+        });
+    } else {
+        const promises = Array.from(files).map(f => processFile(f));
+        Promise.all(promises).then(images => {
+            state.tempGallery = [...state.tempGallery, ...images];
+            updateGalleryUI();
+        });
     }
+};
+
+const updateGalleryUI = () => {
+    const container = document.getElementById('gallery-grid');
+    if (!container) return;
+    container.innerHTML = state.tempGallery.map((img: string, idx: number) => `
+        <div class="relative w-20 h-20 rounded-lg overflow-hidden border dark:border-slate-700 group">
+            <img src="${img}" class="w-full h-full object-cover">
+            <button onclick="removeFromGallery(${idx})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[8px] font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+        </div>
+    `).join('');
+};
+
+(window as any).removeFromGallery = (idx: number) => {
+    state.tempGallery.splice(idx, 1);
+    updateGalleryUI();
 };
 
 (window as any).showEditForm = (id?: string) => {
@@ -291,42 +337,50 @@ const renderProductTab = (panel: HTMLElement) => {
     container.classList.remove('hidden');
     state.editingId = id || null;
     const p = id ? state.products.find((item: any) => item.id === id) : { name: '', price: '', image: '', description: '', gallery: [] };
+    
     state.tempImage = p.image || null;
+    state.tempGallery = [...(p.gallery || [])];
 
     container.innerHTML = `
         <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border-2 border-blue-600/20 animate-fadeIn">
             <h3 class="font-black text-sm mb-4">${id ? 'تعديل المنتج' : 'إضافة منتج جديد'}</h3>
             <div class="grid md:grid-cols-2 gap-4">
-                <div class="space-y-3">
-                    <input id="p-name" value="${p.name}" placeholder="اسم المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
-                    <input id="p-price" value="${p.price}" type="number" placeholder="السعر" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
-                    
-                    <!-- منطقة رفع الصورة -->
-                    <div class="relative">
-                        <label class="block text-[10px] font-bold mb-1 opacity-50 px-1">صورة المنتج</label>
-                        <div onclick="document.getElementById('file-input').click()" class="cursor-pointer w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-center overflow-hidden bg-white dark:bg-slate-800 hover:border-blue-500 transition">
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold opacity-50 px-1">الصورة الرئيسية</label>
+                        <div onclick="document.getElementById('main-input').click()" class="cursor-pointer w-full h-40 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-center overflow-hidden bg-white dark:bg-slate-800 hover:border-blue-500 transition">
                             <img id="image-preview" src="${p.image || ''}" class="w-full h-full object-cover ${p.image ? '' : 'hidden'}">
                             <div id="upload-placeholder" class="${p.image ? 'hidden' : ''} text-center">
                                 <span class="text-2xl">📸</span>
-                                <div class="text-[9px] font-bold mt-1">اضغط لرفع صورة</div>
+                                <div class="text-[9px] font-bold mt-1">رفع الصورة الأساسية</div>
                             </div>
                         </div>
-                        <input id="file-input" type="file" accept="image/*" class="hidden" onchange="handleFileSelect(this)">
+                        <input id="main-input" type="file" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'main')">
                     </div>
+
+                    <input id="p-name" value="${p.name}" placeholder="اسم المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
+                    <input id="p-price" value="${p.price}" type="number" placeholder="السعر" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
                 </div>
-                <div class="space-y-3 pt-5">
-                    <textarea id="p-desc" placeholder="وصف المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs h-[168px]">${p.description || ''}</textarea>
+                
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold opacity-50 px-1">صور إضافية (المعرض)</label>
+                        <div class="flex flex-wrap gap-2 mb-2" id="gallery-grid"></div>
+                        <button onclick="document.getElementById('gallery-input').click()" class="w-full py-2 bg-slate-200 dark:bg-slate-800 text-[9px] font-black rounded-lg border-2 border-dotted border-slate-400 dark:border-slate-700">+ إضافة صور أخرى</button>
+                        <input id="gallery-input" type="file" accept="image/*" multiple class="hidden" onchange="handleFileSelect(this, 'gallery')">
+                    </div>
+
+                    <textarea id="p-desc" placeholder="وصف المنتج التفصيلي" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs h-[100px]">${p.description || ''}</textarea>
                 </div>
             </div>
-            <div class="mt-4">
-                <input id="p-gallery" value="${(p.gallery || []).join(', ')}" placeholder="روابط صور إضافية (اختياري، مفصولة بفاصلة)" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
-            </div>
-            <div class="flex gap-2 mt-6">
-                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black text-xs shadow-lg">حفظ المنتج ✅</button>
-                <button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-6 bg-slate-200 dark:bg-slate-800 py-3 rounded-xl font-black text-xs">إلغاء</button>
+            
+            <div class="flex gap-2 mt-8">
+                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-black text-xs shadow-lg active:scale-95 transition">حفظ المنتج والمخزون ✅</button>
+                <button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-8 bg-slate-200 dark:bg-slate-800 py-4 rounded-xl font-black text-xs">تجاهل</button>
             </div>
         </div>
     `;
+    updateGalleryUI();
     container.scrollIntoView({ behavior: 'smooth' });
 };
 
@@ -334,11 +388,10 @@ const renderProductTab = (panel: HTMLElement) => {
     const name = (document.getElementById('p-name') as HTMLInputElement).value;
     const price = (document.getElementById('p-price') as HTMLInputElement).value;
     const description = (document.getElementById('p-desc') as HTMLTextAreaElement).value;
-    const galleryStr = (document.getElementById('p-gallery') as HTMLInputElement).value;
     const image = state.tempImage;
+    const gallery = state.tempGallery;
 
-    if (!name || !price || !image) return alert('يرجى ملء الاسم والسعر ورفع صورة للمنتج');
-    const gallery = galleryStr.split(',').map(s => s.trim()).filter(s => s !== '');
+    if (!name || !price || !image) return alert('يرجى ملء الاسم والسعر ورفع الصورة الأساسية على الأقل');
 
     if (state.editingId) {
         const index = state.products.findIndex((p: any) => p.id === state.editingId);
@@ -351,7 +404,7 @@ const renderProductTab = (panel: HTMLElement) => {
 };
 
 (window as any).deleteProduct = (id: string) => {
-    if(confirm('هل تريد حذف هذا المنتج؟')) {
+    if(confirm('هل تريد حذف هذا المنتج؟ سيتم حذف جميع صوره أيضاً.')) {
         state.products = state.products.filter((p:any) => p.id !== id);
         save();
         (window as any).switchTab('products');
@@ -365,7 +418,7 @@ const renderProductTab = (panel: HTMLElement) => {
     if(!name || !pass) return alert('الاسم وكلمة المرور ضرورية');
     state.settings = { ...state.settings, siteName: name, adminPass: pass, adsterraCodes: ads };
     save();
-    alert('تم الحفظ بنجاح!');
+    alert('تم حفظ الإعدادات بنجاح!');
     location.reload(); 
 };
 
