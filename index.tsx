@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.8 - Full Product Management System 🛒📦
+ * storehalal v8.9 - Anti-Ad Admin Zone 🛡️🛒
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -20,13 +20,35 @@ let state: any = {
     isAdmin: false,
     currentTab: 'orders',
     activeModalProduct: null,
-    editingProduct: null // لتتبع المنتج الذي يتم تعديله
+    editingProduct: null 
+};
+
+const cleanupAds = () => {
+    // حذف الحاوية الرئيسية
+    const existing = document.getElementById('dynamic-scripts');
+    if (existing) existing.remove();
+
+    // حذف العناصر العائمة الشائعة لـ Adsterra
+    const selectors = [
+        '[id^="at-cv-"]', 
+        '[class*="adsterra"]', 
+        '.at-social-bar', 
+        'iframe[id^="aswift_"]',
+        '#at-fixed-ad'
+    ];
+    selectors.forEach(s => {
+        document.querySelectorAll(s).forEach(el => el.remove());
+    });
 };
 
 const injectScripts = () => {
-    if (state.isAdmin) return;
-    const existing = document.getElementById('dynamic-scripts');
-    if (existing) existing.remove();
+    const isDashboard = window.location.hash.includes('dashboard');
+    if (state.isAdmin || isDashboard) {
+        cleanupAds();
+        return;
+    }
+
+    cleanupAds(); // تنظيف قبل الحقن الجديد لتجنب التكرار
 
     const container = document.createElement('div');
     container.id = 'dynamic-scripts';
@@ -87,8 +109,14 @@ const router = () => {
     const oldModal = document.getElementById('modal-overlay');
     if (oldModal) oldModal.remove();
 
-    if (hash.includes('dashboard')) document.body.classList.add('admin-mode');
-    else document.body.classList.remove('admin-mode');
+    // حقن أو حذف السكربتات حسب الصفحة
+    injectScripts();
+
+    if (hash.includes('dashboard')) {
+        document.body.classList.add('admin-mode');
+    } else {
+        document.body.classList.remove('admin-mode');
+    }
 
     let html = UI.header();
     if (hash === '#/') html += `<div class="page-enter">${UI.store()}</div>`;
@@ -110,15 +138,18 @@ const router = () => {
 
 const UI = {
     header: () => `
-        <header class="sticky top-0 z-[9999] bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b dark:border-slate-800 h-16 flex items-center shadow-sm">
-            <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
+        <header class="sticky top-0 z-[99999] bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-b dark:border-slate-800 h-16 flex items-center shadow-md">
+            <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center relative">
                 <a href="#/" class="flex items-center gap-2">
                     <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-xl font-black shadow-lg shadow-blue-500/30">H</div>
                     <span class="text-xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">${state.settings.siteName}</span>
                 </a>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 relative z-[100000]">
                     <button onclick="document.documentElement.classList.toggle('dark')" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors">🌓</button>
-                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[11px] font-black shadow-xl hover:-translate-y-0.5 transition-all">🔐 الإدارة</a>
+                    <!-- مساحة أمان حول زر الإدارة -->
+                    <div class="ml-2">
+                         <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[11px] font-black shadow-xl hover:-translate-y-0.5 transition-all block ring-4 ring-white dark:ring-slate-950">🔐 الإدارة</a>
+                    </div>
                 </div>
             </nav>
         </header>
@@ -150,7 +181,7 @@ const UI = {
     productModal: (p: any) => {
         const hasAddImages = p.additionalImages && p.additionalImages.length > 0;
         return `
-        <div id="modal-overlay" class="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div id="modal-overlay" class="fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white dark:bg-slate-900 w-full max-w-5xl max-h-[90vh] rounded-[3rem] overflow-hidden flex flex-col md:flex-row relative shadow-2xl border dark:border-slate-800">
                 <button onclick="closeProductModal()" class="absolute top-6 right-6 z-50 bg-white dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center text-2xl">✕</button>
                 <div class="w-full md:w-3/5 h-[40vh] md:h-auto overflow-y-auto bg-slate-100 dark:bg-slate-800 p-4">
@@ -232,13 +263,13 @@ const UI = {
         if (!state.isAdmin) return `<div class="max-w-sm mx-auto py-32 px-4"><div class="bg-white dark:bg-slate-900 p-12 rounded-[3rem] text-center shadow-2xl"><h2 class="text-2xl font-black mb-8">دخول المسؤول</h2><input id="pass" type="password" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center font-black mb-6 outline-none"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black">فتح النظام</button></div></div>`;
         return `
             <div class="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-slate-950">
-                <aside class="w-full md:w-72 bg-slate-900 text-white flex md:flex-col p-4 gap-2">
+                <aside class="w-full md:w-72 bg-slate-900 text-white flex md:flex-col p-4 gap-2 relative z-50">
                     <button onclick="switchTab('orders')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right hover:bg-white/5 transition-all">📦 الطلبات الواردة</button>
                     <button onclick="switchTab('products')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right hover:bg-white/5 transition-all">🏷️ إدارة المنتجات</button>
                     <button onclick="switchTab('settings')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right hover:bg-white/5 transition-all">⚙️ الإعدادات</button>
                     <button onclick="logout()" class="p-4 bg-red-500/10 text-red-400 font-black rounded-2xl text-[10px] mt-auto">خروج</button>
                 </aside>
-                <main class="flex-1 p-8 md:p-12 overflow-x-hidden"><div id="dash-panel"></div></main>
+                <main class="flex-1 p-8 md:p-12 overflow-x-hidden relative z-40"><div id="dash-panel"></div></main>
             </div>
         `;
     }
