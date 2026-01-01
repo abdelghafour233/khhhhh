@@ -1,6 +1,6 @@
 
 /**
- * storehalal v7.6 - Advanced Gallery & Product Details Modal 🛍️🇲🇦
+ * storehalal v7.7 - Professional Dashboard UI Update 💎🇲🇦
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -21,7 +21,7 @@ let state: any = {
     editingId: null,
     tempImage: null,
     tempGallery: [],
-    activeModalProduct: null // لتخزين المنتج المعروض في النافذة المنبثقة
+    activeModalProduct: null 
 };
 
 const injectAds = () => {
@@ -91,7 +91,6 @@ const router = () => {
     
     root!.innerHTML = html;
     
-    // حقن مودال التفاصيل إذا كان موجوداً
     if (state.activeModalProduct) {
         const modalDiv = document.createElement('div');
         modalDiv.innerHTML = UI.productModal(state.activeModalProduct);
@@ -146,8 +145,6 @@ const UI = {
         <div id="modal-overlay" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
             <div class="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row relative shadow-2xl">
                 <button onclick="closeProductModal()" class="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center text-xl">✕</button>
-                
-                <!-- معرض الصور في المودال -->
                 <div class="w-full md:w-1/2 h-64 md:h-auto bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
                     <div id="modal-gallery-main" class="w-full h-full">
                         <img src="${p.image}" class="w-full h-full object-cover animate-fadeIn">
@@ -159,18 +156,14 @@ const UI = {
                         </div>
                     ` : ''}
                 </div>
-
-                <!-- تفاصيل المنتج -->
                 <div class="w-full md:w-1/2 p-8 overflow-y-auto">
                     <div class="mb-6">
                         <h2 class="text-2xl font-black mb-2">${p.name}</h2>
                         <div class="text-3xl font-black text-blue-600">${p.price} د.م.</div>
                     </div>
-                    
                     <div class="prose dark:prose-invert max-w-none mb-8">
                         <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">${p.description || 'لا يوجد وصف متاح لهذا المنتج حالياً.'}</p>
                     </div>
-
                     <div class="space-y-4 pt-4 border-t dark:border-slate-800">
                         <div class="flex items-center gap-3 text-green-600 dark:text-green-400 font-bold text-xs">
                             <span class="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">🚚</span>
@@ -195,17 +188,57 @@ const UI = {
                 </div>
             </div>
         `;
+
+        const totalRevenue = state.orders.reduce((acc: number, o: any) => acc + (Number(o.total) || 0), 0);
+
         return `
             <div class="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-slate-950">
-                <aside class="w-full md:w-56 bg-slate-900 text-white p-4 flex md:flex-col gap-1 border-b md:border-b-0 border-white/5">
-                    <div class="hidden md:block text-lg font-black text-blue-500 mb-8 px-2">غرفة التحكم</div>
-                    <button onclick="switchTab('orders')" class="flex-1 md:flex-none p-3 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs ${state.currentTab === 'orders' ? 'bg-blue-600' : ''}">📦 الطلبات</button>
-                    <button onclick="switchTab('products')" class="flex-1 md:flex-none p-3 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs ${state.currentTab === 'products' ? 'bg-blue-600' : ''}">🛍️ المنتجات</button>
-                    <button onclick="switchTab('settings')" class="flex-1 md:flex-none p-3 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs ${state.currentTab === 'settings' ? 'bg-blue-600' : ''}">⚙️ الإعدادات</button>
-                    <button onclick="logout()" class="md:mt-auto p-3 text-red-400 font-black rounded-xl text-center text-xs hover:bg-red-400/10 transition">خروج</button>
+                <!-- Sidebar -->
+                <aside class="w-full md:w-64 bg-slate-900 text-white flex md:flex-col border-b md:border-b-0 border-white/10 z-[100]">
+                    <div class="p-6 hidden md:block border-b border-white/5 mb-4">
+                        <div class="text-blue-500 font-black text-xl tracking-tighter">STORE CONTROL</div>
+                        <div class="text-[9px] text-slate-400 uppercase tracking-widest mt-1">v7.7 Professional</div>
+                    </div>
+                    <div class="flex flex-1 md:flex-col p-2 gap-1 overflow-x-auto md:overflow-x-visible">
+                        <button onclick="switchTab('orders')" class="nav-btn flex items-center gap-3 p-3.5 rounded-xl transition font-bold text-xs whitespace-nowrap ${state.currentTab === 'orders' ? 'active-nav' : 'text-slate-400 hover:text-white hover:bg-white/5'}">
+                            <span class="text-lg">📦</span> الطلبات والعمليات
+                        </button>
+                        <button onclick="switchTab('products')" class="nav-btn flex items-center gap-3 p-3.5 rounded-xl transition font-bold text-xs whitespace-nowrap ${state.currentTab === 'products' ? 'active-nav' : 'text-slate-400 hover:text-white hover:bg-white/5'}">
+                            <span class="text-lg">🛍️</span> مستودع المنتجات
+                        </button>
+                        <button onclick="switchTab('settings')" class="nav-btn flex items-center gap-3 p-3.5 rounded-xl transition font-bold text-xs whitespace-nowrap ${state.currentTab === 'settings' ? 'active-nav' : 'text-slate-400 hover:text-white hover:bg-white/5'}">
+                            <span class="text-lg">⚙️</span> إعدادات المنصة
+                        </button>
+                    </div>
+                    <div class="p-4 mt-auto border-t border-white/5 hidden md:block">
+                        <button onclick="logout()" class="w-full p-3 bg-red-500/10 text-red-400 font-black rounded-xl text-[10px] hover:bg-red-500 hover:text-white transition uppercase tracking-widest">تسجيل الخروج</button>
+                    </div>
                 </aside>
-                <main id="dash-panel" class="flex-1 p-4 md:p-8 bg-white dark:bg-slate-950 overflow-y-auto"></main>
+
+                <!-- Content Area -->
+                <main class="flex-1 overflow-y-auto">
+                    <!-- Dashboard Header -->
+                    <div class="bg-white dark:bg-slate-900 border-b dark:border-slate-800 p-6 md:px-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-black text-slate-800 dark:text-white" id="dash-title">لوحة التحكم</h1>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">مرحباً بك مجدداً في مركز إدارة المتجر</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                           <div class="bg-blue-600/10 text-blue-600 px-4 py-2 rounded-full font-black text-xs">
+                             المبيعات: ${totalRevenue} د.م.
+                           </div>
+                        </div>
+                    </div>
+
+                    <div id="dash-panel" class="p-6 md:p-10"></div>
+                </main>
             </div>
+
+            <style>
+               .active-nav { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+               .nav-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+               .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03); }
+            </style>
         `;
     },
     checkout: () => `
@@ -274,54 +307,117 @@ const UI = {
     state.currentTab = tab;
     state.editingId = null;
     const panel = document.getElementById('dash-panel');
-    if (!panel) return;
+    const title = document.getElementById('dash-title');
+    if (!panel || !title) return;
 
-    document.querySelectorAll('aside button').forEach(btn => {
-        btn.classList.remove('bg-blue-600');
-        if (btn.getAttribute('onclick')?.includes(tab)) btn.classList.add('bg-blue-600');
+    // Update Nav Buttons Styles
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active-nav');
+        btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-white/5');
+        if (btn.getAttribute('onclick')?.includes(tab)) {
+            btn.classList.add('active-nav');
+            btn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-white/5');
+        }
     });
 
     if (tab === 'orders') {
+        title.innerText = "الطلبات والمبيعات";
         panel.innerHTML = `
-            <h2 class="text-xl font-black mb-6">الطلبات الواردة (${state.orders.length})</h2>
-            <div class="grid gap-3">
-                ${state.orders.map((o: any) => `
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border dark:border-slate-800 flex justify-between items-center transition-none">
-                        <div>
-                            <div class="font-black text-sm">${o.name} <span class="text-[9px] text-slate-400 mr-2">${o.city}</span></div>
-                            <div class="text-blue-500 font-black text-xs" dir="ltr">${o.phone}</div>
-                        </div>
-                        <div class="font-black text-blue-600 text-sm">${o.total} د.م.</div>
-                    </div>
-                `).join('') || '<p class="text-center opacity-30 py-16 font-black text-xs">لا توجد طلبات بعد</p>'}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 card-shadow">
+                    <div class="text-slate-400 text-[10px] font-black uppercase mb-1">إجمالي الطلبات</div>
+                    <div class="text-3xl font-black">${state.orders.length}</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 card-shadow">
+                    <div class="text-slate-400 text-[10px] font-black uppercase mb-1">إيرادات المتجر</div>
+                    <div class="text-3xl font-black text-blue-600">${state.orders.reduce((acc:any, o:any) => acc + (Number(o.total) || 0), 0)} د.م.</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 card-shadow">
+                    <div class="text-slate-400 text-[10px] font-black uppercase mb-1">متوسط السلة</div>
+                    <div class="text-3xl font-black">${state.orders.length ? Math.round(state.orders.reduce((acc:any, o:any) => acc + (Number(o.total) || 0), 0) / state.orders.length) : 0} د.م.</div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border dark:border-slate-800 overflow-hidden card-shadow">
+                <div class="p-6 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
+                    <h3 class="font-black text-sm uppercase">قائمة العمليات الأخيرة</h3>
+                    <div class="text-[9px] font-bold text-slate-400 tracking-tighter">تحديث تلقائي للمخزون</div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right">
+                        <thead>
+                            <tr class="bg-slate-50/50 dark:bg-slate-800/50 text-[10px] font-black text-slate-400 uppercase">
+                                <th class="p-5">العميل والمدينة</th>
+                                <th class="p-5">المنتجات</th>
+                                <th class="p-5">المبلغ</th>
+                                <th class="p-5">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y dark:divide-slate-800">
+                            ${state.orders.map((o: any) => `
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                    <td class="p-5">
+                                        <div class="font-black text-xs text-slate-800 dark:text-white">${o.name}</div>
+                                        <div class="text-[9px] font-bold text-slate-400 mt-1">${o.city} • ${o.phone}</div>
+                                    </td>
+                                    <td class="p-5">
+                                        <div class="text-[10px] font-bold text-slate-500 max-w-[150px] truncate">${o.items.join(', ')}</div>
+                                    </td>
+                                    <td class="p-5">
+                                        <div class="font-black text-blue-600 text-xs">${o.total} د.م.</div>
+                                    </td>
+                                    <td class="p-5">
+                                        <span class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">مؤكد ✅</span>
+                                    </td>
+                                </tr>
+                            `).join('') || `<tr><td colspan="4" class="p-20 text-center opacity-30 font-black text-xs uppercase tracking-widest">لا توجد مبيعات حالياً</td></tr>`}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         `;
     } else if (tab === 'products') {
+        title.innerText = "إدارة المنتجات";
         renderProductTab(panel);
     } else if (tab === 'settings') {
+        title.innerText = "إعدادات المنصة";
         panel.innerHTML = `
-            <h2 class="text-xl font-black mb-6">إعدادات المتجر والإعلانات</h2>
-            <div class="space-y-6 max-w-3xl">
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 space-y-4">
-                        <h3 class="font-black text-xs border-b dark:border-slate-800 pb-2 mb-4">⚙️ عام</h3>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-bold opacity-50 px-1">اسم المتجر</label>
-                            <input id="set-name" value="${state.settings.siteName}" class="w-full p-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-xs">
+            <div class="max-w-4xl space-y-8">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Brand Settings -->
+                    <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 card-shadow space-y-6">
+                        <div class="flex items-center gap-3 border-b dark:border-slate-800 pb-4 mb-4">
+                            <span class="text-xl">🏪</span>
+                            <h3 class="font-black text-xs uppercase tracking-widest">هوية المتجر</h3>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-bold opacity-50 px-1">كلمة المرور</label>
-                            <input id="set-pass" value="${state.settings.adminPass}" type="text" class="w-full p-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-xs">
+                        <div class="space-y-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase px-1">اسم الموقع</label>
+                                <input id="set-name" value="${state.settings.siteName}" class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-black text-xs focus:border-blue-500 transition">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase px-1">كلمة مرور الإدارة</label>
+                                <input id="set-pass" value="${state.settings.adminPass}" type="text" class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-black text-xs focus:border-blue-500 transition">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 space-y-4">
-                        <h3 class="font-black text-xs border-b dark:border-slate-800 pb-2 mb-4 text-blue-500">📊 أكواد Adsterra</h3>
-                        <textarea id="set-ads" class="w-full p-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-mono text-[9px] h-32" dir="ltr">${state.settings.adsterraCodes}</textarea>
+                    <!-- Marketing Settings -->
+                    <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 card-shadow space-y-6">
+                        <div class="flex items-center gap-3 border-b dark:border-slate-800 pb-4 mb-4">
+                            <span class="text-xl">📊</span>
+                            <h3 class="font-black text-xs uppercase tracking-widest text-blue-500">التسويق والإعلانات</h3>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase px-1">أكواد Adsterra / Scripts</label>
+                            <textarea id="set-ads" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-mono text-[9px] h-32 leading-relaxed" dir="ltr">${state.settings.adsterraCodes}</textarea>
+                        </div>
                     </div>
                 </div>
 
-                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm shadow-lg active:scale-95 transition">حفظ وتطبيق الإعدادات ✅</button>
+                <div class="bg-blue-600 p-1 rounded-[2rem]">
+                   <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.9rem] font-black text-sm shadow-xl active:scale-[0.98] transition">حفظ وتحديث كافة الإعدادات ✅</button>
+                </div>
             </div>
         `;
     }
@@ -329,22 +425,30 @@ const UI = {
 
 const renderProductTab = (panel: HTMLElement) => {
     panel.innerHTML = `
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-black">إدارة المخزون</h2>
-            <button onclick="showEditForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black">+ إضافة منتج</button>
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-lg font-black text-slate-700 dark:text-white uppercase tracking-tighter">المخزون المتوفر</h2>
+                <p class="text-[10px] text-slate-400 font-bold">${state.products.length} منتجات نشطة حالياً</p>
+            </div>
+            <button onclick="showEditForm()" class="bg-slate-900 dark:bg-blue-600 text-white px-6 py-3 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 active:scale-95 transition">+ إضافة منتج جديد</button>
         </div>
-        <div id="product-form-container" class="hidden mb-10"></div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+
+        <div id="product-form-container" class="hidden mb-12"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             ${state.products.map((p: any) => `
-                <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-800 flex items-center gap-3 shadow-sm hover:shadow-md transition">
-                    <div class="img-container"><img src="${p.image}" class="img-stable"></div>
-                    <div class="flex-1">
-                        <div class="font-bold text-[10px] line-clamp-1">${p.name} ${p.gallery?.length > 0 ? '🖼️' : ''}</div>
-                        <div class="text-blue-600 font-black text-xs">${p.price} د.م.</div>
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border dark:border-slate-800 flex items-center gap-4 card-shadow hover:border-blue-600/30 transition group">
+                    <div class="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative flex-shrink-0">
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                        ${p.gallery?.length > 0 ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center text-[8px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity">معرض الصور</div>` : ''}
                     </div>
-                    <div class="flex gap-1">
-                        <button onclick="showEditForm('${p.id}')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">✏️</button>
-                        <button onclick="deleteProduct('${p.id}')" class="p-2 bg-red-50 text-red-500 dark:bg-red-900/20 rounded-lg text-xs">🗑️</button>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-black text-xs text-slate-800 dark:text-white truncate mb-1">${p.name}</div>
+                        <div class="text-blue-600 font-black text-sm">${p.price} د.م.</div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="showEditForm('${p.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs hover:bg-blue-600 hover:text-white transition">✏️</button>
+                        <button onclick="deleteProduct('${p.id}')" class="p-2.5 bg-red-50 text-red-500 dark:bg-red-900/20 rounded-xl text-xs hover:bg-red-500 hover:text-white transition">🗑️</button>
                     </div>
                 </div>
             `).join('')}
@@ -410,41 +514,43 @@ const updateGalleryUI = () => {
     state.tempGallery = [...(p.gallery || [])];
 
     container.innerHTML = `
-        <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border-2 border-blue-600/20 animate-fadeIn">
-            <h3 class="font-black text-sm mb-4">${id ? 'تعديل المنتج' : 'إضافة منتج جديد'}</h3>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="space-y-4">
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border-2 border-blue-600/20 card-shadow animate-fadeIn">
+            <h3 class="font-black text-sm uppercase tracking-widest mb-6 border-b dark:border-slate-800 pb-4">${id ? 'تحديث بيانات المنتج' : 'إضافة منتج جديد للمستودع'}</h3>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-6">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-bold opacity-50 px-1">الصورة الرئيسية للمنتج</label>
-                        <div onclick="document.getElementById('main-input').click()" class="cursor-pointer w-full h-44 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-center overflow-hidden bg-white dark:bg-slate-800 hover:border-blue-500 transition">
+                        <label class="text-[10px] font-black text-slate-400 uppercase px-1">صورة الغلاف (رئيسية)</label>
+                        <div onclick="document.getElementById('main-input').click()" class="cursor-pointer w-full h-48 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-800 hover:border-blue-500 hover:bg-slate-100 transition">
                             <img id="image-preview" src="${p.image || ''}" class="w-full h-full object-cover ${p.image ? '' : 'hidden'}">
                             <div id="upload-placeholder" class="${p.image ? 'hidden' : ''} text-center">
                                 <span class="text-3xl">📸</span>
-                                <div class="text-[9px] font-bold mt-1 uppercase tracking-wider">الخلفية / الصورة الأولى</div>
+                                <div class="text-[9px] font-black mt-2 text-slate-500 uppercase">انقر لرفع الصورة</div>
                             </div>
                         </div>
                         <input id="main-input" type="file" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'main')">
                     </div>
 
-                    <input id="p-name" value="${p.name}" placeholder="اسم المنتج" class="w-full p-3.5 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs shadow-sm">
-                    <input id="p-price" value="${p.price}" type="number" placeholder="السعر (د.م.)" class="w-full p-3.5 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs shadow-sm">
+                    <div class="space-y-4">
+                        <input id="p-name" value="${p.name}" placeholder="اسم المنتج التجاري" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none font-black text-xs shadow-sm focus:border-blue-500 transition">
+                        <input id="p-price" value="${p.price}" type="number" placeholder="سعر البيع المقترح (د.م.)" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none font-black text-xs shadow-sm focus:border-blue-500 transition">
+                    </div>
                 </div>
                 
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-bold opacity-50 px-1">المعرض (صور إضافية للمعاينة)</label>
-                        <div class="flex flex-wrap gap-2 mb-2 p-3 bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-800 min-h-[100px]" id="gallery-grid"></div>
-                        <button onclick="document.getElementById('gallery-input').click()" class="w-full py-3 bg-slate-200 dark:bg-slate-800 text-[10px] font-black rounded-xl border-2 border-dotted border-slate-400 dark:border-slate-700 hover:bg-slate-300 transition">+ رفع صور إضافية</button>
+                        <label class="text-[10px] font-black text-slate-400 uppercase px-1">صور العرض الإضافية</label>
+                        <div class="flex flex-wrap gap-2 mb-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border dark:border-slate-700 min-h-[120px]" id="gallery-grid"></div>
+                        <button onclick="document.getElementById('gallery-input').click()" class="w-full py-3.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-[10px] font-black rounded-2xl border-2 border-dotted border-slate-300 dark:border-slate-700 hover:bg-slate-100 transition">+ رفع صور للمعرض</button>
                         <input id="gallery-input" type="file" accept="image/*" multiple class="hidden" onchange="handleFileSelect(this, 'gallery')">
                     </div>
 
-                    <textarea id="p-desc" placeholder="أدخل وصفاً تفصيلياً للمنتج ومميزاته..." class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs h-[100px] shadow-sm">${p.description || ''}</textarea>
+                    <textarea id="p-desc" placeholder="أدخل تفاصيل ومواصفات المنتج..." class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none font-black text-xs h-[100px] shadow-sm focus:border-blue-500 transition">${p.description || ''}</textarea>
                 </div>
             </div>
             
-            <div class="flex gap-2 mt-8">
-                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-black text-xs shadow-lg active:scale-95 transition">حفظ التغييرات ✅</button>
-                <button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-8 bg-slate-200 dark:bg-slate-800 py-4 rounded-xl font-black text-xs hover:bg-slate-300 transition">إلغاء</button>
+            <div class="flex gap-3 mt-10">
+                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black text-xs shadow-xl active:scale-95 transition">حفظ التعديلات في النظام ✅</button>
+                <button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-10 bg-slate-100 dark:bg-slate-800 text-slate-500 py-4 rounded-2xl font-black text-xs hover:bg-slate-200 transition">إلغاء</button>
             </div>
         </div>
     `;
@@ -459,7 +565,7 @@ const updateGalleryUI = () => {
     const image = state.tempImage;
     const gallery = state.tempGallery;
 
-    if (!name || !price || !image) return alert('يرجى التأكد من إدخال الاسم، السعر، والصورة الأساسية.');
+    if (!name || !price || !image) return alert('يرجى التأكد من ملء الحقول الأساسية وصورة الغلاف.');
 
     if (state.editingId) {
         const index = state.products.findIndex((p: any) => p.id === state.editingId);
@@ -472,7 +578,7 @@ const updateGalleryUI = () => {
 };
 
 (window as any).deleteProduct = (id: string) => {
-    if(confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج نهائياً؟')) {
+    if(confirm('هل تريد إزالة هذا المنتج من المستودع؟')) {
         state.products = state.products.filter((p:any) => p.id !== id);
         save();
         (window as any).switchTab('products');
@@ -485,7 +591,7 @@ const updateGalleryUI = () => {
     const ads = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
     state.settings = { ...state.settings, siteName: name, adminPass: pass, adsterraCodes: ads };
     save();
-    alert('تم حفظ الإعدادات وتطبيقها بنجاح!');
+    alert('تم التحديث بنجاح!');
     location.reload(); 
 };
 
