@@ -1,6 +1,6 @@
 
 /**
- * storehalal v9.1 - Native Image Upload & Base64 Storage 📸🛒
+ * storehalal v9.2 - Admin Password Management & Visibility Toggle 🛡️👁️
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -23,7 +23,6 @@ let state: any = {
     editingProduct: null 
 };
 
-// وظيفة مساعدة لتحويل الملف إلى Base64
 const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -245,7 +244,7 @@ const UI = {
                     <h2 class="text-2xl font-black mb-8">دخول المسؤول</h2>
                     <div class="relative mb-6">
                         <input id="pass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center font-black outline-none border-2 border-transparent focus:border-blue-500">
-                        <button id="pass-toggle" onclick="togglePasswordVisibility()" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition-opacity">👁️‍🗨️</button>
+                        <button id="pass-toggle" onclick="togglePasswordVisibility('pass', 'pass-toggle')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition-opacity">👁️‍🗨️</button>
                     </div>
                     <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-lg shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all">فتح النظام</button>
                 </div>
@@ -264,9 +263,9 @@ const UI = {
     }
 };
 
-(window as any).togglePasswordVisibility = () => {
-    const passInput = document.getElementById('pass') as HTMLInputElement;
-    const btn = document.getElementById('pass-toggle');
+(window as any).togglePasswordVisibility = (inputId: string, btnId: string) => {
+    const passInput = document.getElementById(inputId) as HTMLInputElement;
+    const btn = document.getElementById(btnId);
     if (passInput && btn) {
         if (passInput.type === 'password') { passInput.type = 'text'; btn.innerText = '👁️'; }
         else { passInput.type = 'password'; btn.innerText = '👁️‍🗨️'; }
@@ -329,10 +328,23 @@ const UI = {
     } else if (tab === 'settings') {
         panel.innerHTML = `
             <h2 class="text-2xl font-black mb-8">إعدادات المتجر</h2>
-            <div class="max-w-2xl bg-white dark:bg-slate-900 p-8 rounded-3xl border dark:border-slate-800 shadow-sm space-y-6">
-                <div><label class="block text-xs font-black opacity-40 uppercase mb-2">اسم المتجر</label><input id="set-sitename" type="text" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-bold"></div>
-                <div><label class="block text-xs font-black opacity-40 uppercase mb-2">أكواد Adsterra / Tracking (HTML/JS)</label><textarea id="set-adsterra" rows="8" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-xs" dir="ltr">${state.settings.adsterraCodes}</textarea></div>
-                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg">حفظ الإعدادات 💾</button>
+            <div class="max-w-2xl bg-white dark:bg-slate-900 p-8 rounded-3xl border dark:border-slate-800 shadow-sm space-y-6 text-right">
+                <div>
+                    <label class="block text-xs font-black opacity-40 uppercase mb-2">اسم المتجر</label>
+                    <input id="set-sitename" type="text" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-black opacity-40 uppercase mb-2">تغيير كلمة مرور المدير</label>
+                    <div class="relative">
+                        <input id="set-adminpass" type="password" value="${state.settings.adminPass}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-black">
+                        <button id="set-pass-toggle" onclick="togglePasswordVisibility('set-adminpass', 'set-pass-toggle')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition-opacity">👁️‍🗨️</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-black opacity-40 uppercase mb-2">أكواد Adsterra / Tracking (HTML/JS)</label>
+                    <textarea id="set-adsterra" rows="8" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-xs" dir="ltr">${state.settings.adsterraCodes}</textarea>
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:scale-[1.01] active:scale-95 transition-all">حفظ الإعدادات 💾</button>
             </div>`;
     }
 };
@@ -375,9 +387,7 @@ const UI = {
     const addImagesInput = form.querySelector('[name="addImagesFiles"]') as HTMLInputElement;
     
     let mainImage = state.editingProduct.image;
-    if (imageInput.files && imageInput.files[0]) {
-        mainImage = await toBase64(imageInput.files[0]);
-    }
+    if (imageInput.files && imageInput.files[0]) { mainImage = await toBase64(imageInput.files[0]); }
 
     let additionalImages = state.editingProduct.additionalImages || [];
     if (addImagesInput.files && addImagesInput.files.length > 0) {
@@ -393,9 +403,8 @@ const UI = {
         additionalImages: additionalImages
     };
 
-    if (state.editingProduct.id === 'new') {
-        state.products.unshift({ id: Date.now().toString(), ...pData });
-    } else {
+    if (state.editingProduct.id === 'new') { state.products.unshift({ id: Date.now().toString(), ...pData }); }
+    else {
         const index = state.products.findIndex((prod: any) => prod.id === state.editingProduct.id);
         state.products[index] = { ...state.products[index], ...pData };
     }
@@ -413,8 +422,9 @@ const UI = {
 
 (window as any).saveSettings = () => {
     state.settings.siteName = (document.getElementById('set-sitename') as HTMLInputElement).value;
+    state.settings.adminPass = (document.getElementById('set-adminpass') as HTMLInputElement).value;
     state.settings.adsterraCodes = (document.getElementById('set-adsterra') as HTMLTextAreaElement).value;
-    save(); alert("تم حفظ الإعدادات!"); injectScripts(); router();
+    save(); alert("تم حفظ الإعدادات وكلمة المرور الجديدة بنجاح!"); injectScripts(); router();
 };
 
 (window as any).buyNow = (id: any) => { state.activeModalProduct = null; state.checkoutItem = state.products.find((i: any) => i.id === id); window.location.hash = '#/checkout'; };
