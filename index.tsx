@@ -1,6 +1,6 @@
 
 /**
- * storehalal v7.2 - Full Adsterra Code Support 🚀🇲🇦
+ * storehalal v7.3 - Local Image Upload Support 🚀🇲🇦
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -18,29 +18,25 @@ let state: any = {
     checkoutItem: null,
     isAdmin: false,
     currentTab: 'orders',
-    editingId: null
+    editingId: null,
+    tempImage: null // لتخزين الصورة المختارة مؤقتاً بصيغة Base64
 };
 
-// --- نظام الحقن المطور للأكواد ---
 const injectAds = () => {
-    // إزالة الإعلانات القديمة لتجنب التكرار
     document.querySelectorAll('.adsterra-dynamic-script').forEach(el => el.remove());
-
-    // منع الإعلانات في لوحة التحكم بشكل كامل
     if (window.location.hash.includes('dashboard')) return;
 
     const div = document.createElement('div');
     div.className = 'adsterra-dynamic-script';
     div.innerHTML = state.settings.adsterraCodes;
     
-    // حقن الأكواد: السكربتات تحتاج معالجة خاصة لتعمل عند إضافتها عبر innerHTML
     const scripts = div.querySelectorAll('script');
     scripts.forEach(oldScript => {
         const newScript = document.createElement('script');
         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
         newScript.appendChild(document.createTextNode(oldScript.innerHTML));
         document.body.appendChild(newScript);
-        oldScript.remove(); // تنظيف من الـ div المؤقت
+        oldScript.remove();
     });
 };
 
@@ -62,7 +58,6 @@ const initStore = () => {
             state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
         }
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-        
         setTimeout(injectAds, 1000);
     } catch (e) {
         localStorage.clear();
@@ -80,14 +75,10 @@ const router = () => {
     const root = document.getElementById('app-root');
     const hash = window.location.hash || '#/';
     
-    if (hash.includes('dashboard')) {
-        document.body.classList.add('admin-mode');
-    } else {
-        document.body.classList.remove('admin-mode');
-    }
+    if (hash.includes('dashboard')) document.body.classList.add('admin-mode');
+    else document.body.classList.remove('admin-mode');
 
     let html = UI.header();
-    
     if (hash === '#/') html += `<div class="page-enter">${UI.store()}</div>`;
     else if (hash === '#/checkout') html += `<div class="page-enter">${UI.checkout()}</div>`;
     else if (hash === '#/dashboard') {
@@ -171,13 +162,13 @@ const UI = {
                        <div class="text-blue-600 font-black text-lg">${state.checkoutItem.price} د.م.</div>
                    </div>
                 </div>
-                <form onsubmit="event.preventDefault(); window.location.hash='#/success';" class="space-y-3">
-                    <input type="text" placeholder="الاسم الكامل" required class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-sm">
-                    <select required class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-sm">
+                <form onsubmit="event.preventDefault(); (window as any).processOrder(this);" class="space-y-3">
+                    <input name="fullname" type="text" placeholder="الاسم الكامل" required class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-sm">
+                    <select name="city" required class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-sm">
                         <option value="" disabled selected>اختر المدينة</option>
                         ${MOROCCAN_CITIES.map(c => `<option value="${c}">${c}</option>`).join('')}
                     </select>
-                    <input type="tel" placeholder="رقم الهاتف" required class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none text-right font-black" dir="ltr">
+                    <input name="phone" type="tel" placeholder="رقم الهاتف" required class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none text-right font-black" dir="ltr">
                     <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-lg shadow-lg active:scale-95 transition">إرسال الطلب ✅</button>
                 </form>
             </div>
@@ -276,18 +267,22 @@ const renderProductTab = (panel: HTMLElement) => {
     `;
 };
 
-(window as any).saveSettings = () => {
-    const name = (document.getElementById('set-name') as HTMLInputElement).value;
-    const pass = (document.getElementById('set-pass') as HTMLInputElement).value;
-    const ads = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
-
-    if(!name || !pass) return alert('الاسم وكلمة المرور ضرورية');
-
-    state.settings = { ...state.settings, siteName: name, adminPass: pass, adsterraCodes: ads };
-    save();
-    alert('تم الحفظ بنجاح! سيتم إعادة تحميل الإعلانات.');
-    injectAds(); 
-    location.reload(); 
+(window as any).handleFileSelect = (input: HTMLInputElement) => {
+    const file = input.files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target?.result as string;
+            state.tempImage = base64;
+            const preview = document.getElementById('image-preview') as HTMLImageElement;
+            if (preview) {
+                preview.src = base64;
+                preview.classList.remove('hidden');
+                document.getElementById('upload-placeholder')?.classList.add('hidden');
+            }
+        };
+        reader.readAsDataURL(file);
+    }
 };
 
 (window as any).showEditForm = (id?: string) => {
@@ -296,6 +291,7 @@ const renderProductTab = (panel: HTMLElement) => {
     container.classList.remove('hidden');
     state.editingId = id || null;
     const p = id ? state.products.find((item: any) => item.id === id) : { name: '', price: '', image: '', description: '', gallery: [] };
+    state.tempImage = p.image || null;
 
     container.innerHTML = `
         <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border-2 border-blue-600/20 animate-fadeIn">
@@ -304,17 +300,29 @@ const renderProductTab = (panel: HTMLElement) => {
                 <div class="space-y-3">
                     <input id="p-name" value="${p.name}" placeholder="اسم المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
                     <input id="p-price" value="${p.price}" type="number" placeholder="السعر" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
-                    <input id="p-image" value="${p.image}" placeholder="رابط الصورة الأساسية" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
+                    
+                    <!-- منطقة رفع الصورة -->
+                    <div class="relative">
+                        <label class="block text-[10px] font-bold mb-1 opacity-50 px-1">صورة المنتج</label>
+                        <div onclick="document.getElementById('file-input').click()" class="cursor-pointer w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-center overflow-hidden bg-white dark:bg-slate-800 hover:border-blue-500 transition">
+                            <img id="image-preview" src="${p.image || ''}" class="w-full h-full object-cover ${p.image ? '' : 'hidden'}">
+                            <div id="upload-placeholder" class="${p.image ? 'hidden' : ''} text-center">
+                                <span class="text-2xl">📸</span>
+                                <div class="text-[9px] font-bold mt-1">اضغط لرفع صورة</div>
+                            </div>
+                        </div>
+                        <input id="file-input" type="file" accept="image/*" class="hidden" onchange="handleFileSelect(this)">
+                    </div>
                 </div>
-                <div class="space-y-3">
-                    <textarea id="p-desc" placeholder="وصف المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs h-[104px]">${p.description || ''}</textarea>
+                <div class="space-y-3 pt-5">
+                    <textarea id="p-desc" placeholder="وصف المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs h-[168px]">${p.description || ''}</textarea>
                 </div>
             </div>
             <div class="mt-4">
-                <input id="p-gallery" value="${(p.gallery || []).join(', ')}" placeholder="روابط الصور الإضافية (افصل بينها بفاصلة ,)" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
+                <input id="p-gallery" value="${(p.gallery || []).join(', ')}" placeholder="روابط صور إضافية (اختياري، مفصولة بفاصلة)" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
             </div>
             <div class="flex gap-2 mt-6">
-                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black text-xs shadow-lg">حفظ التغييرات</button>
+                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black text-xs shadow-lg">حفظ المنتج ✅</button>
                 <button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-6 bg-slate-200 dark:bg-slate-800 py-3 rounded-xl font-black text-xs">إلغاء</button>
             </div>
         </div>
@@ -325,10 +333,11 @@ const renderProductTab = (panel: HTMLElement) => {
 (window as any).saveProduct = () => {
     const name = (document.getElementById('p-name') as HTMLInputElement).value;
     const price = (document.getElementById('p-price') as HTMLInputElement).value;
-    const image = (document.getElementById('p-image') as HTMLInputElement).value;
     const description = (document.getElementById('p-desc') as HTMLTextAreaElement).value;
     const galleryStr = (document.getElementById('p-gallery') as HTMLInputElement).value;
-    if (!name || !price || !image) return alert('يرجى ملء الاسم والسعر والصورة الأساسية');
+    const image = state.tempImage;
+
+    if (!name || !price || !image) return alert('يرجى ملء الاسم والسعر ورفع صورة للمنتج');
     const gallery = galleryStr.split(',').map(s => s.trim()).filter(s => s !== '');
 
     if (state.editingId) {
@@ -349,6 +358,17 @@ const renderProductTab = (panel: HTMLElement) => {
     }
 };
 
+(window as any).saveSettings = () => {
+    const name = (document.getElementById('set-name') as HTMLInputElement).value;
+    const pass = (document.getElementById('set-pass') as HTMLInputElement).value;
+    const ads = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
+    if(!name || !pass) return alert('الاسم وكلمة المرور ضرورية');
+    state.settings = { ...state.settings, siteName: name, adminPass: pass, adsterraCodes: ads };
+    save();
+    alert('تم الحفظ بنجاح!');
+    location.reload(); 
+};
+
 (window as any).login = () => {
     const val = (document.getElementById('pass') as HTMLInputElement).value;
     if (val === state.settings.adminPass) {
@@ -367,6 +387,22 @@ const renderProductTab = (panel: HTMLElement) => {
 (window as any).buyNow = (id: string) => {
     state.checkoutItem = state.products.find((i: any) => i.id === id);
     window.location.hash = '#/checkout';
+};
+
+(window as any).processOrder = (form: HTMLFormElement) => {
+    const formData = new FormData(form);
+    const newOrder = {
+        id: Date.now().toString(),
+        name: formData.get('fullname'),
+        city: formData.get('city'),
+        phone: formData.get('phone'),
+        total: state.checkoutItem.price,
+        items: [state.checkoutItem.name],
+        createdAt: new Date().toISOString()
+    };
+    state.orders.unshift(newOrder);
+    save();
+    window.location.hash = '#/success';
 };
 
 window.addEventListener('load', () => { initStore(); router(); });
