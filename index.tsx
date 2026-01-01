@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.2 - Simplified Checkout Form 🛒✅
+ * storehalal v8.3 - Fixed Order Flow & Minimalist Form 🛒✅
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -467,38 +467,45 @@ const renderProductTab = (panel: HTMLElement) => {
         submitBtn.setAttribute('disabled', 'true');
     }
 
-    setTimeout(() => {
-        try {
-            const formData = new FormData(form);
-            const fullname = formData.get('fullname') as string;
-            const city = formData.get('city') as string;
-            const phone = formData.get('phone') as string;
+    // إصلاح الخلل: تأكد من قراءة القيم من الفورم بشكل مباشر
+    try {
+        const fullname = (form.querySelector('[name="fullname"]') as HTMLInputElement).value;
+        const city = (form.querySelector('[name="city"]') as HTMLSelectElement).value;
+        const phone = (form.querySelector('[name="phone"]') as HTMLInputElement).value;
 
-            if (!fullname || !city || !phone) throw new Error('بيانات ناقصة');
-
-            const newOrder = { 
-                id: Date.now().toString(), 
-                name: fullname, 
-                city: city, 
-                phone: phone, 
-                total: state.checkoutItem.price, 
-                items: [state.checkoutItem.name], 
-                createdAt: new Date().toISOString() 
-            };
-            
-            state.orders.unshift(newOrder);
-            state.lastOrder = newOrder;
-            save(); 
-
-            window.location.hash = '#/success';
-        } catch (e) {
-            alert('حدث خطأ أثناء معالجة الطلب، يرجى المحاولة مرة أخرى.');
+        if (!fullname || !city || !phone) {
+            alert('يرجى ملء جميع البيانات (الاسم، المدينة، الهاتف)');
             if (submitBtn) {
                 submitBtn.innerHTML = '<span>تأكيد الشراء الآن ✅</span>';
                 submitBtn.removeAttribute('disabled');
             }
+            return;
         }
-    }, 1200);
+
+        const newOrder = { 
+            id: Date.now().toString(), 
+            name: fullname, 
+            city: city, 
+            phone: phone, 
+            total: state.checkoutItem.price, 
+            items: [state.checkoutItem.name], 
+            createdAt: new Date().toISOString() 
+        };
+        
+        state.orders.unshift(newOrder);
+        state.lastOrder = newOrder;
+        save(); 
+
+        // توجيه فوري لصفحة النجاح
+        window.location.hash = '#/success';
+    } catch (e) {
+        console.error("Order processing error:", e);
+        alert('حدث خطأ فني أثناء إرسال الطلب، يرجى إعادة المحاولة.');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<span>تأكيد الشراء الآن ✅</span>';
+            submitBtn.removeAttribute('disabled');
+        }
+    }
 };
 
 (window as any).openProductModal = (id: string) => { state.activeModalProduct = state.products.find((p: any) => p.id === id); router(); };
