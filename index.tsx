@@ -1,6 +1,6 @@
 
 /**
- * storehalal v7.7 - Professional Dashboard UI Update 💎🇲🇦
+ * storehalal v7.8 - Ad Isolation & Admin Protection 🛡️🇲🇦
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -25,8 +25,15 @@ let state: any = {
 };
 
 const injectAds = () => {
+    // حذف أي إعلانات قديمة أولاً
     document.querySelectorAll('.adsterra-dynamic-script').forEach(el => el.remove());
-    if (window.location.hash.includes('dashboard')) return;
+    
+    // منع الحقن تماماً إذا كنا في لوحة التحكم أو صفحة الدفع
+    const hash = window.location.hash;
+    if (hash.includes('dashboard') || hash.includes('checkout')) return;
+
+    const adSlot = document.getElementById('ad-placement-slot');
+    if (!adSlot) return;
 
     const div = document.createElement('div');
     div.className = 'adsterra-dynamic-script';
@@ -37,7 +44,8 @@ const injectAds = () => {
         const newScript = document.createElement('script');
         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
         newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        document.body.appendChild(newScript);
+        // الحقن يتم داخل الحاوية المخصصة وليس في Body
+        adSlot.appendChild(newScript);
         oldScript.remove();
     });
 };
@@ -102,15 +110,15 @@ const router = () => {
 
 const UI = {
     header: () => `
-        <header class="sticky top-0 z-[99999] bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b dark:border-slate-800 shadow-sm h-16 flex items-center">
-            <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
+        <header class="sticky top-0 z-[999999] bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b dark:border-slate-800 shadow-sm h-16 flex items-center">
+            <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center relative">
                 <a href="#/" class="flex items-center gap-2 group">
                     <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-black transition">S</div>
-                    <span class="text-lg font-black">${state.settings.siteName}</span>
+                    <span class="text-lg font-black tracking-tight">${state.settings.siteName}</span>
                 </a>
-                <div class="flex items-center gap-2 admin-btn-layer">
-                    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">🌓</button>
-                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black shadow-md hover:scale-105 transition">🔐 الإدارة</a>
+                <div class="flex items-center gap-2 admin-btn-layer relative pointer-events-auto">
+                    <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg transition-colors hover:bg-slate-200">🌓</button>
+                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all z-[9999999]">🔐 الإدارة</a>
                 </div>
             </nav>
         </header>
@@ -121,6 +129,10 @@ const UI = {
                 <h1 class="text-3xl font-black mb-3 tracking-tighter">${state.settings.siteName}</h1>
                 <p class="opacity-60 text-[10px] mb-6 max-w-xs mx-auto">الدفع عند الاستلام - توصيل سريع لجميع المدن المغربية 🇲🇦</p>
             </div>
+            
+            <!-- حاوية الإعلانات محصورة هنا بعيداً عن زر الإدارة -->
+            <div id="ad-placement-slot" class="max-w-7xl mx-auto px-4 mt-4 flex justify-center empty:hidden overflow-hidden min-h-[50px]"></div>
+
             <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-4">
                 ${state.products.map((p: any) => `
                     <div class="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border dark:border-slate-800 shadow-sm flex flex-col group transition-all hover:shadow-lg">
@@ -142,7 +154,7 @@ const UI = {
         </div>
     `,
     productModal: (p: any) => `
-        <div id="modal-overlay" class="fixed inset-0 z-[100000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+        <div id="modal-overlay" class="fixed inset-0 z-[1000000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
             <div class="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row relative shadow-2xl">
                 <button onclick="closeProductModal()" class="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center text-xl">✕</button>
                 <div class="w-full md:w-1/2 h-64 md:h-auto bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
@@ -197,7 +209,7 @@ const UI = {
                 <aside class="w-full md:w-64 bg-slate-900 text-white flex md:flex-col border-b md:border-b-0 border-white/10 z-[100]">
                     <div class="p-6 hidden md:block border-b border-white/5 mb-4">
                         <div class="text-blue-500 font-black text-xl tracking-tighter">STORE CONTROL</div>
-                        <div class="text-[9px] text-slate-400 uppercase tracking-widest mt-1">v7.7 Professional</div>
+                        <div class="text-[9px] text-slate-400 uppercase tracking-widest mt-1">v7.8 Professional</div>
                     </div>
                     <div class="flex flex-1 md:flex-col p-2 gap-1 overflow-x-auto md:overflow-x-visible">
                         <button onclick="switchTab('orders')" class="nav-btn flex items-center gap-3 p-3.5 rounded-xl transition font-bold text-xs whitespace-nowrap ${state.currentTab === 'orders' ? 'active-nav' : 'text-slate-400 hover:text-white hover:bg-white/5'}">
@@ -217,11 +229,10 @@ const UI = {
 
                 <!-- Content Area -->
                 <main class="flex-1 overflow-y-auto">
-                    <!-- Dashboard Header -->
                     <div class="bg-white dark:bg-slate-900 border-b dark:border-slate-800 p-6 md:px-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h1 class="text-2xl font-black text-slate-800 dark:text-white" id="dash-title">لوحة التحكم</h1>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">مرحباً بك مجدداً في مركز إدارة المتجر</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">مركز الإدارة الآمن والمحمي</p>
                         </div>
                         <div class="flex items-center gap-3">
                            <div class="bg-blue-600/10 text-blue-600 px-4 py-2 rounded-full font-black text-xs">
@@ -229,15 +240,15 @@ const UI = {
                            </div>
                         </div>
                     </div>
-
                     <div id="dash-panel" class="p-6 md:p-10"></div>
                 </main>
             </div>
-
             <style>
                .active-nav { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
                .nav-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
                .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03); }
+               /* إخفاء تام لأي إعلانات قد تظهر في لوحة التحكم */
+               .admin-mode [class*="adsterra"], .admin-mode iframe, .admin-mode [id*="at-cv"] { display: none !important; pointer-events: none !important; }
             </style>
         `;
     },
@@ -310,7 +321,6 @@ const UI = {
     const title = document.getElementById('dash-title');
     if (!panel || !title) return;
 
-    // Update Nav Buttons Styles
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active-nav');
         btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-white/5');
@@ -337,11 +347,9 @@ const UI = {
                     <div class="text-3xl font-black">${state.orders.length ? Math.round(state.orders.reduce((acc:any, o:any) => acc + (Number(o.total) || 0), 0) / state.orders.length) : 0} د.م.</div>
                 </div>
             </div>
-
             <div class="bg-white dark:bg-slate-900 rounded-3xl border dark:border-slate-800 overflow-hidden card-shadow">
                 <div class="p-6 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
                     <h3 class="font-black text-sm uppercase">قائمة العمليات الأخيرة</h3>
-                    <div class="text-[9px] font-bold text-slate-400 tracking-tighter">تحديث تلقائي للمخزون</div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right">
@@ -360,17 +368,11 @@ const UI = {
                                         <div class="font-black text-xs text-slate-800 dark:text-white">${o.name}</div>
                                         <div class="text-[9px] font-bold text-slate-400 mt-1">${o.city} • ${o.phone}</div>
                                     </td>
-                                    <td class="p-5">
-                                        <div class="text-[10px] font-bold text-slate-500 max-w-[150px] truncate">${o.items.join(', ')}</div>
-                                    </td>
-                                    <td class="p-5">
-                                        <div class="font-black text-blue-600 text-xs">${o.total} د.م.</div>
-                                    </td>
-                                    <td class="p-5">
-                                        <span class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">مؤكد ✅</span>
-                                    </td>
+                                    <td class="p-5"><div class="text-[10px] font-bold text-slate-500 max-w-[150px] truncate">${o.items.join(', ')}</div></td>
+                                    <td class="p-5"><div class="font-black text-blue-600 text-xs">${o.total} د.م.</div></td>
+                                    <td class="p-5"><span class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-3 py-1 rounded-full text-[9px] font-black uppercase">مؤكد ✅</span></td>
                                 </tr>
-                            `).join('') || `<tr><td colspan="4" class="p-20 text-center opacity-30 font-black text-xs uppercase tracking-widest">لا توجد مبيعات حالياً</td></tr>`}
+                            `).join('') || `<tr><td colspan="4" class="p-20 text-center opacity-30 font-black text-xs uppercase">لا توجد مبيعات حالياً</td></tr>`}
                         </tbody>
                     </table>
                 </div>
@@ -384,40 +386,19 @@ const UI = {
         panel.innerHTML = `
             <div class="max-w-4xl space-y-8">
                 <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Brand Settings -->
                     <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 card-shadow space-y-6">
-                        <div class="flex items-center gap-3 border-b dark:border-slate-800 pb-4 mb-4">
-                            <span class="text-xl">🏪</span>
-                            <h3 class="font-black text-xs uppercase tracking-widest">هوية المتجر</h3>
-                        </div>
+                        <div class="flex items-center gap-3 border-b dark:border-slate-800 pb-4 mb-4"><span class="text-xl">🏪</span><h3 class="font-black text-xs uppercase tracking-widest">هوية المتجر</h3></div>
                         <div class="space-y-4">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-black text-slate-400 uppercase px-1">اسم الموقع</label>
-                                <input id="set-name" value="${state.settings.siteName}" class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-black text-xs focus:border-blue-500 transition">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-black text-slate-400 uppercase px-1">كلمة مرور الإدارة</label>
-                                <input id="set-pass" value="${state.settings.adminPass}" type="text" class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-black text-xs focus:border-blue-500 transition">
-                            </div>
+                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase px-1">اسم الموقع</label><input id="set-name" value="${state.settings.siteName}" class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-black text-xs"></div>
+                            <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase px-1">كلمة مرور الإدارة</label><input id="set-pass" value="${state.settings.adminPass}" type="text" class="w-full p-3.5 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-black text-xs"></div>
                         </div>
                     </div>
-
-                    <!-- Marketing Settings -->
                     <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border dark:border-slate-800 card-shadow space-y-6">
-                        <div class="flex items-center gap-3 border-b dark:border-slate-800 pb-4 mb-4">
-                            <span class="text-xl">📊</span>
-                            <h3 class="font-black text-xs uppercase tracking-widest text-blue-500">التسويق والإعلانات</h3>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase px-1">أكواد Adsterra / Scripts</label>
-                            <textarea id="set-ads" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-mono text-[9px] h-32 leading-relaxed" dir="ltr">${state.settings.adsterraCodes}</textarea>
-                        </div>
+                        <div class="flex items-center gap-3 border-b dark:border-slate-800 pb-4 mb-4"><span class="text-xl">📊</span><h3 class="font-black text-xs uppercase tracking-widest text-blue-500">التسويق والإعلانات</h3></div>
+                        <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 uppercase px-1">أكواد Adsterra / Scripts</label><textarea id="set-ads" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-mono text-[9px] h-32" dir="ltr">${state.settings.adsterraCodes}</textarea></div>
                     </div>
                 </div>
-
-                <div class="bg-blue-600 p-1 rounded-[2rem]">
-                   <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.9rem] font-black text-sm shadow-xl active:scale-[0.98] transition">حفظ وتحديث كافة الإعدادات ✅</button>
-                </div>
+                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.9rem] font-black text-sm shadow-xl active:scale-[0.98] transition">حفظ وتحديث كافة الإعدادات ✅</button>
             </div>
         `;
     }
@@ -426,30 +407,16 @@ const UI = {
 const renderProductTab = (panel: HTMLElement) => {
     panel.innerHTML = `
         <div class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-lg font-black text-slate-700 dark:text-white uppercase tracking-tighter">المخزون المتوفر</h2>
-                <p class="text-[10px] text-slate-400 font-bold">${state.products.length} منتجات نشطة حالياً</p>
-            </div>
-            <button onclick="showEditForm()" class="bg-slate-900 dark:bg-blue-600 text-white px-6 py-3 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 active:scale-95 transition">+ إضافة منتج جديد</button>
+            <div><h2 class="text-lg font-black text-slate-700 dark:text-white uppercase tracking-tighter">المخزون المتوفر</h2><p class="text-[10px] text-slate-400 font-bold">${state.products.length} منتجات نشطة</p></div>
+            <button onclick="showEditForm()" class="bg-slate-900 dark:bg-blue-600 text-white px-6 py-3 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 active:scale-95 transition">+ إضافة منتج</button>
         </div>
-
         <div id="product-form-container" class="hidden mb-12"></div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             ${state.products.map((p: any) => `
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border dark:border-slate-800 flex items-center gap-4 card-shadow hover:border-blue-600/30 transition group">
-                    <div class="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative flex-shrink-0">
-                        <img src="${p.image}" class="w-full h-full object-cover">
-                        ${p.gallery?.length > 0 ? `<div class="absolute inset-0 bg-black/40 flex items-center justify-center text-[8px] font-black text-white opacity-0 group-hover:opacity-100 transition-opacity">معرض الصور</div>` : ''}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-black text-xs text-slate-800 dark:text-white truncate mb-1">${p.name}</div>
-                        <div class="text-blue-600 font-black text-sm">${p.price} د.م.</div>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="showEditForm('${p.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs hover:bg-blue-600 hover:text-white transition">✏️</button>
-                        <button onclick="deleteProduct('${p.id}')" class="p-2.5 bg-red-50 text-red-500 dark:bg-red-900/20 rounded-xl text-xs hover:bg-red-500 hover:text-white transition">🗑️</button>
-                    </div>
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border dark:border-slate-800 flex items-center gap-4 card-shadow group">
+                    <div class="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0"><img src="${p.image}" class="w-full h-full object-cover"></div>
+                    <div class="flex-1 min-w-0"><div class="font-black text-xs text-slate-800 dark:text-white truncate mb-1">${p.name}</div><div class="text-blue-600 font-black text-sm">${p.price} د.م.</div></div>
+                    <div class="flex flex-col gap-2"><button onclick="showEditForm('${p.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs hover:bg-blue-600 hover:text-white">✏️</button><button onclick="deleteProduct('${p.id}')" class="p-2.5 bg-red-50 text-red-500 dark:bg-red-900/20 rounded-xl text-xs hover:bg-red-500 hover:text-white">🗑️</button></div>
                 </div>
             `).join('')}
         </div>
@@ -459,31 +426,20 @@ const renderProductTab = (panel: HTMLElement) => {
 (window as any).handleFileSelect = (input: HTMLInputElement, type: 'main' | 'gallery') => {
     const files = input.files;
     if (!files || files.length === 0) return;
-
-    const processFile = (file: File): Promise<string> => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target?.result as string);
-            reader.readAsDataURL(file);
-        });
-    };
-
+    const processFile = (file: File): Promise<string> => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+    });
     if (type === 'main') {
         processFile(files[0]).then(base64 => {
             state.tempImage = base64;
             const preview = document.getElementById('image-preview') as HTMLImageElement;
-            if (preview) {
-                preview.src = base64;
-                preview.classList.remove('hidden');
-                document.getElementById('upload-placeholder')?.classList.add('hidden');
-            }
+            if (preview) { preview.src = base64; preview.classList.remove('hidden'); document.getElementById('upload-placeholder')?.classList.add('hidden'); }
         });
     } else {
         const promises = Array.from(files).map(f => processFile(f));
-        Promise.all(promises).then(images => {
-            state.tempGallery = [...state.tempGallery, ...images];
-            updateGalleryUI();
-        });
+        Promise.all(promises).then(images => { state.tempGallery = [...state.tempGallery, ...images]; updateGalleryUI(); });
     }
 };
 
@@ -498,10 +454,7 @@ const updateGalleryUI = () => {
     `).join('');
 };
 
-(window as any).removeFromGallery = (idx: number) => {
-    state.tempGallery.splice(idx, 1);
-    updateGalleryUI();
-};
+(window as any).removeFromGallery = (idx: number) => { state.tempGallery.splice(idx, 1); updateGalleryUI(); };
 
 (window as any).showEditForm = (id?: string) => {
     const container = document.getElementById('product-form-container');
@@ -509,49 +462,22 @@ const updateGalleryUI = () => {
     container.classList.remove('hidden');
     state.editingId = id || null;
     const p = id ? state.products.find((item: any) => item.id === id) : { name: '', price: '', image: '', description: '', gallery: [] };
-    
     state.tempImage = p.image || null;
     state.tempGallery = [...(p.gallery || [])];
-
     container.innerHTML = `
         <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border-2 border-blue-600/20 card-shadow animate-fadeIn">
-            <h3 class="font-black text-sm uppercase tracking-widest mb-6 border-b dark:border-slate-800 pb-4">${id ? 'تحديث بيانات المنتج' : 'إضافة منتج جديد للمستودع'}</h3>
+            <h3 class="font-black text-sm uppercase mb-6 border-b dark:border-slate-800 pb-4">${id ? 'تحديث بيانات المنتج' : 'إضافة منتج جديد'}</h3>
             <div class="grid md:grid-cols-2 gap-8">
                 <div class="space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase px-1">صورة الغلاف (رئيسية)</label>
-                        <div onclick="document.getElementById('main-input').click()" class="cursor-pointer w-full h-48 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-800 hover:border-blue-500 hover:bg-slate-100 transition">
-                            <img id="image-preview" src="${p.image || ''}" class="w-full h-full object-cover ${p.image ? '' : 'hidden'}">
-                            <div id="upload-placeholder" class="${p.image ? 'hidden' : ''} text-center">
-                                <span class="text-3xl">📸</span>
-                                <div class="text-[9px] font-black mt-2 text-slate-500 uppercase">انقر لرفع الصورة</div>
-                            </div>
-                        </div>
-                        <input id="main-input" type="file" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'main')">
-                    </div>
-
-                    <div class="space-y-4">
-                        <input id="p-name" value="${p.name}" placeholder="اسم المنتج التجاري" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none font-black text-xs shadow-sm focus:border-blue-500 transition">
-                        <input id="p-price" value="${p.price}" type="number" placeholder="سعر البيع المقترح (د.م.)" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none font-black text-xs shadow-sm focus:border-blue-500 transition">
-                    </div>
+                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 uppercase">صورة الغلاف</label><div onclick="document.getElementById('main-input').click()" class="cursor-pointer w-full h-48 border-2 border-dashed rounded-2xl flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-800 hover:border-blue-500 transition"><img id="image-preview" src="${p.image || ''}" class="w-full h-full object-cover ${p.image ? '' : 'hidden'}"><div id="upload-placeholder" class="${p.image ? 'hidden' : ''} text-center"><span class="text-3xl">📸</span></div></div><input id="main-input" type="file" accept="image/*" class="hidden" onchange="handleFileSelect(this, 'main')"></div>
+                    <div class="space-y-4"><input id="p-name" value="${p.name}" placeholder="اسم المنتج" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl outline-none font-black text-xs shadow-sm"><input id="p-price" value="${p.price}" type="number" placeholder="السعر" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl outline-none font-black text-xs shadow-sm"></div>
                 </div>
-                
                 <div class="space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase px-1">صور العرض الإضافية</label>
-                        <div class="flex flex-wrap gap-2 mb-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border dark:border-slate-700 min-h-[120px]" id="gallery-grid"></div>
-                        <button onclick="document.getElementById('gallery-input').click()" class="w-full py-3.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-[10px] font-black rounded-2xl border-2 border-dotted border-slate-300 dark:border-slate-700 hover:bg-slate-100 transition">+ رفع صور للمعرض</button>
-                        <input id="gallery-input" type="file" accept="image/*" multiple class="hidden" onchange="handleFileSelect(this, 'gallery')">
-                    </div>
-
-                    <textarea id="p-desc" placeholder="أدخل تفاصيل ومواصفات المنتج..." class="w-full p-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 rounded-2xl outline-none font-black text-xs h-[100px] shadow-sm focus:border-blue-500 transition">${p.description || ''}</textarea>
+                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 uppercase">المعرض</label><div class="flex flex-wrap gap-2 mb-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl min-h-[120px]" id="gallery-grid"></div><button onclick="document.getElementById('gallery-input').click()" class="w-full py-3.5 bg-white dark:bg-slate-900 text-[10px] font-black rounded-2xl border-2 border-dotted border-slate-300">+ رفع صور أخرى</button><input id="gallery-input" type="file" accept="image/*" multiple class="hidden" onchange="handleFileSelect(this, 'gallery')"></div>
+                    <textarea id="p-desc" placeholder="وصف المنتج..." class="w-full p-4 bg-slate-50 dark:bg-slate-800 border rounded-2xl outline-none font-black text-xs h-[100px] shadow-sm">${p.description || ''}</textarea>
                 </div>
             </div>
-            
-            <div class="flex gap-3 mt-10">
-                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black text-xs shadow-xl active:scale-95 transition">حفظ التعديلات في النظام ✅</button>
-                <button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-10 bg-slate-100 dark:bg-slate-800 text-slate-500 py-4 rounded-2xl font-black text-xs hover:bg-slate-200 transition">إلغاء</button>
-            </div>
+            <div class="flex gap-3 mt-10"><button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black text-xs shadow-xl active:scale-95 transition">حفظ التعديلات ✅</button><button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-10 bg-slate-100 dark:bg-slate-800 text-slate-500 py-4 rounded-2xl font-black text-xs hover:bg-slate-200 transition">إلغاء</button></div>
         </div>
     `;
     updateGalleryUI();
@@ -564,9 +490,7 @@ const updateGalleryUI = () => {
     const description = (document.getElementById('p-desc') as HTMLTextAreaElement).value;
     const image = state.tempImage;
     const gallery = state.tempGallery;
-
-    if (!name || !price || !image) return alert('يرجى التأكد من ملء الحقول الأساسية وصورة الغلاف.');
-
+    if (!name || !price || !image) return alert('يرجى ملء الحقول الأساسية.');
     if (state.editingId) {
         const index = state.products.findIndex((p: any) => p.id === state.editingId);
         state.products[index] = { ...state.products[index], name, price: Number(price), image, description, gallery };
@@ -577,13 +501,7 @@ const updateGalleryUI = () => {
     (window as any).switchTab('products');
 };
 
-(window as any).deleteProduct = (id: string) => {
-    if(confirm('هل تريد إزالة هذا المنتج من المستودع؟')) {
-        state.products = state.products.filter((p:any) => p.id !== id);
-        save();
-        (window as any).switchTab('products');
-    }
-};
+(window as any).deleteProduct = (id: string) => { if(confirm('هل تريد الحذف؟')) { state.products = state.products.filter((p:any) => p.id !== id); save(); (window as any).switchTab('products'); } };
 
 (window as any).saveSettings = () => {
     const name = (document.getElementById('set-name') as HTMLInputElement).value;
@@ -591,45 +509,20 @@ const updateGalleryUI = () => {
     const ads = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
     state.settings = { ...state.settings, siteName: name, adminPass: pass, adsterraCodes: ads };
     save();
-    alert('تم التحديث بنجاح!');
+    alert('تم التحديث!');
     location.reload(); 
 };
 
-(window as any).login = () => {
-    const val = (document.getElementById('pass') as HTMLInputElement).value;
-    if (val === state.settings.adminPass) {
-        state.isAdmin = true;
-        sessionStorage.setItem('isAdmin', 'true');
-        router();
-    } else alert('❌ كلمة المرور غير صحيحة');
-};
+(window as any).login = () => { const val = (document.getElementById('pass') as HTMLInputElement).value; if (val === state.settings.adminPass) { state.isAdmin = true; sessionStorage.setItem('isAdmin', 'true'); router(); } else alert('❌ خطأ'); };
 
-(window as any).logout = () => {
-    state.isAdmin = false;
-    sessionStorage.removeItem('isAdmin');
-    router();
-};
+(window as any).logout = () => { state.isAdmin = false; sessionStorage.removeItem('isAdmin'); router(); };
 
-(window as any).buyNow = (id: string) => {
-    state.activeModalProduct = null;
-    state.checkoutItem = state.products.find((i: any) => i.id === id);
-    window.location.hash = '#/checkout';
-};
+(window as any).buyNow = (id: string) => { state.activeModalProduct = null; state.checkoutItem = state.products.find((i: any) => i.id === id); window.location.hash = '#/checkout'; };
 
 (window as any).processOrder = (form: HTMLFormElement) => {
     const formData = new FormData(form);
-    const newOrder = {
-        id: Date.now().toString(),
-        name: formData.get('fullname'),
-        city: formData.get('city'),
-        phone: formData.get('phone'),
-        total: state.checkoutItem.price,
-        items: [state.checkoutItem.name],
-        createdAt: new Date().toISOString()
-    };
-    state.orders.unshift(newOrder);
-    save();
-    window.location.hash = '#/success';
+    const newOrder = { id: Date.now().toString(), name: formData.get('fullname'), city: formData.get('city'), phone: formData.get('phone'), total: state.checkoutItem.price, items: [state.checkoutItem.name], createdAt: new Date().toISOString() };
+    state.orders.unshift(newOrder); save(); window.location.hash = '#/success';
 };
 
 window.addEventListener('load', () => { initStore(); router(); });
