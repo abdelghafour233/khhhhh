@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.1 - Order Logic Fix & Success Page Enhancement 🛒✅
+ * storehalal v8.2 - Simplified Checkout Form 🛒✅
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -253,10 +253,10 @@ const UI = {
 
                 <form id="order-form" onsubmit="event.preventDefault(); (window as any).processOrder(this);" class="space-y-4">
                     <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الاسم الكامل</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الاسم</label>
                         <div class="relative">
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 opacity-30">👤</span>
-                            <input name="fullname" type="text" placeholder="مثال: أحمد العلوي" required class="w-full p-4 pr-11 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm transition-all">
+                            <input name="fullname" type="text" placeholder="" required class="w-full p-4 pr-11 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm transition-all">
                         </div>
                     </div>
 
@@ -265,17 +265,17 @@ const UI = {
                         <div class="relative">
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 opacity-30">📍</span>
                             <select name="city" required class="w-full p-4 pr-11 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm appearance-none transition-all">
-                                <option value="" disabled selected>اختر مدينتك</option>
+                                <option value="" disabled selected></option>
                                 ${MOROCCAN_CITIES.map(c => `<option value="${c}">${c}</option>`).join('')}
                             </select>
                         </div>
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">رقم الهاتف (واتساب)</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الهاتف</label>
                         <div class="relative">
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 opacity-30">📞</span>
-                            <input name="phone" type="tel" placeholder="06XX-XXXXXX" required class="w-full p-4 pr-11 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none text-right font-black transition-all" dir="ltr">
+                            <input name="phone" type="tel" placeholder="" required class="w-full p-4 pr-11 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none text-right font-black transition-all" dir="ltr">
                         </div>
                     </div>
 
@@ -467,7 +467,6 @@ const renderProductTab = (panel: HTMLElement) => {
         submitBtn.setAttribute('disabled', 'true');
     }
 
-    // تأخير بسيط لمحاكاة المعالجة الاحترافية وتأكيد الحفظ
     setTimeout(() => {
         try {
             const formData = new FormData(form);
@@ -487,12 +486,10 @@ const renderProductTab = (panel: HTMLElement) => {
                 createdAt: new Date().toISOString() 
             };
             
-            // تحديث الحالة والحفظ
             state.orders.unshift(newOrder);
             state.lastOrder = newOrder;
             save(); 
 
-            // الانتقال لصفحة النجاح
             window.location.hash = '#/success';
         } catch (e) {
             alert('حدث خطأ أثناء معالجة الطلب، يرجى المحاولة مرة أخرى.');
