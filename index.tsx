@@ -1,35 +1,46 @@
 
 /**
- * storehalal v7.0 - Professional Product Management 🚀🇲🇦
+ * storehalal v7.2 - Full Adsterra Code Support 🚀🇲🇦
  */
-
-const AD_SCRIPTS = [
-    'https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js',
-    'https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js'
-];
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
 
 let state: any = {
     products: [],
     orders: [],
-    settings: { siteName: 'storehalal', adminPass: 'halal2025' },
+    settings: { 
+        siteName: 'storehalal', 
+        adminPass: 'halal2025',
+        adsterraCodes: `<!-- Adsterra Script Links -->
+<script type='text/javascript' src='https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js'></script>
+<script type='text/javascript' src='https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js'></script>`
+    },
     checkoutItem: null,
     isAdmin: false,
     currentTab: 'orders',
-    editingId: null // لتتبع المنتج الذي يتم تعديله حالياً
+    editingId: null
 };
 
+// --- نظام الحقن المطور للأكواد ---
 const injectAds = () => {
+    // إزالة الإعلانات القديمة لتجنب التكرار
+    document.querySelectorAll('.adsterra-dynamic-script').forEach(el => el.remove());
+
+    // منع الإعلانات في لوحة التحكم بشكل كامل
     if (window.location.hash.includes('dashboard')) return;
-    AD_SCRIPTS.forEach((src, idx) => {
-        if (!document.getElementById(`ad-script-${idx}`)) {
-            const script = document.createElement('script');
-            script.src = src;
-            script.async = true;
-            script.id = `ad-script-${idx}`;
-            document.body.appendChild(script);
-        }
+
+    const div = document.createElement('div');
+    div.className = 'adsterra-dynamic-script';
+    div.innerHTML = state.settings.adsterraCodes;
+    
+    // حقن الأكواد: السكربتات تحتاج معالجة خاصة لتعمل عند إضافتها عبر innerHTML
+    const scripts = div.querySelectorAll('script');
+    scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        document.body.appendChild(newScript);
+        oldScript.remove(); // تنظيف من الـ div المؤقت
     });
 };
 
@@ -40,29 +51,19 @@ const initStore = () => {
             state.products = JSON.parse(savedProducts);
         } else {
             state.products = [
-                { 
-                    id: '1', 
-                    name: 'آيفون 15 برو ماكس', 
-                    price: 14500, 
-                    description: 'أحدث هاتف من شركة آبل مع معالج A17 Pro وكاميرا احترافية.',
-                    image: 'https://picsum.photos/seed/iphone/600/400',
-                    gallery: []
-                },
-                { 
-                    id: '2', 
-                    name: 'ساعة ذكية Ultra Series 9', 
-                    price: 450, 
-                    description: 'ساعة ذكية مقاومة للماء مع شاشة Amoled وتتبع نبضات القلب.',
-                    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800',
-                    gallery: []
-                }
+                { id: '1', name: 'آيفون 15 برو ماكس', price: 14500, description: 'أحدث هاتف من شركة آبل.', image: 'https://picsum.photos/seed/iphone/600/400', gallery: [] },
+                { id: '2', name: 'ساعة ذكية Ultra 9', price: 450, description: 'ساعة ذكية متطورة.', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800', gallery: [] }
             ];
             save();
         }
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        state.settings = { ...state.settings, ...JSON.parse(localStorage.getItem('settings') || '{}') };
+        const savedSettings = localStorage.getItem('settings');
+        if (savedSettings) {
+            state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
+        }
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-        setTimeout(injectAds, 2000);
+        
+        setTimeout(injectAds, 1000);
     } catch (e) {
         localStorage.clear();
         location.reload();
@@ -96,6 +97,7 @@ const router = () => {
     else if (hash === '#/success') html += `<div class="page-enter">${UI.success()}</div>`;
     
     root!.innerHTML = html;
+    injectAds();
 };
 
 const UI = {
@@ -108,7 +110,7 @@ const UI = {
                 </a>
                 <div class="flex items-center gap-2 admin-btn-layer">
                     <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">🌓</button>
-                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black">🔐 الإدارة</a>
+                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black shadow-md">🔐 الإدارة</a>
                 </div>
             </nav>
         </header>
@@ -116,9 +118,8 @@ const UI = {
     store: () => `
         <div>
             <div class="bg-slate-900 text-white py-16 px-4 text-center">
-                <h1 class="text-3xl font-black mb-3">${state.settings.siteName}</h1>
-                <p class="opacity-60 text-[10px] mb-6">الدفع عند الاستلام - توصيل سريع 🇲🇦</p>
-                <div class="ad-container" id="top-ad"></div>
+                <h1 class="text-3xl font-black mb-3 tracking-tighter">${state.settings.siteName}</h1>
+                <p class="opacity-60 text-[10px] mb-6 max-w-xs mx-auto">الدفع عند الاستلام - توصيل سريع 🇲🇦</p>
             </div>
             <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-4">
                 ${state.products.map((p: any) => `
@@ -152,6 +153,7 @@ const UI = {
                     <div class="hidden md:block text-lg font-black text-blue-500 mb-8 px-2">غرفة التحكم</div>
                     <button onclick="switchTab('orders')" class="flex-1 md:flex-none p-3 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs ${state.currentTab === 'orders' ? 'bg-blue-600' : ''}">📦 الطلبات</button>
                     <button onclick="switchTab('products')" class="flex-1 md:flex-none p-3 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs ${state.currentTab === 'products' ? 'bg-blue-600' : ''}">🛍️ المنتجات</button>
+                    <button onclick="switchTab('settings')" class="flex-1 md:flex-none p-3 text-right hover:bg-white/10 rounded-xl transition font-bold text-xs ${state.currentTab === 'settings' ? 'bg-blue-600' : ''}">⚙️ الإعدادات</button>
                     <button onclick="logout()" class="md:mt-auto p-3 text-red-400 font-black rounded-xl text-center text-xs hover:bg-red-400/10 transition">خروج</button>
                 </aside>
                 <main id="dash-panel" class="flex-1 p-4 md:p-8 bg-white dark:bg-slate-950 overflow-y-auto"></main>
@@ -185,17 +187,22 @@ const UI = {
         <div class="max-w-md mx-auto py-24 text-center px-4">
             <div class="text-5xl mb-4">🎉</div>
             <h1 class="text-2xl font-black mb-2">طلبك قيد المعالجة!</h1>
-            <p class="text-slate-500 text-xs mb-8">سنتصل بك في أقل من 24 ساعة لتأكيد التوصيل 🇲🇦</p>
-            <a href="#/" class="inline-block w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm transition">العودة للرئيسية</a>
+            <p class="text-slate-500 text-xs mb-8 font-bold">سنتصل بك في أقل من 24 ساعة لتأكيد التوصيل 🇲🇦</p>
+            <a href="#/" class="inline-block w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm shadow-xl active:scale-95 transition">العودة للرئيسية</a>
         </div>
     `
 };
 
 (window as any).switchTab = (tab: string) => {
     state.currentTab = tab;
-    state.editingId = null; // تصفير التعديل عند تغيير التبويب
+    state.editingId = null;
     const panel = document.getElementById('dash-panel');
     if (!panel) return;
+
+    document.querySelectorAll('aside button').forEach(btn => {
+        btn.classList.remove('bg-blue-600');
+        if (btn.getAttribute('onclick')?.includes(tab)) btn.classList.add('bg-blue-600');
+    });
 
     if (tab === 'orders') {
         panel.innerHTML = `
@@ -214,6 +221,33 @@ const UI = {
         `;
     } else if (tab === 'products') {
         renderProductTab(panel);
+    } else if (tab === 'settings') {
+        panel.innerHTML = `
+            <h2 class="text-xl font-black mb-6">إعدادات المتجر والإعلانات</h2>
+            <div class="space-y-6 max-w-3xl">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 space-y-4">
+                        <h3 class="font-black text-xs border-b dark:border-slate-800 pb-2 mb-4">⚙️ عام</h3>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold opacity-50 px-1">اسم المتجر</label>
+                            <input id="set-name" value="${state.settings.siteName}" class="w-full p-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-xs">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold opacity-50 px-1">كلمة المرور</label>
+                            <input id="set-pass" value="${state.settings.adminPass}" type="text" class="w-full p-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-bold text-xs">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 space-y-4">
+                        <h3 class="font-black text-xs border-b dark:border-slate-800 pb-2 mb-4 text-blue-500">📊 أكواد Adsterra</h3>
+                        <p class="text-[9px] text-slate-400">انسخ أكواد الإعلانات بالكامل (Script Tags) وضعها هنا.</p>
+                        <textarea id="set-ads" class="w-full p-3 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl outline-none font-mono text-[9px] h-32" dir="ltr">${state.settings.adsterraCodes}</textarea>
+                    </div>
+                </div>
+
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm shadow-lg active:scale-95 transition">حفظ وتطبيق الإعدادات ✅</button>
+            </div>
+        `;
     }
 };
 
@@ -223,9 +257,7 @@ const renderProductTab = (panel: HTMLElement) => {
             <h2 class="text-xl font-black">إدارة المخزون</h2>
             <button onclick="showEditForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black">+ إضافة منتج</button>
         </div>
-        
         <div id="product-form-container" class="hidden mb-10"></div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             ${state.products.map((p: any) => `
                 <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-800 flex items-center gap-3">
@@ -244,10 +276,23 @@ const renderProductTab = (panel: HTMLElement) => {
     `;
 };
 
+(window as any).saveSettings = () => {
+    const name = (document.getElementById('set-name') as HTMLInputElement).value;
+    const pass = (document.getElementById('set-pass') as HTMLInputElement).value;
+    const ads = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
+
+    if(!name || !pass) return alert('الاسم وكلمة المرور ضرورية');
+
+    state.settings = { ...state.settings, siteName: name, adminPass: pass, adsterraCodes: ads };
+    save();
+    alert('تم الحفظ بنجاح! سيتم إعادة تحميل الإعلانات.');
+    injectAds(); 
+    location.reload(); 
+};
+
 (window as any).showEditForm = (id?: string) => {
     const container = document.getElementById('product-form-container');
     if (!container) return;
-    
     container.classList.remove('hidden');
     state.editingId = id || null;
     const p = id ? state.products.find((item: any) => item.id === id) : { name: '', price: '', image: '', description: '', gallery: [] };
@@ -283,33 +328,21 @@ const renderProductTab = (panel: HTMLElement) => {
     const image = (document.getElementById('p-image') as HTMLInputElement).value;
     const description = (document.getElementById('p-desc') as HTMLTextAreaElement).value;
     const galleryStr = (document.getElementById('p-gallery') as HTMLInputElement).value;
-    
     if (!name || !price || !image) return alert('يرجى ملء الاسم والسعر والصورة الأساسية');
-
     const gallery = galleryStr.split(',').map(s => s.trim()).filter(s => s !== '');
 
     if (state.editingId) {
-        // تحديث منتج موجود
         const index = state.products.findIndex((p: any) => p.id === state.editingId);
         state.products[index] = { ...state.products[index], name, price: Number(price), image, description, gallery };
     } else {
-        // إضافة منتج جديد
-        state.products.unshift({ 
-            id: Date.now().toString(), 
-            name, 
-            price: Number(price), 
-            image, 
-            description, 
-            gallery 
-        });
+        state.products.unshift({ id: Date.now().toString(), name, price: Number(price), image, description, gallery });
     }
-
     save();
     (window as any).switchTab('products');
 };
 
 (window as any).deleteProduct = (id: string) => {
-    if(confirm('هل تريد حذف هذا المنتج نهائياً؟')) {
+    if(confirm('هل تريد حذف هذا المنتج؟')) {
         state.products = state.products.filter((p:any) => p.id !== id);
         save();
         (window as any).switchTab('products');
