@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.9 - Anti-Ad Admin Zone 🛡️🛒
+ * storehalal v9.1 - Native Image Upload & Base64 Storage 📸🛒
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -23,19 +23,18 @@ let state: any = {
     editingProduct: null 
 };
 
+// وظيفة مساعدة لتحويل الملف إلى Base64
+const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+});
+
 const cleanupAds = () => {
-    // حذف الحاوية الرئيسية
     const existing = document.getElementById('dynamic-scripts');
     if (existing) existing.remove();
-
-    // حذف العناصر العائمة الشائعة لـ Adsterra
-    const selectors = [
-        '[id^="at-cv-"]', 
-        '[class*="adsterra"]', 
-        '.at-social-bar', 
-        'iframe[id^="aswift_"]',
-        '#at-fixed-ad'
-    ];
+    const selectors = ['[id^="at-cv-"]', '[class*="adsterra"]', '.at-social-bar', 'iframe[id^="aswift_"]', '#at-fixed-ad', 'ins.adsbygoogle', '[id*="google_ads"]'];
     selectors.forEach(s => {
         document.querySelectorAll(s).forEach(el => el.remove());
     });
@@ -47,23 +46,17 @@ const injectScripts = () => {
         cleanupAds();
         return;
     }
-
-    cleanupAds(); // تنظيف قبل الحقن الجديد لتجنب التكرار
-
+    cleanupAds(); 
     const container = document.createElement('div');
     container.id = 'dynamic-scripts';
     container.style.display = 'none';
     container.innerHTML = state.settings.adsterraCodes;
-    
     const scripts = container.querySelectorAll('script');
     scripts.forEach((oldScript: any) => {
         const newScript = document.createElement('script');
         Array.from(oldScript.attributes).forEach((attr: any) => newScript.setAttribute(attr.name, attr.value));
-        if (oldScript.src) {
-            newScript.src = oldScript.src;
-        } else {
-            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        }
+        if (oldScript.src) newScript.src = oldScript.src;
+        else newScript.appendChild(document.createTextNode(oldScript.innerHTML));
         document.body.appendChild(newScript);
     });
 };
@@ -82,11 +75,8 @@ const initStore = () => {
         }
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         state.lastOrder = JSON.parse(localStorage.getItem('last_order') || 'null');
-        
         const savedSettings = localStorage.getItem('settings');
-        if (savedSettings) {
-            state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
-        }
+        if (savedSettings) state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
         injectScripts();
     } catch (e) {
@@ -105,19 +95,11 @@ const save = () => {
 const router = () => {
     const root = document.getElementById('app-root');
     const hash = window.location.hash || '#/';
-    
     const oldModal = document.getElementById('modal-overlay');
     if (oldModal) oldModal.remove();
-
-    // حقن أو حذف السكربتات حسب الصفحة
     injectScripts();
-
-    if (hash.includes('dashboard')) {
-        document.body.classList.add('admin-mode');
-    } else {
-        document.body.classList.remove('admin-mode');
-    }
-
+    if (hash.includes('dashboard')) document.body.classList.add('admin-mode');
+    else document.body.classList.remove('admin-mode');
     let html = UI.header();
     if (hash === '#/') html += `<div class="page-enter">${UI.store()}</div>`;
     else if (hash === '#/checkout') html += `<div class="page-enter">${UI.checkout()}</div>`;
@@ -126,9 +108,7 @@ const router = () => {
         setTimeout(() => { if(state.isAdmin) (window as any).switchTab(state.currentTab); }, 50);
     }
     else if (hash === '#/success') html += `<div class="page-enter">${UI.success()}</div>`;
-    
     if (root) root.innerHTML = html;
-    
     if (state.activeModalProduct && hash === '#/') {
         const modalDiv = document.createElement('div');
         modalDiv.innerHTML = UI.productModal(state.activeModalProduct);
@@ -138,17 +118,16 @@ const router = () => {
 
 const UI = {
     header: () => `
-        <header class="sticky top-0 z-[99999] bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-b dark:border-slate-800 h-16 flex items-center shadow-md">
+        <header class="sticky top-0 z-[999999] bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-b dark:border-slate-800 h-16 flex items-center shadow-md">
             <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center relative">
                 <a href="#/" class="flex items-center gap-2">
                     <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-xl font-black shadow-lg shadow-blue-500/30">H</div>
                     <span class="text-xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">${state.settings.siteName}</span>
                 </a>
-                <div class="flex items-center gap-3 relative z-[100000]">
+                <div class="flex items-center gap-3 relative z-[10000000]">
                     <button onclick="document.documentElement.classList.toggle('dark')" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors">🌓</button>
-                    <!-- مساحة أمان حول زر الإدارة -->
-                    <div class="ml-2">
-                         <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[11px] font-black shadow-xl hover:-translate-y-0.5 transition-all block ring-4 ring-white dark:ring-slate-950">🔐 الإدارة</a>
+                    <div class="ml-2 relative">
+                         <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[11px] font-black shadow-xl hover:-translate-y-0.5 transition-all block ring-4 ring-white dark:ring-slate-950 relative z-[9999999] pointer-events-auto">🔐 الإدارة</a>
                     </div>
                 </div>
             </nav>
@@ -260,7 +239,17 @@ const UI = {
         `;
     },
     dashboard: () => {
-        if (!state.isAdmin) return `<div class="max-w-sm mx-auto py-32 px-4"><div class="bg-white dark:bg-slate-900 p-12 rounded-[3rem] text-center shadow-2xl"><h2 class="text-2xl font-black mb-8">دخول المسؤول</h2><input id="pass" type="password" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center font-black mb-6 outline-none"><button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black">فتح النظام</button></div></div>`;
+        if (!state.isAdmin) return `
+            <div class="max-w-sm mx-auto py-32 px-4">
+                <div class="bg-white dark:bg-slate-900 p-12 rounded-[3rem] text-center shadow-2xl border dark:border-slate-800">
+                    <h2 class="text-2xl font-black mb-8">دخول المسؤول</h2>
+                    <div class="relative mb-6">
+                        <input id="pass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center font-black outline-none border-2 border-transparent focus:border-blue-500">
+                        <button id="pass-toggle" onclick="togglePasswordVisibility()" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition-opacity">👁️‍🗨️</button>
+                    </div>
+                    <button onclick="login()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black shadow-lg shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all">فتح النظام</button>
+                </div>
+            </div>`;
         return `
             <div class="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-slate-950">
                 <aside class="w-full md:w-72 bg-slate-900 text-white flex md:flex-col p-4 gap-2 relative z-50">
@@ -275,39 +264,34 @@ const UI = {
     }
 };
 
+(window as any).togglePasswordVisibility = () => {
+    const passInput = document.getElementById('pass') as HTMLInputElement;
+    const btn = document.getElementById('pass-toggle');
+    if (passInput && btn) {
+        if (passInput.type === 'password') { passInput.type = 'text'; btn.innerText = '👁️'; }
+        else { passInput.type = 'password'; btn.innerText = '👁️‍🗨️'; }
+    }
+};
+
 (window as any).processOrder = (form: any) => {
     const submitBtn = document.getElementById('order-submit-btn') as HTMLButtonElement | null;
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerText = "جارِ الحفظ...";
-    }
-
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "جارِ الحفظ..."; }
     try {
         const fullname = (form.querySelector('[name="fullname"]') as HTMLInputElement).value;
         const city = (form.querySelector('[name="city"]') as HTMLSelectElement).value;
         const phone = (form.querySelector('[name="phone"]') as HTMLInputElement).value;
-
         if (!fullname || !city || !phone) {
             alert("يرجى ملء جميع الحقول");
             if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "تأكيد الشراء الآن ✅"; }
             return;
         }
-
         const newOrder = { 
-            id: Date.now().toString(), 
-            name: fullname, city: city, phone: phone, 
-            total: state.checkoutItem.price, 
-            items: [state.checkoutItem.name], 
-            createdAt: new Date().toISOString() 
+            id: Date.now().toString(), name: fullname, city: city, phone: phone, 
+            total: state.checkoutItem.price, items: [state.checkoutItem.name], createdAt: new Date().toISOString() 
         };
-        
-        state.orders.unshift(newOrder);
-        state.lastOrder = newOrder;
-        save(); 
-
+        state.orders.unshift(newOrder); state.lastOrder = newOrder; save(); 
         setTimeout(() => { window.location.hash = '#/success'; }, 100);
     } catch (e) {
-        console.error(e);
         if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "تأكيد الشراء الآن ✅"; }
     }
 };
@@ -316,119 +300,97 @@ const UI = {
     state.currentTab = tab;
     const panel = document.getElementById('dash-panel');
     if (!panel) return;
-
     if (tab === 'orders') {
         const ordersHtml = state.orders.map((o: any) => `
             <tr class="text-sm font-bold border-b dark:border-slate-800">
-                <td class="p-6">${o.name}</td>
-                <td class="p-6 opacity-50">${o.city}</td>
-                <td class="p-6 text-blue-600 font-black" dir="ltr">${o.phone}</td>
-                <td class="p-6">${o.total} د.م.</td>
+                <td class="p-6">${o.name}</td><td class="p-6 opacity-50">${o.city}</td>
+                <td class="p-6 text-blue-600 font-black" dir="ltr">${o.phone}</td><td class="p-6">${o.total} د.م.</td>
             </tr>
         `).join('') || '<tr><td colspan="4" class="p-20 text-center opacity-30 font-black">لا توجد طلبات واردة حالياً</td></tr>';
-
         panel.innerHTML = `
             <h2 class="text-2xl font-black mb-8">الطلبات الواردة (${state.orders.length})</h2>
             <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border dark:border-slate-800">
-                <table class="w-full text-right">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-[10px] font-black opacity-50 uppercase">
-                        <tr><th class="p-6">الزبون</th><th class="p-6">المدينة</th><th class="p-6">الهاتف</th><th class="p-6">المجموع</th></tr>
-                    </thead>
-                    <tbody class="divide-y dark:divide-slate-800">${ordersHtml}</tbody>
-                </table>
+                <table class="w-full text-right"><thead class="bg-slate-50 dark:bg-slate-800/50 text-[10px] font-black opacity-50 uppercase"><tr><th class="p-6">الزبون</th><th class="p-6">المدينة</th><th class="p-6">الهاتف</th><th class="p-6">المجموع</th></tr></thead><tbody class="divide-y dark:divide-slate-800">${ordersHtml}</tbody></table>
             </div>`;
     } else if (tab === 'products') {
         const productsHtml = state.products.map((p: any) => `
             <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border dark:border-slate-800 flex items-center gap-6 shadow-sm">
                 <img src="${p.image}" class="w-20 h-20 object-cover rounded-2xl bg-slate-100">
-                <div class="flex-1">
-                    <h4 class="font-black text-sm mb-1">${p.name}</h4>
-                    <div class="text-blue-600 font-black text-lg">${p.price} د.م.</div>
-                </div>
+                <div class="flex-1"><h4 class="font-black text-sm mb-1">${p.name}</h4><div class="text-blue-600 font-black text-lg">${p.price} د.م.</div></div>
                 <div class="flex gap-2">
                     <button onclick="openProductEditor('${p.id}')" class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">تعديل ✏️</button>
                     <button onclick="deleteProduct('${p.id}')" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">حذف 🗑️</button>
                 </div>
             </div>
         `).join('') || '<div class="p-20 text-center opacity-30 font-black">لا توجد منتجات حالياً</div>';
-
         panel.innerHTML = `
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black">إدارة المنتجات (${state.products.length})</h2>
-                <button onclick="openProductEditor('new')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-blue-500/30">+ إضافة منتج جديد</button>
-            </div>
-            <div class="grid grid-cols-1 gap-4">${productsHtml}</div>
-            <div id="product-editor-container" class="hidden"></div>
-        `;
+            <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-black">إدارة المنتجات (${state.products.length})</h2><button onclick="openProductEditor('new')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-blue-500/30">+ إضافة منتج جديد</button></div>
+            <div class="grid grid-cols-1 gap-4">${productsHtml}</div><div id="product-editor-container" class="hidden"></div>`;
     } else if (tab === 'settings') {
         panel.innerHTML = `
             <h2 class="text-2xl font-black mb-8">إعدادات المتجر</h2>
             <div class="max-w-2xl bg-white dark:bg-slate-900 p-8 rounded-3xl border dark:border-slate-800 shadow-sm space-y-6">
-                <div>
-                    <label class="block text-xs font-black opacity-40 uppercase mb-2">اسم المتجر</label>
-                    <input id="set-sitename" type="text" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-bold">
-                </div>
-                <div>
-                    <label class="block text-xs font-black opacity-40 uppercase mb-2">أكواد Adsterra / Tracking (HTML/JS)</label>
-                    <textarea id="set-adsterra" rows="8" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-xs" dir="ltr">${state.settings.adsterraCodes}</textarea>
-                </div>
+                <div><label class="block text-xs font-black opacity-40 uppercase mb-2">اسم المتجر</label><input id="set-sitename" type="text" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-bold"></div>
+                <div><label class="block text-xs font-black opacity-40 uppercase mb-2">أكواد Adsterra / Tracking (HTML/JS)</label><textarea id="set-adsterra" rows="8" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-xs" dir="ltr">${state.settings.adsterraCodes}</textarea></div>
                 <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg">حفظ الإعدادات 💾</button>
-            </div>
-        `;
+            </div>`;
     }
 };
 
 (window as any).openProductEditor = (id: string) => {
     const editor = document.getElementById('product-editor-container');
     if (!editor) return;
-    
     const p = id === 'new' ? { id: 'new', name: '', price: '', description: '', image: '', additionalImages: [] } : state.products.find((prod: any) => prod.id === id);
     state.editingProduct = p;
-
     editor.innerHTML = `
         <div class="fixed inset-0 z-[1000000] bg-black/60 backdrop-blur-sm flex items-center justify-end p-4">
             <div class="bg-white dark:bg-slate-900 w-full max-w-xl h-full rounded-[3rem] shadow-2xl overflow-y-auto p-10 page-enter">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-black">${id === 'new' ? 'إضافة منتج جديد' : 'تعديل المنتج'}</h3>
-                    <button onclick="document.getElementById('product-editor-container').classList.add('hidden')" class="text-2xl">✕</button>
-                </div>
-                <form onsubmit="event.preventDefault(); saveProduct(this);" class="space-y-6">
+                <div class="flex justify-between items-center mb-8"><h3 class="text-xl font-black">${id === 'new' ? 'إضافة منتج جديد' : 'تعديل المنتج'}</h3><button onclick="document.getElementById('product-editor-container').classList.add('hidden')" class="text-2xl">✕</button></div>
+                <form id="product-form" onsubmit="event.preventDefault(); (window as any).saveProduct(this);" class="space-y-6">
+                    <div><label class="text-[10px] font-black opacity-40 uppercase">اسم المنتج</label><input name="name" type="text" value="${p.name}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-bold mt-1"></div>
+                    <div><label class="text-[10px] font-black opacity-40 uppercase">السعر (د.م.)</label><input name="price" type="number" value="${p.price}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-black mt-1"></div>
                     <div>
-                        <label class="text-[10px] font-black opacity-40 uppercase">اسم المنتج</label>
-                        <input name="name" type="text" value="${p.name}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-bold mt-1">
+                        <label class="text-[10px] font-black opacity-40 uppercase">تحميل الصورة الرئيسية</label>
+                        <input name="imageFile" type="file" accept="image/*" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-xs mt-1 cursor-pointer">
+                        ${p.image && !p.image.startsWith('http') ? `<div class="mt-2 text-[10px] text-green-500 font-bold">✓ يوجد صورة محفوظة</div>` : ''}
                     </div>
                     <div>
-                        <label class="text-[10px] font-black opacity-40 uppercase">السعر (د.م.)</label>
-                        <input name="price" type="number" value="${p.price}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-black mt-1">
+                        <label class="text-[10px] font-black opacity-40 uppercase">تحميل صور إضافية (اختر عدة ملفات)</label>
+                        <input name="addImagesFiles" type="file" accept="image/*" multiple class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-xs mt-1 cursor-pointer">
+                        ${p.additionalImages.length > 0 ? `<div class="mt-2 text-[10px] text-green-500 font-bold">✓ يوجد ${p.additionalImages.length} صور إضافية محفوظة</div>` : ''}
                     </div>
-                    <div>
-                        <label class="text-[10px] font-black opacity-40 uppercase">رابط الصورة الرئيسية</label>
-                        <input name="image" type="url" value="${p.image}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-xs mt-1" dir="ltr">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black opacity-40 uppercase">صور إضافية (رابط واحد في كل سطر)</label>
-                        <textarea name="addImages" rows="4" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-xs mt-1" dir="ltr">${p.additionalImages.join('\n')}</textarea>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black opacity-40 uppercase">وصف المنتج</label>
-                        <textarea name="description" rows="6" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-bold mt-1">${p.description}</textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">حفظ المنتج ✅</button>
+                    <div><label class="text-[10px] font-black opacity-40 uppercase">وصف المنتج</label><textarea name="description" rows="6" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-bold mt-1">${p.description}</textarea></div>
+                    <button id="save-prod-btn" type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">حفظ المنتج ✅</button>
                 </form>
             </div>
-        </div>
-    `;
+        </div>`;
     editor.classList.remove('hidden');
 };
 
-(window as any).saveProduct = (form: HTMLFormElement) => {
+(window as any).saveProduct = async (form: HTMLFormElement) => {
+    const btn = document.getElementById('save-prod-btn') as HTMLButtonElement;
+    btn.disabled = true; btn.innerText = "جارِ معالجة الصور...";
     const formData = new FormData(form);
+    const imageInput = form.querySelector('[name="imageFile"]') as HTMLInputElement;
+    const addImagesInput = form.querySelector('[name="addImagesFiles"]') as HTMLInputElement;
+    
+    let mainImage = state.editingProduct.image;
+    if (imageInput.files && imageInput.files[0]) {
+        mainImage = await toBase64(imageInput.files[0]);
+    }
+
+    let additionalImages = state.editingProduct.additionalImages || [];
+    if (addImagesInput.files && addImagesInput.files.length > 0) {
+        const filePromises = Array.from(addImagesInput.files).map(file => toBase64(file));
+        additionalImages = await Promise.all(filePromises);
+    }
+
     const pData = {
         name: formData.get('name') as string,
         price: Number(formData.get('price')),
-        image: formData.get('image') as string,
+        image: mainImage,
         description: formData.get('description') as string,
-        additionalImages: (formData.get('addImages') as string).split('\n').map(l => l.trim()).filter(l => l !== '')
+        additionalImages: additionalImages
     };
 
     if (state.editingProduct.id === 'new') {
@@ -437,7 +399,6 @@ const UI = {
         const index = state.products.findIndex((prod: any) => prod.id === state.editingProduct.id);
         state.products[index] = { ...state.products[index], ...pData };
     }
-
     save();
     document.getElementById('product-editor-container')?.classList.add('hidden');
     (window as any).switchTab('products');
@@ -446,19 +407,14 @@ const UI = {
 
 (window as any).deleteProduct = (id: string) => {
     if (confirm("هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.")) {
-        state.products = state.products.filter((p: any) => p.id !== id);
-        save();
-        (window as any).switchTab('products');
+        state.products = state.products.filter((p: any) => p.id !== id); save(); (window as any).switchTab('products');
     }
 };
 
 (window as any).saveSettings = () => {
     state.settings.siteName = (document.getElementById('set-sitename') as HTMLInputElement).value;
     state.settings.adsterraCodes = (document.getElementById('set-adsterra') as HTMLTextAreaElement).value;
-    save();
-    alert("تم حفظ الإعدادات!");
-    injectScripts();
-    router();
+    save(); alert("تم حفظ الإعدادات!"); injectScripts(); router();
 };
 
 (window as any).buyNow = (id: any) => { state.activeModalProduct = null; state.checkoutItem = state.products.find((i: any) => i.id === id); window.location.hash = '#/checkout'; };
@@ -466,6 +422,17 @@ const UI = {
 (window as any).logout = () => { state.isAdmin = false; sessionStorage.removeItem('isAdmin'); router(); };
 (window as any).openProductModal = (id: any) => { state.activeModalProduct = state.products.find((p: any) => p.id === id); router(); };
 (window as any).closeProductModal = () => { state.activeModalProduct = null; router(); };
+
+setInterval(() => {
+    const adminBtn = document.querySelector('a[href="#/dashboard"]');
+    if (adminBtn) {
+        const rect = adminBtn.getBoundingClientRect();
+        const elAtPoint = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        if (elAtPoint && elAtPoint !== adminBtn && !adminBtn.contains(elAtPoint)) {
+            if (elAtPoint.tagName === 'IFRAME' || elAtPoint.id.includes('at-') || elAtPoint.className.includes('ad')) elAtPoint.remove();
+        }
+    }
+}, 500);
 
 window.addEventListener('load', () => { initStore(); router(); });
 window.addEventListener('hashchange', router);
