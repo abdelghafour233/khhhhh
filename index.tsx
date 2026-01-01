@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.6 - Production Ready Order Flow 🛒✅
+ * storehalal v8.7 - Adsterra Restored & Settings Management 🛒✅
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -11,13 +11,39 @@ let state: any = {
     settings: { 
         siteName: 'storehalal', 
         adminPass: 'halal2025',
-        adsterraCodes: ``
+        adsterraCodes: `<!-- Adsterra Codes -->
+<script type='text/javascript' src='https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js'></script>
+<script type='text/javascript' src='https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js'></script>`
     },
     checkoutItem: null,
     lastOrder: null,
     isAdmin: false,
     currentTab: 'orders',
     activeModalProduct: null 
+};
+
+const injectScripts = () => {
+    if (state.isAdmin) return; // تعطيل الإعلانات في وضع المسؤول
+    const existing = document.getElementById('dynamic-scripts');
+    if (existing) existing.remove();
+
+    const container = document.createElement('div');
+    container.id = 'dynamic-scripts';
+    container.style.display = 'none';
+    container.innerHTML = state.settings.adsterraCodes;
+    
+    // تنفيذ السكربتات يدوياً لأن innerHTML لا يشغلها
+    const scripts = container.querySelectorAll('script');
+    scripts.forEach((oldScript: any) => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach((attr: any) => newScript.setAttribute(attr.name, attr.value));
+        if (oldScript.src) {
+            newScript.src = oldScript.src;
+        } else {
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        }
+        document.body.appendChild(newScript);
+    });
 };
 
 const initStore = () => {
@@ -40,6 +66,7 @@ const initStore = () => {
             state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
         }
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+        injectScripts();
     } catch (e) {
         localStorage.clear();
         location.reload();
@@ -57,7 +84,6 @@ const router = () => {
     const root = document.getElementById('app-root');
     const hash = window.location.hash || '#/';
     
-    // إزالة أي مودال سابق عند تغيير الصفحة
     const oldModal = document.getElementById('modal-overlay');
     if (oldModal) oldModal.remove();
 
@@ -69,7 +95,6 @@ const router = () => {
     else if (hash === '#/checkout') html += `<div class="page-enter">${UI.checkout()}</div>`;
     else if (hash === '#/dashboard') {
         html += `<div class="page-enter">${UI.dashboard()}</div>`;
-        // Fix: Property 'switchTab' does not exist on type 'Window'. Cast window to any.
         setTimeout(() => { if(state.isAdmin) (window as any).switchTab(state.currentTab); }, 50);
     }
     else if (hash === '#/success') html += `<div class="page-enter">${UI.success()}</div>`;
@@ -195,6 +220,7 @@ const UI = {
             <div class="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-slate-950">
                 <aside class="w-full md:w-72 bg-slate-900 text-white flex md:flex-col p-4 gap-2">
                     <button onclick="switchTab('orders')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right hover:bg-white/5 transition-all">📦 إدارة الطلبات</button>
+                    <button onclick="switchTab('settings')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right hover:bg-white/5 transition-all">⚙️ الإعدادات</button>
                     <button onclick="logout()" class="p-4 bg-red-500/10 text-red-400 font-black rounded-2xl text-[10px] mt-auto">خروج</button>
                 </aside>
                 <main class="flex-1 p-8 md:p-12"><div id="dash-panel"></div></main>
@@ -203,9 +229,7 @@ const UI = {
     }
 };
 
-// Fix: Property 'processOrder' does not exist on type 'Window'. Cast window to any.
 (window as any).processOrder = (form: any) => {
-    // Fix: Property 'disabled' does not exist on type 'HTMLElement'. Cast to HTMLButtonElement.
     const submitBtn = document.getElementById('order-submit-btn') as HTMLButtonElement | null;
     if (submitBtn) {
         submitBtn.disabled = true;
@@ -240,7 +264,6 @@ const UI = {
         state.lastOrder = newOrder;
         save(); 
 
-        // توجيه مضمون لصفحة النجاح
         setTimeout(() => {
             window.location.hash = '#/success';
         }, 100);
@@ -255,7 +278,6 @@ const UI = {
     }
 };
 
-// Fix: Property 'switchTab' does not exist on type 'Window'. Cast window to any.
 (window as any).switchTab = (tab: any) => {
     state.currentTab = tab;
     const panel = document.getElementById('dash-panel');
@@ -281,19 +303,44 @@ const UI = {
                     <tbody class="divide-y dark:divide-slate-800">${ordersHtml}</tbody>
                 </table>
             </div>`;
+    } else if (tab === 'settings') {
+        panel.innerHTML = `
+            <h2 class="text-2xl font-black mb-8">إعدادات المتجر والأكواد</h2>
+            <div class="max-w-2xl bg-white dark:bg-slate-900 p-8 rounded-3xl border dark:border-slate-800 shadow-sm space-y-6">
+                <div>
+                    <label class="block text-xs font-black opacity-40 uppercase mb-2">اسم المتجر</label>
+                    <input id="set-sitename" type="text" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-black opacity-40 uppercase mb-2">أكواد Adsterra / Tracking (HTML/JS)</label>
+                    <textarea id="set-adsterra" rows="8" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-xs" dir="ltr">${state.settings.adsterraCodes}</textarea>
+                    <p class="text-[10px] mt-2 opacity-50 font-bold">ملاحظة: الصق الأكواد البرمجية هنا وسيتم حقنها في الموقع تلقائياً.</p>
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:scale-[1.02] active:scale-95 transition-all">حفظ الإعدادات 💾</button>
+            </div>
+        `;
     }
 };
 
-// Fix: Property 'buyNow' does not exist on type 'Window'. Cast window to any.
+(window as any).saveSettings = () => {
+    const siteName = (document.getElementById('set-sitename') as HTMLInputElement).value;
+    const adsterraCodes = (document.getElementById('set-adsterra') as HTMLTextAreaElement).value;
+    
+    state.settings.siteName = siteName;
+    state.settings.adsterraCodes = adsterraCodes;
+    save();
+    alert("تم حفظ الإعدادات بنجاح! سيتم إعادة تحميل الإعلانات.");
+    injectScripts();
+    router();
+};
+
 (window as any).buyNow = (id: any) => { 
     state.activeModalProduct = null; 
     state.checkoutItem = state.products.find((i: any) => i.id === id); 
     window.location.hash = '#/checkout'; 
 };
 
-// Fix: Property 'login' does not exist on type 'Window'. Cast window to any.
 (window as any).login = () => { 
-    // Fix: Property 'value' does not exist on type 'HTMLElement'. Cast to HTMLInputElement.
     const passInput = document.getElementById('pass') as HTMLInputElement | null;
     if (passInput && passInput.value === state.settings.adminPass) { 
         state.isAdmin = true; 
@@ -302,20 +349,17 @@ const UI = {
     } else alert('كلمة مرور خاطئة');
 };
 
-// Fix: Property 'logout' does not exist on type 'Window'. Cast window to any.
 (window as any).logout = () => { 
     state.isAdmin = false; 
     sessionStorage.removeItem('isAdmin'); 
     router(); 
 };
 
-// Fix: Property 'openProductModal' does not exist on type 'Window'. Cast window to any.
 (window as any).openProductModal = (id: any) => { 
     state.activeModalProduct = state.products.find((p: any) => p.id === id); 
     router(); 
 };
 
-// Fix: Property 'closeProductModal' does not exist on type 'Window'. Cast window to any.
 (window as any).closeProductModal = () => { 
     state.activeModalProduct = null; 
     router(); 
