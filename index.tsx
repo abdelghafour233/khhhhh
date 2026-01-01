@@ -1,6 +1,6 @@
 
 /**
- * storehalal v6.9.1 - Final Stability & Adsterra Fix 🚀🇲🇦
+ * storehalal v7.0 - Professional Product Management 🚀🇲🇦
  */
 
 const AD_SCRIPTS = [
@@ -16,20 +16,17 @@ let state: any = {
     settings: { siteName: 'storehalal', adminPass: 'halal2025' },
     checkoutItem: null,
     isAdmin: false,
-    currentTab: 'orders'
+    currentTab: 'orders',
+    editingId: null // لتتبع المنتج الذي يتم تعديله حالياً
 };
 
-// --- نظام الحقن المحسن (يمنع الإعلانات في الإدارة) ---
 const injectAds = () => {
-    // إذا كنا في صفحة الإدارة، لا تقم بحقن أي سكربتات جديدة
     if (window.location.hash.includes('dashboard')) return;
-    
     AD_SCRIPTS.forEach((src, idx) => {
         if (!document.getElementById(`ad-script-${idx}`)) {
             const script = document.createElement('script');
             script.src = src;
             script.async = true;
-            script.setAttribute('data-cfasync', 'false');
             script.id = `ad-script-${idx}`;
             document.body.appendChild(script);
         }
@@ -38,15 +35,33 @@ const injectAds = () => {
 
 const initStore = () => {
     try {
-        state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify([
-            { id: '1', name: 'آيفون 15 برو ماكس', price: 14500, stock: 5, image: 'https://picsum.photos/seed/iphone/600/400' },
-            { id: '2', name: 'ساعة ذكية Ultra Series 9', price: 450, stock: 12, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800' }
-        ]));
+        const savedProducts = localStorage.getItem('products');
+        if (savedProducts) {
+            state.products = JSON.parse(savedProducts);
+        } else {
+            state.products = [
+                { 
+                    id: '1', 
+                    name: 'آيفون 15 برو ماكس', 
+                    price: 14500, 
+                    description: 'أحدث هاتف من شركة آبل مع معالج A17 Pro وكاميرا احترافية.',
+                    image: 'https://picsum.photos/seed/iphone/600/400',
+                    gallery: []
+                },
+                { 
+                    id: '2', 
+                    name: 'ساعة ذكية Ultra Series 9', 
+                    price: 450, 
+                    description: 'ساعة ذكية مقاومة للماء مع شاشة Amoled وتتبع نبضات القلب.',
+                    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800',
+                    gallery: []
+                }
+            ];
+            save();
+        }
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         state.settings = { ...state.settings, ...JSON.parse(localStorage.getItem('settings') || '{}') };
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-        
-        // تشغيل الإعلانات فقط إذا لم نكن في الإدارة
         setTimeout(injectAds, 2000);
     } catch (e) {
         localStorage.clear();
@@ -64,7 +79,6 @@ const router = () => {
     const root = document.getElementById('app-root');
     const hash = window.location.hash || '#/';
     
-    // تفعيل وضع الإدارة في الـ CSS لإخفاء الإعلانات فوراً
     if (hash.includes('dashboard')) {
         document.body.classList.add('admin-mode');
     } else {
@@ -82,19 +96,6 @@ const router = () => {
     else if (hash === '#/success') html += `<div class="page-enter">${UI.success()}</div>`;
     
     root!.innerHTML = html;
-    
-    const footer = document.getElementById('dynamic-footer');
-    if (footer && !hash.includes('dashboard')) {
-        footer.innerHTML = `
-            <footer class="bg-slate-950 text-white py-12 px-6 text-center border-t border-white/5">
-                <div class="text-xl font-black text-blue-500 mb-2">${state.settings.siteName}</div>
-                <p class="text-slate-500 font-bold text-[10px] opacity-60">توصيل سريع لكل مدن المغرب 🇲🇦</p>
-                <div class="text-slate-800 text-[8px] mt-4 font-mono tracking-widest uppercase">© 2025 - Stable v6.9.1</div>
-            </footer>
-        `;
-    } else if (footer) {
-        footer.innerHTML = '';
-    }
 };
 
 const UI = {
@@ -102,12 +103,12 @@ const UI = {
         <header class="sticky top-0 z-[99999] bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b dark:border-slate-800 shadow-sm h-16 flex items-center">
             <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
                 <a href="#/" class="flex items-center gap-2 group">
-                    <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-black transition">S</div>
+                    <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-black">S</div>
                     <span class="text-lg font-black">${state.settings.siteName}</span>
                 </a>
                 <div class="flex items-center gap-2 admin-btn-layer">
                     <button onclick="document.documentElement.classList.toggle('dark')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">🌓</button>
-                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black shadow-md hover:scale-105 transition">🔐 الإدارة</a>
+                    <a href="#/dashboard" class="bg-slate-900 dark:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black">🔐 الإدارة</a>
                 </div>
             </nav>
         </header>
@@ -115,8 +116,8 @@ const UI = {
     store: () => `
         <div>
             <div class="bg-slate-900 text-white py-16 px-4 text-center">
-                <h1 class="text-3xl font-black mb-3 tracking-tighter">${state.settings.siteName}</h1>
-                <p class="opacity-60 text-[10px] mb-6 max-w-xs mx-auto">الدفع عند الاستلام - توصيل سريع 🇲🇦</p>
+                <h1 class="text-3xl font-black mb-3">${state.settings.siteName}</h1>
+                <p class="opacity-60 text-[10px] mb-6">الدفع عند الاستلام - توصيل سريع 🇲🇦</p>
                 <div class="ad-container" id="top-ad"></div>
             </div>
             <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -133,7 +134,6 @@ const UI = {
                     </div>
                 `).join('')}
             </div>
-            <div class="ad-container" id="bottom-ad"></div>
         </div>
     `,
     dashboard: () => {
@@ -143,7 +143,6 @@ const UI = {
                     <h2 class="text-xl font-black mb-6">دخول الإدارة</h2>
                     <input id="pass" type="password" placeholder="كلمة السر" class="w-full p-3 mb-4 bg-slate-50 dark:bg-slate-800 border dark:border-slate-800 rounded-xl text-center outline-none font-black">
                     <button onclick="login()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-black active:scale-95 transition">دخول</button>
-                    <a href="#/" class="inline-block mt-4 text-[10px] font-bold text-slate-400 underline">← العودة للمتجر</a>
                 </div>
             </div>
         `;
@@ -163,10 +162,8 @@ const UI = {
         <div class="max-w-md mx-auto py-8 px-4">
             <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-xl border dark:border-slate-800">
                 <h2 class="text-xl font-black mb-6 text-center">تأكيد الطلب 🚚</h2>
-                <div class="mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center gap-3 border dark:border-slate-700">
-                   <div class="img-container">
-                      <img src="${state.checkoutItem.image}" class="img-stable">
-                   </div>
+                <div class="mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center gap-3">
+                   <div class="img-container"><img src="${state.checkoutItem.image}" class="img-stable"></div>
                    <div>
                        <div class="text-[10px] font-bold text-slate-400 line-clamp-1">${state.checkoutItem.name}</div>
                        <div class="text-blue-600 font-black text-lg">${state.checkoutItem.price} د.م.</div>
@@ -188,23 +185,15 @@ const UI = {
         <div class="max-w-md mx-auto py-24 text-center px-4">
             <div class="text-5xl mb-4">🎉</div>
             <h1 class="text-2xl font-black mb-2">طلبك قيد المعالجة!</h1>
-            <p class="text-slate-500 text-xs mb-8 font-bold">سنتصل بك في أقل من 24 ساعة لتأكيد التوصيل 🇲🇦</p>
-            <a href="#/" class="inline-block w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm shadow-xl active:scale-95 transition">العودة للرئيسية</a>
+            <p class="text-slate-500 text-xs mb-8">سنتصل بك في أقل من 24 ساعة لتأكيد التوصيل 🇲🇦</p>
+            <a href="#/" class="inline-block w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm transition">العودة للرئيسية</a>
         </div>
     `
 };
 
 (window as any).switchTab = (tab: string) => {
     state.currentTab = tab;
-    
-    const aside = document.querySelector('aside');
-    if (aside) {
-        aside.querySelectorAll('button').forEach(btn => {
-            btn.classList.remove('bg-blue-600');
-            if (btn.innerText.includes(tab === 'orders' ? 'الطلبات' : 'المنتجات')) btn.classList.add('bg-blue-600');
-        });
-    }
-
+    state.editingId = null; // تصفير التعديل عند تغيير التبويب
     const panel = document.getElementById('dash-panel');
     if (!panel) return;
 
@@ -214,7 +203,7 @@ const UI = {
             <div class="grid gap-3">
                 ${state.orders.map((o: any) => `
                     <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border dark:border-slate-800 flex justify-between items-center transition-none">
-                        <div class="flex flex-col gap-1">
+                        <div>
                             <div class="font-black text-sm">${o.name} <span class="text-[9px] text-slate-400 mr-2">${o.city}</span></div>
                             <div class="text-blue-500 font-black text-xs" dir="ltr">${o.phone}</div>
                         </div>
@@ -224,35 +213,106 @@ const UI = {
             </div>
         `;
     } else if (tab === 'products') {
-        panel.innerHTML = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black">إدارة المخزون</h2>
-                <button onclick="document.getElementById('add-p-form').classList.toggle('hidden')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black">+ إضافة</button>
-            </div>
-            
-            <div id="add-p-form" class="hidden bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 mb-6 transition-none">
-                <div class="grid md:grid-cols-2 gap-3">
-                    <input id="p-name" placeholder="اسم المنتج" class="p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
-                    <input id="p-price" type="number" placeholder="السعر بالدرهم" class="p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
-                </div>
-                <button onclick="saveProduct()" class="w-full bg-slate-900 dark:bg-blue-600 text-white py-3 rounded-xl font-black mt-4 text-xs">حفظ المنتج</button>
-            </div>
+        renderProductTab(panel);
+    }
+};
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                ${state.products.map((p: any) => `
-                    <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-800 flex items-center gap-3 transition-none">
-                        <div class="img-container">
-                            <img src="${p.image}" class="img-stable" loading="lazy">
-                        </div>
-                        <div class="flex-1">
-                            <div class="font-bold text-[10px] line-clamp-1">${p.name}</div>
-                            <div class="text-blue-600 font-black text-xs">${p.price} د.م.</div>
-                        </div>
-                        <button onclick="deleteProduct('${p.id}')" class="text-red-400 p-2 hover:bg-red-400/10 rounded-lg">🗑️</button>
+const renderProductTab = (panel: HTMLElement) => {
+    panel.innerHTML = `
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-black">إدارة المخزون</h2>
+            <button onclick="showEditForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black">+ إضافة منتج</button>
+        </div>
+        
+        <div id="product-form-container" class="hidden mb-10"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            ${state.products.map((p: any) => `
+                <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border dark:border-slate-800 flex items-center gap-3">
+                    <div class="img-container"><img src="${p.image}" class="img-stable"></div>
+                    <div class="flex-1">
+                        <div class="font-bold text-[10px] line-clamp-1">${p.name}</div>
+                        <div class="text-blue-600 font-black text-xs">${p.price} د.م.</div>
                     </div>
-                `).join('')}
+                    <div class="flex gap-1">
+                        <button onclick="showEditForm('${p.id}')" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">✏️</button>
+                        <button onclick="deleteProduct('${p.id}')" class="p-2 bg-red-50 text-red-500 dark:bg-red-900/20 rounded-lg text-xs">🗑️</button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+};
+
+(window as any).showEditForm = (id?: string) => {
+    const container = document.getElementById('product-form-container');
+    if (!container) return;
+    
+    container.classList.remove('hidden');
+    state.editingId = id || null;
+    const p = id ? state.products.find((item: any) => item.id === id) : { name: '', price: '', image: '', description: '', gallery: [] };
+
+    container.innerHTML = `
+        <div class="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border-2 border-blue-600/20 animate-fadeIn">
+            <h3 class="font-black text-sm mb-4">${id ? 'تعديل المنتج' : 'إضافة منتج جديد'}</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-3">
+                    <input id="p-name" value="${p.name}" placeholder="اسم المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
+                    <input id="p-price" value="${p.price}" type="number" placeholder="السعر" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
+                    <input id="p-image" value="${p.image}" placeholder="رابط الصورة الأساسية" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
+                </div>
+                <div class="space-y-3">
+                    <textarea id="p-desc" placeholder="وصف المنتج" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs h-[104px]">${p.description || ''}</textarea>
+                </div>
             </div>
-        `;
+            <div class="mt-4">
+                <input id="p-gallery" value="${(p.gallery || []).join(', ')}" placeholder="روابط الصور الإضافية (افصل بينها بفاصلة ,)" class="w-full p-3 border dark:border-slate-800 rounded-xl bg-white dark:bg-slate-800 outline-none font-bold text-xs">
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button onclick="saveProduct()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black text-xs shadow-lg">حفظ التغييرات</button>
+                <button onclick="document.getElementById('product-form-container').classList.add('hidden')" class="px-6 bg-slate-200 dark:bg-slate-800 py-3 rounded-xl font-black text-xs">إلغاء</button>
+            </div>
+        </div>
+    `;
+    container.scrollIntoView({ behavior: 'smooth' });
+};
+
+(window as any).saveProduct = () => {
+    const name = (document.getElementById('p-name') as HTMLInputElement).value;
+    const price = (document.getElementById('p-price') as HTMLInputElement).value;
+    const image = (document.getElementById('p-image') as HTMLInputElement).value;
+    const description = (document.getElementById('p-desc') as HTMLTextAreaElement).value;
+    const galleryStr = (document.getElementById('p-gallery') as HTMLInputElement).value;
+    
+    if (!name || !price || !image) return alert('يرجى ملء الاسم والسعر والصورة الأساسية');
+
+    const gallery = galleryStr.split(',').map(s => s.trim()).filter(s => s !== '');
+
+    if (state.editingId) {
+        // تحديث منتج موجود
+        const index = state.products.findIndex((p: any) => p.id === state.editingId);
+        state.products[index] = { ...state.products[index], name, price: Number(price), image, description, gallery };
+    } else {
+        // إضافة منتج جديد
+        state.products.unshift({ 
+            id: Date.now().toString(), 
+            name, 
+            price: Number(price), 
+            image, 
+            description, 
+            gallery 
+        });
+    }
+
+    save();
+    (window as any).switchTab('products');
+};
+
+(window as any).deleteProduct = (id: string) => {
+    if(confirm('هل تريد حذف هذا المنتج نهائياً؟')) {
+        state.products = state.products.filter((p:any) => p.id !== id);
+        save();
+        (window as any).switchTab('products');
     }
 };
 
@@ -274,23 +334,6 @@ const UI = {
 (window as any).buyNow = (id: string) => {
     state.checkoutItem = state.products.find((i: any) => i.id === id);
     window.location.hash = '#/checkout';
-};
-
-(window as any).saveProduct = () => {
-    const name = (document.getElementById('p-name') as HTMLInputElement).value;
-    const price = (document.getElementById('p-price') as HTMLInputElement).value;
-    if (!name || !price) return alert('املأ الحقول');
-    state.products.unshift({ id: Date.now().toString(), name, price: Number(price), image: 'https://via.placeholder.com/400x400?text=Product' });
-    save();
-    (window as any).switchTab('products');
-};
-
-(window as any).deleteProduct = (id: string) => {
-    if(confirm('هل تريد حذف هذا المنتج؟')) {
-        state.products = state.products.filter((p:any) => p.id !== id);
-        save();
-        (window as any).switchTab('products');
-    }
 };
 
 window.addEventListener('load', () => { initStore(); router(); });
