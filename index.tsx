@@ -1,7 +1,7 @@
 
 /**
- * storehalal v6.5 - Ultimate Global Ads Injection 🚀🇲🇦
- * تم التحديث: إصلاح شامل لظهور إعلانات ادستيرا (تظهر للجميع وفي كل مكان) + أزرار مشاركة مباشرة.
+ * storehalal v6.6 - Paid Domain Fix 🚀🇲🇦
+ * تم التحديث: إصلاح الإعلانات في الدومين المدفوع عبر الحقن المباشر في HTML.
  */
 
 const FALLBACK_IMAGES = {
@@ -39,41 +39,7 @@ let state: any = {
     checkoutItem: null,
     isAdmin: false,
     currentTab: 'orders',
-    adsLoaded: false,
-    editingProduct: null
-};
-
-// --- محرك الإعلانات العالمي (يُستدعى فوراً وبشكل مستقل) ---
-const runGlobalAdsEngine = () => {
-    if (state.adsLoaded) return;
-    
-    const adCode = state.settings.adsterraHeader;
-    if (!adCode) return;
-
-    console.log("🚀 Global Ads Engine: Starting Injection...");
-
-    const container = document.createElement('div');
-    container.innerHTML = adCode;
-    const scripts = container.querySelectorAll('script');
-
-    scripts.forEach(oldScript => {
-        const newScript = document.createElement('script');
-        
-        // نسخ جميع السمات (src, async, defer, etc)
-        Array.from(oldScript.attributes).forEach(attr => {
-            newScript.setAttribute(attr.name, attr.value);
-        });
-        
-        // إذا كان السكربت يحتوي على كود داخلي (Inline Script)
-        if (oldScript.textContent) {
-            newScript.textContent = oldScript.textContent;
-        }
-
-        // الحقن في آخر الجسم (Body) يضمن عدم تداخل الإعلانات مع تحميل الموقع
-        document.body.appendChild(newScript);
-    });
-
-    state.adsLoaded = true;
+    adsLoaded: false
 };
 
 const initStore = () => {
@@ -81,23 +47,16 @@ const initStore = () => {
         state.products = JSON.parse(localStorage.getItem('products') || JSON.stringify(INITIAL_PRODUCTS));
         state.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         
-        // كود ادستيرا الافتراضي (سيظهر للجميع)
-        const defaultAds = `
-            <script src="https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js"></script>
-            <script src="https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js"></script>
-        `;
-
         const defaultSettings = {
             siteName: 'storehalal',
-            adminPass: 'halal2025',
-            adsterraHeader: defaultAds
+            adminPass: 'halal2025'
         };
 
         state.settings = { ...defaultSettings, ...JSON.parse(localStorage.getItem('settings') || '{}') };
         state.isAdmin = sessionStorage.getItem('isAdmin') === 'true';
 
-        // تشغيل الإعلانات فوراً عند تحميل المتجر
-        runGlobalAdsEngine();
+        // في الإصدار 6.6 نعتمد على الإعلانات الموجودة في index.html لضمان الثبات في الدومين المدفوع
+        console.log("🚀 V6.6: Paid Domain Optimization Enabled.");
     } catch (e) {
         localStorage.clear();
         location.reload();
@@ -110,13 +69,13 @@ const save = () => {
     localStorage.setItem('settings', JSON.stringify(state.settings));
 };
 
-// --- وظائف المشاركة المباشرة ---
+// --- وظائف المشاركة المباشرة (تحت زر الشراء والطلب) ---
 (window as any).shareAction = (platform: string, productId?: string) => {
     const baseUrl = window.location.origin + window.location.pathname;
     const shareUrl = productId ? `${baseUrl}#/product/${productId}` : baseUrl;
     const p = productId ? state.products.find((i: any) => i.id === productId) : null;
     const title = p ? p.name : state.settings.siteName;
-    const text = `أعجبني هذا العرض في متجر ${state.settings.siteName}:\n\n*${title}*\n\nرابط المنتج:\n${shareUrl}`;
+    const text = `السلام عليكم، أعجبني هذا العرض في متجر ${state.settings.siteName}:\n\n*${title}*\n\nرابط المنتج:\n${shareUrl}`;
 
     let url = '';
     if (platform === 'whatsapp') {
@@ -144,7 +103,7 @@ const save = () => {
 
 (window as any).buyNow = (id: string) => {
     const p = state.products.find((i: any) => i.id === id);
-    if (!p || p.stock <= 0) return alert('عذراً، المنتج غير متوفر حالياً!');
+    if (!p) return;
     state.checkoutItem = p;
     window.location.hash = '#/checkout';
 };
@@ -254,7 +213,7 @@ const UI = {
 
                     <!-- أزرار التواصل الاجتماعي تحت زر إرسال الطلب مباشرة -->
                     <div class="mt-10 pt-8 border-t dark:border-slate-800 text-center">
-                        <p class="text-[10px] font-black text-slate-400 mb-5 uppercase tracking-[0.2em]">شارك العرض قبل نفاذ المخزون</p>
+                        <p class="text-[10px] font-black text-slate-400 mb-5 uppercase tracking-[0.2em]">تواصل معنا للاستفسار</p>
                         <div class="flex gap-4">
                             <button type="button" onclick="shareAction('whatsapp', '${state.checkoutItem.id}')" class="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white py-4 rounded-2xl text-xs font-black shadow-lg hover:brightness-110 active:scale-95 transition">
                                 <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" class="w-4 h-4 invert"> واتساب
@@ -329,20 +288,19 @@ const UI = {
         `;
     } else if (tab === 'settings') {
         panel.innerHTML = `
-            <h2 class="text-3xl font-black mb-10">إعدادات الموقع والإعلانات</h2>
+            <h2 class="text-3xl font-black mb-10">إعدادات الموقع</h2>
             <div class="bg-white dark:bg-slate-900 p-10 rounded-[3rem] border dark:border-slate-800 space-y-8 max-w-2xl shadow-sm text-right">
                 <div>
                     <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3 mr-2">اسم المتجر</label>
                     <input id="set-name" value="${state.settings.siteName}" class="w-full p-5 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 font-black outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                 </div>
-                <div>
-                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3 mr-2">أكواد إعلانات ادستيرا (Adsterra Scripts)</label>
-                    <textarea id="set-ads" class="w-full p-5 border dark:border-slate-700 rounded-2xl bg-slate-50 dark:bg-slate-800 h-56 font-mono text-[10px] outline-none focus:ring-2 focus:ring-blue-500 transition-all leading-relaxed" placeholder="إلصق جميع سكربتات ادستيرا هنا..." dir="ltr">${state.settings.adsterraHeader}</textarea>
-                    <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-[10px] text-blue-600 font-bold leading-relaxed">
-                        ⚠️ ملاحظة هامة: النظام الآن يقوم بحقن الإعلانات بشكل "عالمي" (Global Injection). هذا يضمن ظهور إعلانات Social Bar و Popunders للجميع وفي كل الصفحات بلا استثناء.
-                    </div>
+                <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800">
+                    <p class="text-[10px] text-green-700 dark:text-green-400 font-black leading-relaxed">
+                        ✅ تم تفعيل "الوضع الآمن للدومين المدفوع" v6.6. <br>
+                        الآن يتم تحميل إعلانات ادستيرا من خلال ملف HTML مباشرة لضمان ظهورها لجميع الزوار على الحاسوب والهاتف.
+                    </p>
                 </div>
-                <button onclick="saveSettings()" class="w-full bg-slate-900 dark:bg-blue-600 text-white py-6 rounded-3xl font-black text-lg shadow-2xl active:scale-95 transition-all">تحديث الإعدادات والإعلانات ✅</button>
+                <button onclick="saveSettings()" class="w-full bg-slate-900 dark:bg-blue-600 text-white py-6 rounded-3xl font-black text-lg shadow-2xl active:scale-95 transition-all">تحديث الإعدادات ✅</button>
             </div>
         `;
     }
@@ -359,9 +317,8 @@ const UI = {
 
 (window as any).saveSettings = () => {
     state.settings.siteName = (document.getElementById('set-name') as HTMLInputElement).value;
-    state.settings.adsterraHeader = (document.getElementById('set-ads') as HTMLTextAreaElement).value;
     save();
-    alert('✅ تم الحفظ! سيتم إعادة تشغيل الموقع لتفعيل نظام الإعلانات العالمي الجديد.');
+    alert('✅ تم الحفظ بنجاح!');
     location.reload();
 };
 
@@ -384,9 +341,9 @@ const router = () => {
     else if (hash === '#/success') html += `
         <div class="max-w-md mx-auto py-32 text-center px-4 animate-fadeIn">
             <div class="w-24 h-24 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-8 text-5xl">✅</div>
-            <h1 class="text-4xl font-black mb-4 tracking-tighter">تم استلام طلبك بنجاح!</h1>
-            <p class="text-slate-500 mb-12 font-bold px-4 leading-relaxed">شكراً لثقتك بنا. سنتصل بك قريباً عبر الهاتف لتأكيد العنوان وشحن طلبيتك 🇲🇦</p>
-            <div class="px-8"><a href="#/" class="inline-block w-full bg-blue-600 text-white py-5 rounded-3xl font-black text-lg shadow-xl hover:scale-105 transition-transform">تصفح المزيد من العروض</a></div>
+            <h1 class="text-4xl font-black mb-4 tracking-tighter">تم استلام طلبك!</h1>
+            <p class="text-slate-500 mb-12 font-bold px-4 leading-relaxed">سنتصل بك قريباً عبر الهاتف لتأكيد الشحن 🇲🇦</p>
+            <div class="px-8"><a href="#/" class="inline-block w-full bg-blue-600 text-white py-5 rounded-3xl font-black text-lg shadow-xl">العودة للمتجر</a></div>
         </div>
     `;
     
@@ -396,12 +353,12 @@ const router = () => {
     if (footer) footer.innerHTML = `
         <footer class="bg-slate-950 text-white py-16 px-6 text-center border-t border-white/5">
             <div class="text-3xl font-black text-blue-500 mb-3 tracking-tighter">${state.settings.siteName}</div>
-            <p class="text-slate-500 font-bold text-xs mb-10 max-w-sm mx-auto opacity-70">متجر مغربي موثوق يقدم أجود المنتجات مع خدمة الدفع عند الاستلام في جميع أنحاء المملكة 🇲🇦</p>
+            <p class="text-slate-500 font-bold text-xs mb-10 max-w-sm mx-auto opacity-70">متجر مغربي موثوق - دفع عند الاستلام في جميع أنحاء المملكة 🇲🇦</p>
             <div class="flex justify-center gap-12 mb-12 text-[10px] font-black uppercase tracking-[0.3em] opacity-50">
-                <button onclick="shareAction('whatsapp')" class="hover:text-[#25D366] transition-colors">WhatsApp</button>
-                <button onclick="shareAction('facebook')" class="hover:text-[#1877F2] transition-colors">Facebook</button>
+                <button onclick="shareAction('whatsapp')">WhatsApp</button>
+                <button onclick="shareAction('facebook')">Facebook</button>
             </div>
-            <div class="text-slate-800 text-[9px] font-mono tracking-widest uppercase">© 2025 ${state.settings.siteName} - Power Injection Engine v6.5</div>
+            <div class="text-slate-800 text-[9px] font-mono tracking-widest uppercase">© 2025 ${state.settings.siteName} - Paid Domain Stable v6.6</div>
         </footer>
     `;
     
