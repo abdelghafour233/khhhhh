@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>متجركم | تسوق آمن 🇲🇦</title>
+    <title>متجركم | لوحة التحكم v6.9 🇲🇦</title>
     
-    <!-- منع تعارض Cloudflare -->
     <script data-cfasync="false">window.cf_ads = true;</script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,9 +19,26 @@
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         .dark body { background-color: #020617; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        .ad-container { min-height: 50px; width: 100%; display: flex; justify-content: center; margin: 10px 0; overflow: hidden; }
+        
+        /* تحريك ثابت بدون اهتزاز */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-in-out forwards; }
+        
+        .ad-container { min-height: 50px; width: 100%; display: flex; justify-content: center; margin: 10px 0; }
+        
+        /* إخفاء الإعلانات تماماً داخل لوحة التحكم */
+        .admin-mode .ad-container, 
+        .admin-mode [id^="at-cv-"], 
+        .admin-mode .at-social-bar,
+        .admin-mode [class*="adsterra"] { 
+            display: none !important; 
+            visibility: hidden !important; 
+            pointer-events: none !important;
+        }
+
+        /* تثبيت أبعاد الصور لمنع الاهتزاز */
+        .img-stable { aspect-ratio: 1/1; object-fit: cover; backface-visibility: hidden; transform: translateZ(0); }
+        
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
     </style>
