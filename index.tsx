@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.0 - Professional Checkout & Order Success System 🛒✅
+ * storehalal v8.1 - Order Logic Fix & Success Page Enhancement 🛒✅
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -16,7 +16,7 @@ let state: any = {
 <script type='text/javascript' src='https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js'></script>`
     },
     checkoutItem: null,
-    lastOrder: null, // لتخزين آخر طلب وعرضه في صفحة النجاح
+    lastOrder: null,
     isAdmin: false,
     currentTab: 'orders',
     editingId: null,
@@ -229,7 +229,12 @@ const UI = {
             </style>
         `;
     },
-    checkout: () => `
+    checkout: () => {
+        if (!state.checkoutItem) {
+            window.location.hash = '#/';
+            return '<div>جارِ التوجيه...</div>';
+        }
+        return `
         <div class="max-w-md mx-auto py-12 px-4">
             <div class="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-2xl border dark:border-slate-800 animate-fadeIn">
                 <div class="text-center mb-8">
@@ -246,7 +251,7 @@ const UI = {
                    </div>
                 </div>
 
-                <form onsubmit="event.preventDefault(); (window as any).processOrder(this);" class="space-y-4">
+                <form id="order-form" onsubmit="event.preventDefault(); (window as any).processOrder(this);" class="space-y-4">
                     <div class="space-y-1">
                         <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الاسم الكامل</label>
                         <div class="relative">
@@ -274,29 +279,43 @@ const UI = {
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all mt-6">تأكيد الشراء الآن ✅</button>
+                    <button id="order-submit-btn" type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all mt-6 flex items-center justify-center gap-2">
+                        <span>تأكيد الشراء الآن ✅</span>
+                    </button>
                     <p class="text-center text-[9px] text-slate-400 font-bold uppercase tracking-widest pt-2">الدفع عند الاستلام متاح حالياً 🇲🇦</p>
                 </form>
             </div>
         </div>
-    `,
-    success: () => `
+    `;
+    },
+    success: () => {
+        const order = state.lastOrder || (state.orders.length > 0 ? state.orders[0] : null);
+        if (!order) {
+            window.location.hash = '#/';
+            return '<div>جارِ التوجيه...</div>';
+        }
+        return `
         <div class="max-w-md mx-auto py-24 text-center px-4 animate-fadeIn">
-            <div class="w-24 h-24 bg-green-500/10 text-green-500 rounded-[2.5rem] flex items-center justify-center text-5xl mx-auto mb-8">🎉</div>
-            <h1 class="text-3xl font-black mb-4 tracking-tight text-slate-900 dark:text-white">تم الشراء بنجاح!</h1>
-            <p class="text-slate-500 text-sm mb-8 font-medium leading-relaxed px-6">شكراً لك يا <span class="text-blue-600 font-black">${state.lastOrder?.name}</span> على ثقتك بنا. لقد استلمنا طلبك لـ <span class="font-bold text-slate-800 dark:text-slate-200">${state.lastOrder?.items[0]}</span> بنجاح.</p>
+            <div class="w-24 h-24 bg-green-500/10 text-green-500 rounded-[2.5rem] flex items-center justify-center text-5xl mx-auto mb-8 shadow-sm">🎉</div>
+            <h1 class="text-3xl font-black mb-4 tracking-tight text-slate-900 dark:text-white uppercase">تم الشراء بنجاح!</h1>
+            <p class="text-slate-500 text-sm mb-8 font-medium leading-relaxed px-6">شكراً لك يا <span class="text-blue-600 font-black">${order.name}</span> على ثقتك بنا. لقد استلمنا طلبك لـ <span class="font-bold text-slate-800 dark:text-slate-200">${order.items[0]}</span> وسنباشر بمعالجته فوراً.</p>
             
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border dark:border-slate-800 mb-10 text-right space-y-3 shadow-sm">
-                <div class="flex justify-between text-xs border-b dark:border-slate-800 pb-2"><span class="text-slate-400 font-bold uppercase">رقم الطلب:</span> <span class="font-black">#${state.lastOrder?.id.slice(-6)}</span></div>
-                <div class="flex justify-between text-xs border-b dark:border-slate-800 pb-2"><span class="text-slate-400 font-bold uppercase">المدينة:</span> <span class="font-black">${state.lastOrder?.city}</span></div>
-                <div class="flex justify-between text-xs"><span class="text-slate-400 font-bold uppercase">المجموع:</span> <span class="font-black text-blue-600">${state.lastOrder?.total} د.م.</span></div>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl border dark:border-slate-800 mb-10 text-right space-y-4 shadow-sm border-b-4 border-b-green-500">
+                <div class="flex justify-between text-xs border-b dark:border-slate-800 pb-3"><span class="text-slate-400 font-black uppercase tracking-widest">رقم الطلب:</span> <span class="font-black text-slate-900 dark:text-white">#${order.id.slice(-6)}</span></div>
+                <div class="flex justify-between text-xs border-b dark:border-slate-800 pb-3"><span class="text-slate-400 font-black uppercase tracking-widest">المدينة:</span> <span class="font-black text-slate-900 dark:text-white">${order.city}</span></div>
+                <div class="flex justify-between text-xs border-b dark:border-slate-800 pb-3"><span class="text-slate-400 font-black uppercase tracking-widest">الهاتف:</span> <span class="font-black text-blue-600" dir="ltr">${order.phone}</span></div>
+                <div class="flex justify-between text-sm pt-1"><span class="text-slate-400 font-black uppercase tracking-widest">المجموع:</span> <span class="font-black text-blue-600 text-lg">${order.total} د.م.</span></div>
             </div>
 
-            <p class="text-[11px] text-slate-400 font-bold mb-10">سنتصل بك قريباً على الرقم <span dir="ltr">${state.lastOrder?.phone}</span> لتأكيد الشحن.</p>
+            <div class="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-2xl text-[11px] text-blue-600 dark:text-blue-400 font-bold mb-10 flex items-center gap-3 justify-center">
+                <span>🚚</span>
+                سيتم الاتصال بك خلال 24 ساعة لتأكيد موعد التسليم
+            </div>
             
-            <a href="#/" class="inline-block w-full bg-slate-900 dark:bg-blue-600 text-white py-5 rounded-3xl font-black text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all">العودة للمتجر الرئيسي</a>
+            <a href="#/" class="inline-block w-full bg-slate-900 dark:bg-blue-600 text-white py-5 rounded-3xl font-black text-sm shadow-2xl hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">العودة للتسوق</a>
         </div>
-    `
+    `;
+    }
 };
 
 (window as any).switchTab = (tab: string) => {
@@ -326,10 +345,10 @@ const UI = {
                     <table class="w-full text-right">
                         <thead>
                             <tr class="bg-slate-50/50 dark:bg-slate-800/50 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b dark:border-slate-800">
-                                <th class="p-6">الزبون</th>
-                                <th class="p-6">المدينة</th>
-                                <th class="p-6">الهاتف</th>
-                                <th class="p-6">المنتج والمبلغ</th>
+                                <th class="p-6 text-right">الزبون</th>
+                                <th class="p-6 text-right">المدينة</th>
+                                <th class="p-6 text-right">الهاتف</th>
+                                <th class="p-6 text-right">المنتج والمبلغ</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y dark:divide-slate-800">
@@ -434,23 +453,55 @@ const renderProductTab = (panel: HTMLElement) => {
 
 (window as any).login = () => { const val = (document.getElementById('pass') as HTMLInputElement).value; if (val === state.settings.adminPass) { state.isAdmin = true; sessionStorage.setItem('isAdmin', 'true'); router(); } else alert('خطأ!'); };
 (window as any).logout = () => { state.isAdmin = false; sessionStorage.removeItem('isAdmin'); router(); };
-(window as any).buyNow = (id: string) => { state.activeModalProduct = null; state.checkoutItem = state.products.find((i: any) => i.id === id); window.location.hash = '#/checkout'; };
+
+(window as any).buyNow = (id: string) => { 
+    state.activeModalProduct = null; 
+    state.checkoutItem = state.products.find((i: any) => i.id === id); 
+    window.location.hash = '#/checkout'; 
+};
 
 (window as any).processOrder = (form: HTMLFormElement) => {
-    const formData = new FormData(form);
-    const newOrder = { 
-        id: Date.now().toString(), 
-        name: formData.get('fullname'), 
-        city: formData.get('city'), 
-        phone: formData.get('phone'), 
-        total: state.checkoutItem.price, 
-        items: [state.checkoutItem.name], 
-        createdAt: new Date().toISOString() 
-    };
-    state.orders.unshift(newOrder);
-    state.lastOrder = newOrder; // حفظ آخر طلب لعرضه في صفحة النجاح
-    save(); 
-    window.location.hash = '#/success';
+    const submitBtn = document.getElementById('order-submit-btn');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<span class="animate-spin text-xl">⏳</span> جارِ المعالجة...';
+        submitBtn.setAttribute('disabled', 'true');
+    }
+
+    // تأخير بسيط لمحاكاة المعالجة الاحترافية وتأكيد الحفظ
+    setTimeout(() => {
+        try {
+            const formData = new FormData(form);
+            const fullname = formData.get('fullname') as string;
+            const city = formData.get('city') as string;
+            const phone = formData.get('phone') as string;
+
+            if (!fullname || !city || !phone) throw new Error('بيانات ناقصة');
+
+            const newOrder = { 
+                id: Date.now().toString(), 
+                name: fullname, 
+                city: city, 
+                phone: phone, 
+                total: state.checkoutItem.price, 
+                items: [state.checkoutItem.name], 
+                createdAt: new Date().toISOString() 
+            };
+            
+            // تحديث الحالة والحفظ
+            state.orders.unshift(newOrder);
+            state.lastOrder = newOrder;
+            save(); 
+
+            // الانتقال لصفحة النجاح
+            window.location.hash = '#/success';
+        } catch (e) {
+            alert('حدث خطأ أثناء معالجة الطلب، يرجى المحاولة مرة أخرى.');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span>تأكيد الشراء الآن ✅</span>';
+                submitBtn.removeAttribute('disabled');
+            }
+        }
+    }, 1200);
 };
 
 (window as any).openProductModal = (id: string) => { state.activeModalProduct = state.products.find((p: any) => p.id === id); router(); };
