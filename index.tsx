@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.5 - Final Order Flow & Success Fix 🛒✅
+ * storehalal v8.6 - Production Ready Order Flow 🛒✅
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -11,9 +11,7 @@ let state: any = {
     settings: { 
         siteName: 'storehalal', 
         adminPass: 'halal2025',
-        adsterraCodes: `<!-- Adsterra Codes -->
-<script type='text/javascript' src='https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js'></script>
-<script type='text/javascript' src='https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js'></script>`
+        adsterraCodes: ``
     },
     checkoutItem: null,
     lastOrder: null,
@@ -59,6 +57,10 @@ const router = () => {
     const root = document.getElementById('app-root');
     const hash = window.location.hash || '#/';
     
+    // إزالة أي مودال سابق عند تغيير الصفحة
+    const oldModal = document.getElementById('modal-overlay');
+    if (oldModal) oldModal.remove();
+
     if (hash.includes('dashboard')) document.body.classList.add('admin-mode');
     else document.body.classList.remove('admin-mode');
 
@@ -67,22 +69,23 @@ const router = () => {
     else if (hash === '#/checkout') html += `<div class="page-enter">${UI.checkout()}</div>`;
     else if (hash === '#/dashboard') {
         html += `<div class="page-enter">${UI.dashboard()}</div>`;
-        setTimeout(() => { if(state.isAdmin) (window as any).switchTab(state.currentTab); }, 20);
+        // Fix: Property 'switchTab' does not exist on type 'Window'. Cast window to any.
+        setTimeout(() => { if(state.isAdmin) (window as any).switchTab(state.currentTab); }, 50);
     }
     else if (hash === '#/success') html += `<div class="page-enter">${UI.success()}</div>`;
     
-    root!.innerHTML = html;
+    if (root) root.innerHTML = html;
     
-    if (state.activeModalProduct) {
+    if (state.activeModalProduct && hash === '#/') {
         const modalDiv = document.createElement('div');
         modalDiv.innerHTML = UI.productModal(state.activeModalProduct);
-        document.body.appendChild(modalDiv.firstElementChild!);
+        if (modalDiv.firstElementChild) document.body.appendChild(modalDiv.firstElementChild);
     }
 };
 
 const UI = {
     header: () => `
-        <header class="sticky top-0 z-[9999999] bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b dark:border-slate-800 h-16 flex items-center shadow-sm">
+        <header class="sticky top-0 z-[9999] bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b dark:border-slate-800 h-16 flex items-center shadow-sm">
             <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
                 <a href="#/" class="flex items-center gap-2">
                     <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-xl font-black shadow-lg shadow-blue-500/30">H</div>
@@ -120,7 +123,7 @@ const UI = {
         </div>
     `,
     productModal: (p: any) => `
-        <div id="modal-overlay" class="fixed inset-0 z-[1000000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div id="modal-overlay" class="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white dark:bg-slate-900 w-full max-w-5xl max-h-[90vh] rounded-[3rem] overflow-hidden flex flex-col md:flex-row relative shadow-2xl border dark:border-slate-800">
                 <button onclick="closeProductModal()" class="absolute top-6 right-6 z-50 bg-white dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center text-2xl">✕</button>
                 <div class="w-full md:w-3/5 h-[40vh] md:h-auto"><img src="${p.image}" class="w-full h-full object-cover"></div>
@@ -134,7 +137,7 @@ const UI = {
         </div>
     `,
     checkout: () => {
-        if (!state.checkoutItem) { window.location.hash = '#/'; return '<div>جارِ التوجيه...</div>'; }
+        if (!state.checkoutItem) { setTimeout(() => window.location.hash = '#/', 10); return '<div>جارِ التوجيه...</div>'; }
         return `
         <div class="max-w-md mx-auto py-12 px-4">
             <div class="bg-white dark:bg-slate-900 p-10 rounded-[3rem] shadow-2xl border dark:border-slate-800">
@@ -146,10 +149,10 @@ const UI = {
                    <div class="w-12 h-12 rounded-xl overflow-hidden"><img src="${state.checkoutItem.image}" class="w-full h-full object-cover"></div>
                    <div><div class="text-[10px] font-black opacity-50 uppercase">${state.checkoutItem.name}</div><div class="text-blue-600 font-black">${state.checkoutItem.price} د.م.</div></div>
                 </div>
-                <form id="main-order-form" onsubmit="event.preventDefault(); (window as any).processOrder(this);" class="space-y-4">
+                <form id="main-order-form" onsubmit="event.preventDefault(); processOrder(this);" class="space-y-4">
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الاسم</label>
-                        <input name="fullname" type="text" required placeholder="" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm transition-all">
+                        <input name="fullname" type="text" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm transition-all">
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase mr-1">المدينة</label>
@@ -160,7 +163,7 @@ const UI = {
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الهاتف</label>
-                        <input name="phone" type="tel" required placeholder="" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none text-right font-black transition-all" dir="ltr">
+                        <input name="phone" type="tel" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none text-right font-black transition-all" dir="ltr">
                     </div>
                     <button id="order-submit-btn" type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all mt-6">تأكيد الشراء الآن ✅</button>
                 </form>
@@ -170,7 +173,7 @@ const UI = {
     },
     success: () => {
         const order = state.lastOrder || (state.orders.length > 0 ? state.orders[0] : null);
-        if (!order) { window.location.hash = '#/'; return '<div>جارِ التوجيه...</div>'; }
+        if (!order) { setTimeout(() => window.location.hash = '#/', 10); return '<div>جارِ التوجيه...</div>'; }
         return `
         <div class="max-w-md mx-auto py-24 text-center px-4">
             <div class="w-24 h-24 bg-green-500/10 text-green-500 rounded-[2.5rem] flex items-center justify-center text-5xl mx-auto mb-8">🎉</div>
@@ -200,8 +203,10 @@ const UI = {
     }
 };
 
-(window as any).processOrder = (form: HTMLFormElement) => {
-    const submitBtn = document.getElementById('order-submit-btn') as HTMLButtonElement;
+// Fix: Property 'processOrder' does not exist on type 'Window'. Cast window to any.
+(window as any).processOrder = (form: any) => {
+    // Fix: Property 'disabled' does not exist on type 'HTMLElement'. Cast to HTMLButtonElement.
+    const submitBtn = document.getElementById('order-submit-btn') as HTMLButtonElement | null;
     if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerText = "جارِ الحفظ...";
@@ -231,20 +236,17 @@ const UI = {
             createdAt: new Date().toISOString() 
         };
         
-        // تحديث الحالة فوراً
         state.orders.unshift(newOrder);
         state.lastOrder = newOrder;
-        
-        // حفظ في LocalStorage بشكل مضمون
         save(); 
 
-        // تأخير بسيط جداً لضمان الحفظ ثم الانتقال
+        // توجيه مضمون لصفحة النجاح
         setTimeout(() => {
             window.location.hash = '#/success';
         }, 100);
 
     } catch (e) {
-        console.error("Order process error:", e);
+        console.error(e);
         alert("حدث خطأ، يرجى إعادة المحاولة");
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -253,7 +255,8 @@ const UI = {
     }
 };
 
-(window as any).switchTab = (tab: string) => {
+// Fix: Property 'switchTab' does not exist on type 'Window'. Cast window to any.
+(window as any).switchTab = (tab: any) => {
     state.currentTab = tab;
     const panel = document.getElementById('dash-panel');
     if (!panel) return;
@@ -264,41 +267,59 @@ const UI = {
                 <td class="p-6">${o.name}</td>
                 <td class="p-6 opacity-50">${o.city}</td>
                 <td class="p-6 text-blue-600 font-black" dir="ltr">${o.phone}</td>
-                <td class="p-6">
-                    <div class="text-[10px] opacity-40 mb-1">${o.items[0]}</div>
-                    ${o.total} د.م.
-                </td>
+                <td class="p-6">${o.total} د.م.</td>
             </tr>
         `).join('') || '<tr><td colspan="4" class="p-20 text-center opacity-30 font-black">لا توجد طلبات واردة حالياً</td></tr>';
 
         panel.innerHTML = `
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black">إدارة الطلبيات الواردة (${state.orders.length})</h2>
-                <button onclick="location.reload()" class="text-xs font-black bg-blue-600 text-white px-4 py-2 rounded-xl">تحديث القائمة 🔄</button>
-            </div>
+            <h2 class="text-2xl font-black mb-8">الطلبات الواردة (${state.orders.length})</h2>
             <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border dark:border-slate-800">
                 <table class="w-full text-right">
                     <thead class="bg-slate-50 dark:bg-slate-800/50 text-[10px] font-black opacity-50 uppercase">
                         <tr><th class="p-6">الزبون</th><th class="p-6">المدينة</th><th class="p-6">الهاتف</th><th class="p-6">المجموع</th></tr>
                     </thead>
-                    <tbody class="divide-y dark:divide-slate-800">
-                        ${ordersHtml}
-                    </tbody>
+                    <tbody class="divide-y dark:divide-slate-800">${ordersHtml}</tbody>
                 </table>
             </div>`;
     }
 };
 
-(window as any).buyNow = (id: string) => { 
+// Fix: Property 'buyNow' does not exist on type 'Window'. Cast window to any.
+(window as any).buyNow = (id: any) => { 
     state.activeModalProduct = null; 
     state.checkoutItem = state.products.find((i: any) => i.id === id); 
     window.location.hash = '#/checkout'; 
 };
 
-(window as any).login = () => { if ((document.getElementById('pass') as HTMLInputElement).value === state.settings.adminPass) { state.isAdmin = true; sessionStorage.setItem('isAdmin', 'true'); router(); } };
-(window as any).logout = () => { state.isAdmin = false; sessionStorage.removeItem('isAdmin'); router(); };
-(window as any).openProductModal = (id: string) => { state.activeModalProduct = state.products.find((p: any) => p.id === id); router(); };
-(window as any).closeProductModal = () => { state.activeModalProduct = null; router(); };
+// Fix: Property 'login' does not exist on type 'Window'. Cast window to any.
+(window as any).login = () => { 
+    // Fix: Property 'value' does not exist on type 'HTMLElement'. Cast to HTMLInputElement.
+    const passInput = document.getElementById('pass') as HTMLInputElement | null;
+    if (passInput && passInput.value === state.settings.adminPass) { 
+        state.isAdmin = true; 
+        sessionStorage.setItem('isAdmin', 'true'); 
+        router(); 
+    } else alert('كلمة مرور خاطئة');
+};
+
+// Fix: Property 'logout' does not exist on type 'Window'. Cast window to any.
+(window as any).logout = () => { 
+    state.isAdmin = false; 
+    sessionStorage.removeItem('isAdmin'); 
+    router(); 
+};
+
+// Fix: Property 'openProductModal' does not exist on type 'Window'. Cast window to any.
+(window as any).openProductModal = (id: any) => { 
+    state.activeModalProduct = state.products.find((p: any) => p.id === id); 
+    router(); 
+};
+
+// Fix: Property 'closeProductModal' does not exist on type 'Window'. Cast window to any.
+(window as any).closeProductModal = () => { 
+    state.activeModalProduct = null; 
+    router(); 
+};
 
 window.addEventListener('load', () => { initStore(); router(); });
 window.addEventListener('hashchange', router);
