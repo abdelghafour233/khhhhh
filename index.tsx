@@ -1,6 +1,6 @@
 
 /**
- * storehalal v9.2 - Admin Password Management & Visibility Toggle 🛡️👁️
+ * storehalal v9.3 - Adsterra Advanced Integration & Ad Slots 💰🚀
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -11,9 +11,11 @@ let state: any = {
     settings: { 
         siteName: 'storehalal', 
         adminPass: 'halal2025',
-        adsterraCodes: `<!-- Adsterra Codes -->
-<script type='text/javascript' src='https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js'></script>
-<script type='text/javascript' src='https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js'></script>`
+        adsterraPopunder: `<!-- Adsterra Popunder -->
+<script type='text/javascript' src='https://bouncingbuzz.com/29/98/27/29982794e86cad0441c5d56daad519bd.js'></script>`,
+        adsterraSocialBar: `<!-- Adsterra Social Bar -->
+<script type='text/javascript' src='https://bouncingbuzz.com/15/38/5b/15385b7c751e6c7d59d59fb7f34e2934.js'></script>`,
+        adsterraNative: `<!-- Native Banner Slot -->`
     },
     checkoutItem: null,
     lastOrder: null,
@@ -49,7 +51,12 @@ const injectScripts = () => {
     const container = document.createElement('div');
     container.id = 'dynamic-scripts';
     container.style.display = 'none';
-    container.innerHTML = state.settings.adsterraCodes;
+    
+    // تجميع كافة الأكواد الإعلانية
+    container.innerHTML = (state.settings.adsterraPopunder || '') + 
+                          (state.settings.adsterraSocialBar || '') + 
+                          (state.settings.adsterraNative || '');
+    
     const scripts = container.querySelectorAll('script');
     scripts.forEach((oldScript: any) => {
         const newScript = document.createElement('script');
@@ -136,23 +143,49 @@ const UI = {
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
             <div class="bg-slate-900 text-white py-20 px-4 text-center">
                 <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tighter">${state.settings.siteName}</h1>
-                <p class="opacity-50 text-xs font-bold tracking-widest uppercase">المتجر المغربي رقم 1 للتوصيل السريع 🇲🇦</p>
+                <p class="opacity-50 text-xs font-bold tracking-widest uppercase mb-6">المتجر المغربي رقم 1 للتوصيل السريع 🇲🇦</p>
+                <!-- المساحة الإعلانية العلوية -->
+                <div class="max-w-4xl mx-auto min-h-[50px] bg-white/5 rounded-2xl flex items-center justify-center text-[10px] font-bold opacity-30 border border-white/10 uppercase tracking-widest ad-slot">Ad Slot: Top Banner</div>
             </div>
-            <div class="max-w-7xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-6">
-                ${state.products.map((p: any) => `
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border dark:border-slate-800 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                        <div onclick="openProductModal('${p.id}')" class="aspect-[4/5] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer">
-                           <img src="${p.image}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-black text-xs mb-3 line-clamp-1">${p.name}</h3>
-                            <div class="text-blue-600 dark:text-blue-400 font-black text-lg mb-5">${p.price} <span class="text-[10px] opacity-60">د.م.</span></div>
-                            <div class="flex gap-2">
-                                <button onclick="buyNow('${p.id}')" class="flex-1 bg-slate-900 dark:bg-blue-600 text-white py-3.5 rounded-2xl text-[11px] font-black active:scale-95 transition-all">طلب سريع 🛒</button>
+
+            <div class="max-w-7xl mx-auto px-4 py-12">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    ${state.products.slice(0, 4).map((p: any) => `
+                        <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border dark:border-slate-800 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                            <div onclick="openProductModal('${p.id}')" class="aspect-[4/5] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer">
+                               <img src="${p.image}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-black text-xs mb-3 line-clamp-1">${p.name}</h3>
+                                <div class="text-blue-600 dark:text-blue-400 font-black text-lg mb-5">${p.price} <span class="text-[10px] opacity-60">د.م.</span></div>
+                                <button onclick="buyNow('${p.id}')" class="w-full bg-slate-900 dark:bg-blue-600 text-white py-3.5 rounded-2xl text-[11px] font-black active:scale-95 transition-all">طلب سريع 🛒</button>
                             </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `).join('')}
+                </div>
+
+                <!-- مساحة إعلانية وسطية بين المنتجات -->
+                <div class="my-12 w-full min-h-[90px] bg-slate-100 dark:bg-slate-800/50 rounded-[2.5rem] flex items-center justify-center text-[10px] font-black opacity-30 border dark:border-slate-800 uppercase tracking-widest ad-slot">Ad Slot: In-Feed Banner</div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    ${state.products.slice(4).map((p: any) => `
+                        <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border dark:border-slate-800 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                            <div onclick="openProductModal('${p.id}')" class="aspect-[4/5] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer">
+                               <img src="${p.image}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-black text-xs mb-3 line-clamp-1">${p.name}</h3>
+                                <div class="text-blue-600 dark:text-blue-400 font-black text-lg mb-5">${p.price} <span class="text-[10px] opacity-60">د.م.</span></div>
+                                <button onclick="buyNow('${p.id}')" class="w-full bg-slate-900 dark:bg-blue-600 text-white py-3.5 rounded-2xl text-[11px] font-black active:scale-95 transition-all">طلب سريع 🛒</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- مساحة إعلانية تذييلية -->
+            <div class="max-w-7xl mx-auto px-4 pb-20">
+                <div class="w-full min-h-[120px] bg-white dark:bg-slate-900 rounded-[3rem] flex items-center justify-center text-[10px] font-black opacity-30 border dark:border-slate-800 uppercase tracking-widest ad-slot">Ad Slot: Footer Sticky</div>
             </div>
         </div>
     `,
@@ -199,7 +232,7 @@ const UI = {
                 </div>
                 <form id="main-order-form" onsubmit="event.preventDefault(); processOrder(this);" class="space-y-4">
                     <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الاسم</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الاسم الكامل</label>
                         <input name="fullname" type="text" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm transition-all">
                     </div>
                     <div>
@@ -210,7 +243,7 @@ const UI = {
                         </select>
                     </div>
                     <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الهاتف</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase mr-1">رقم الهاتف</label>
                         <input name="phone" type="tel" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none text-right font-black transition-all" dir="ltr">
                     </div>
                     <button id="order-submit-btn" type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all mt-6">تأكيد الشراء الآن ✅</button>
@@ -241,7 +274,7 @@ const UI = {
         if (!state.isAdmin) return `
             <div class="max-w-sm mx-auto py-32 px-4">
                 <div class="bg-white dark:bg-slate-900 p-12 rounded-[3rem] text-center shadow-2xl border dark:border-slate-800">
-                    <h2 class="text-2xl font-black mb-8">دخول المسؤول</h2>
+                    <h2 class="text-2xl font-black mb-8 uppercase tracking-tighter">دخول المسؤول</h2>
                     <div class="relative mb-6">
                         <input id="pass" type="password" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center font-black outline-none border-2 border-transparent focus:border-blue-500">
                         <button id="pass-toggle" onclick="togglePasswordVisibility('pass', 'pass-toggle')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition-opacity">👁️‍🗨️</button>
@@ -301,7 +334,7 @@ const UI = {
     if (!panel) return;
     if (tab === 'orders') {
         const ordersHtml = state.orders.map((o: any) => `
-            <tr class="text-sm font-bold border-b dark:border-slate-800">
+            <tr class="text-sm font-bold border-b dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                 <td class="p-6">${o.name}</td><td class="p-6 opacity-50">${o.city}</td>
                 <td class="p-6 text-blue-600 font-black" dir="ltr">${o.phone}</td><td class="p-6">${o.total} د.م.</td>
             </tr>
@@ -313,38 +346,52 @@ const UI = {
             </div>`;
     } else if (tab === 'products') {
         const productsHtml = state.products.map((p: any) => `
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border dark:border-slate-800 flex items-center gap-6 shadow-sm">
-                <img src="${p.image}" class="w-20 h-20 object-cover rounded-2xl bg-slate-100">
-                <div class="flex-1"><h4 class="font-black text-sm mb-1">${p.name}</h4><div class="text-blue-600 font-black text-lg">${p.price} د.م.</div></div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border dark:border-slate-800 flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
+                <img src="${p.image}" class="w-20 h-20 object-cover rounded-2xl bg-slate-100 dark:bg-slate-800">
+                <div class="flex-1"><h4 class="font-black text-sm mb-1 line-clamp-1">${p.name}</h4><div class="text-blue-600 font-black text-lg">${p.price} د.م.</div></div>
                 <div class="flex gap-2">
-                    <button onclick="openProductEditor('${p.id}')" class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl">تعديل ✏️</button>
-                    <button onclick="deleteProduct('${p.id}')" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">حذف 🗑️</button>
+                    <button onclick="openProductEditor('${p.id}')" class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">✏️</button>
+                    <button onclick="deleteProduct('${p.id}')" class="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all">🗑️</button>
                 </div>
             </div>
         `).join('') || '<div class="p-20 text-center opacity-30 font-black">لا توجد منتجات حالياً</div>';
         panel.innerHTML = `
-            <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-black">إدارة المنتجات (${state.products.length})</h2><button onclick="openProductEditor('new')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-blue-500/30">+ إضافة منتج جديد</button></div>
+            <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-black">إدارة المنتجات (${state.products.length})</h2><button onclick="openProductEditor('new')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-transform">+ إضافة منتج</button></div>
             <div class="grid grid-cols-1 gap-4">${productsHtml}</div><div id="product-editor-container" class="hidden"></div>`;
     } else if (tab === 'settings') {
         panel.innerHTML = `
-            <h2 class="text-2xl font-black mb-8">إعدادات المتجر</h2>
-            <div class="max-w-2xl bg-white dark:bg-slate-900 p-8 rounded-3xl border dark:border-slate-800 shadow-sm space-y-6 text-right">
-                <div>
-                    <label class="block text-xs font-black opacity-40 uppercase mb-2">اسم المتجر</label>
-                    <input id="set-sitename" type="text" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-bold">
-                </div>
-                <div>
-                    <label class="block text-xs font-black opacity-40 uppercase mb-2">تغيير كلمة مرور المدير</label>
-                    <div class="relative">
-                        <input id="set-adminpass" type="password" value="${state.settings.adminPass}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-black">
-                        <button id="set-pass-toggle" onclick="togglePasswordVisibility('set-adminpass', 'set-pass-toggle')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition-opacity">👁️‍🗨️</button>
+            <h2 class="text-2xl font-black mb-8">إعدادات المتجر المتقدمة</h2>
+            <div class="max-w-3xl bg-white dark:bg-slate-900 p-8 rounded-3xl border dark:border-slate-800 shadow-sm space-y-8 text-right">
+                
+                <section class="space-y-4">
+                    <h3 class="text-xs font-black text-blue-600 uppercase tracking-widest border-b dark:border-slate-800 pb-2">الهوية الأساسية</h3>
+                    <div><label class="block text-[10px] font-black opacity-40 uppercase mb-2">اسم المتجر</label><input id="set-sitename" type="text" value="${state.settings.siteName}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-bold"></div>
+                    <div>
+                        <label class="block text-[10px] font-black opacity-40 uppercase mb-2">كلمة مرور المدير</label>
+                        <div class="relative">
+                            <input id="set-adminpass" type="password" value="${state.settings.adminPass}" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-black">
+                            <button id="set-pass-toggle" onclick="togglePasswordVisibility('set-adminpass', 'set-pass-toggle')" class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 hover:opacity-100 transition-opacity">👁️‍🗨️</button>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-black opacity-40 uppercase mb-2">أكواد Adsterra / Tracking (HTML/JS)</label>
-                    <textarea id="set-adsterra" rows="8" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-xs" dir="ltr">${state.settings.adsterraCodes}</textarea>
-                </div>
-                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:scale-[1.01] active:scale-95 transition-all">حفظ الإعدادات 💾</button>
+                </section>
+
+                <section class="space-y-4">
+                    <h3 class="text-xs font-black text-green-600 uppercase tracking-widest border-b dark:border-slate-800 pb-2">إدارة إعلانات ADSTERRA</h3>
+                    <div>
+                        <label class="block text-[10px] font-black opacity-40 uppercase mb-2">كود Popunder</label>
+                        <textarea id="set-popunder" rows="3" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-[10px]" dir="ltr">${state.settings.adsterraPopunder || ''}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black opacity-40 uppercase mb-2">كود Social Bar</label>
+                        <textarea id="set-socialbar" rows="3" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-[10px]" dir="ltr">${state.settings.adsterraSocialBar || ''}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black opacity-40 uppercase mb-2">أكواد Banners / Native (للمساحات الموزعة)</label>
+                        <textarea id="set-native" rows="4" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-blue-500 outline-none font-mono text-[10px]" dir="ltr">${state.settings.adsterraNative || ''}</textarea>
+                    </div>
+                </section>
+
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black shadow-xl hover:scale-[1.01] active:scale-95 transition-all">حفظ التغييرات بالكامل 💾</button>
             </div>`;
     }
 };
@@ -356,23 +403,23 @@ const UI = {
     state.editingProduct = p;
     editor.innerHTML = `
         <div class="fixed inset-0 z-[1000000] bg-black/60 backdrop-blur-sm flex items-center justify-end p-4">
-            <div class="bg-white dark:bg-slate-900 w-full max-w-xl h-full rounded-[3rem] shadow-2xl overflow-y-auto p-10 page-enter">
-                <div class="flex justify-between items-center mb-8"><h3 class="text-xl font-black">${id === 'new' ? 'إضافة منتج جديد' : 'تعديل المنتج'}</h3><button onclick="document.getElementById('product-editor-container').classList.add('hidden')" class="text-2xl">✕</button></div>
+            <div class="bg-white dark:bg-slate-900 w-full max-w-xl h-full rounded-[3.5rem] shadow-2xl overflow-y-auto p-12 page-enter">
+                <div class="flex justify-between items-center mb-10"><h3 class="text-2xl font-black">${id === 'new' ? 'إضافة منتج جديد' : 'تعديل المنتج'}</h3><button onclick="document.getElementById('product-editor-container').classList.add('hidden')" class="text-3xl hover:rotate-90 transition-transform">✕</button></div>
                 <form id="product-form" onsubmit="event.preventDefault(); (window as any).saveProduct(this);" class="space-y-6">
                     <div><label class="text-[10px] font-black opacity-40 uppercase">اسم المنتج</label><input name="name" type="text" value="${p.name}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-bold mt-1"></div>
-                    <div><label class="text-[10px] font-black opacity-40 uppercase">السعر (د.م.)</label><input name="price" type="number" value="${p.price}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-black mt-1"></div>
-                    <div>
-                        <label class="text-[10px] font-black opacity-40 uppercase">تحميل الصورة الرئيسية</label>
-                        <input name="imageFile" type="file" accept="image/*" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-xs mt-1 cursor-pointer">
-                        ${p.image && !p.image.startsWith('http') ? `<div class="mt-2 text-[10px] text-green-500 font-bold">✓ يوجد صورة محفوظة</div>` : ''}
+                    <div><label class="text-[10px] font-black opacity-40 uppercase">السعر النهائي (د.م.)</label><input name="price" type="number" value="${p.price}" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-black mt-1"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black opacity-40 uppercase">الصورة الرئيسية</label>
+                            <input name="imageFile" type="file" accept="image/*" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-[10px] mt-1 cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black opacity-40 uppercase">صور العرض (+)</label>
+                            <input name="addImagesFiles" type="file" accept="image/*" multiple class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-[10px] mt-1 cursor-pointer">
+                        </div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-black opacity-40 uppercase">تحميل صور إضافية (اختر عدة ملفات)</label>
-                        <input name="addImagesFiles" type="file" accept="image/*" multiple class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none text-xs mt-1 cursor-pointer">
-                        ${p.additionalImages.length > 0 ? `<div class="mt-2 text-[10px] text-green-500 font-bold">✓ يوجد ${p.additionalImages.length} صور إضافية محفوظة</div>` : ''}
-                    </div>
-                    <div><label class="text-[10px] font-black opacity-40 uppercase">وصف المنتج</label><textarea name="description" rows="6" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-bold mt-1">${p.description}</textarea></div>
-                    <button id="save-prod-btn" type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">حفظ المنتج ✅</button>
+                    <div><label class="text-[10px] font-black opacity-40 uppercase">وصف المنتج الاحترافي</label><textarea name="description" rows="6" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl outline-none font-bold mt-1">${p.description}</textarea></div>
+                    <button id="save-prod-btn" type="submit" class="w-full bg-blue-600 text-white py-6 rounded-3xl font-black text-xl shadow-2xl active:scale-95 transition-all">تأكيد وحفظ المنتج</button>
                 </form>
             </div>
         </div>`;
@@ -381,7 +428,7 @@ const UI = {
 
 (window as any).saveProduct = async (form: HTMLFormElement) => {
     const btn = document.getElementById('save-prod-btn') as HTMLButtonElement;
-    btn.disabled = true; btn.innerText = "جارِ معالجة الصور...";
+    btn.disabled = true; btn.innerText = "جارِ المعالجة...";
     const formData = new FormData(form);
     const imageInput = form.querySelector('[name="imageFile"]') as HTMLInputElement;
     const addImagesInput = form.querySelector('[name="addImagesFiles"]') as HTMLInputElement;
@@ -411,11 +458,11 @@ const UI = {
     save();
     document.getElementById('product-editor-container')?.classList.add('hidden');
     (window as any).switchTab('products');
-    alert("تم حفظ المنتج بنجاح!");
+    alert("تم تحديث المخزون بنجاح!");
 };
 
 (window as any).deleteProduct = (id: string) => {
-    if (confirm("هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.")) {
+    if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
         state.products = state.products.filter((p: any) => p.id !== id); save(); (window as any).switchTab('products');
     }
 };
@@ -423,8 +470,10 @@ const UI = {
 (window as any).saveSettings = () => {
     state.settings.siteName = (document.getElementById('set-sitename') as HTMLInputElement).value;
     state.settings.adminPass = (document.getElementById('set-adminpass') as HTMLInputElement).value;
-    state.settings.adsterraCodes = (document.getElementById('set-adsterra') as HTMLTextAreaElement).value;
-    save(); alert("تم حفظ الإعدادات وكلمة المرور الجديدة بنجاح!"); injectScripts(); router();
+    state.settings.adsterraPopunder = (document.getElementById('set-popunder') as HTMLTextAreaElement).value;
+    state.settings.adsterraSocialBar = (document.getElementById('set-socialbar') as HTMLTextAreaElement).value;
+    state.settings.adsterraNative = (document.getElementById('set-native') as HTMLTextAreaElement).value;
+    save(); alert("تم حفظ الإعدادات الإعلانية والأمنية!"); injectScripts(); router();
 };
 
 (window as any).buyNow = (id: any) => { state.activeModalProduct = null; state.checkoutItem = state.products.find((i: any) => i.id === id); window.location.hash = '#/checkout'; };
@@ -433,6 +482,7 @@ const UI = {
 (window as any).openProductModal = (id: any) => { state.activeModalProduct = state.products.find((p: any) => p.id === id); router(); };
 (window as any).closeProductModal = () => { state.activeModalProduct = null; router(); };
 
+// تطهير زر الإدارة من الإعلانات كل نصف ثانية
 setInterval(() => {
     const adminBtn = document.querySelector('a[href="#/dashboard"]');
     if (adminBtn) {
