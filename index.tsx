@@ -1,6 +1,6 @@
 
 /**
- * storehalal v8.4 - Critical Order Flow Fix 🛒✅
+ * storehalal v8.5 - Final Order Flow & Success Fix 🛒✅
  */
 
 const MOROCCAN_CITIES = ["الدار البيضاء", "الرباط", "مراكش", "طنجة", "فاس", "أكادير", "مكناس", "وجدة", "تطوان", "القنيطرة", "آسفي", "تمارة", "المحمدية", "الناظور", "بني ملال", "الجديدة", "تازة", "سطات", "برشيد", "الخميسات", "العرائش", "القصر الكبير", "كلميم", "بركان"].sort();
@@ -29,8 +29,8 @@ const initStore = () => {
             state.products = JSON.parse(savedProducts);
         } else {
             state.products = [
-                { id: '1', name: 'آيفون 15 برو ماكس', price: 14500, description: 'أحدث هاتف من شركة آبل مع معالج A17 Pro وكاميرا احترافية.', image: 'https://picsum.photos/seed/iphone/600/400', gallery: [] },
-                { id: '2', name: 'ساعة ذكية Ultra 9', price: 450, description: 'ساعة ذكية متطورة تدعم الاتصال وتتبع الصحة بدقة عالية.', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800', gallery: [] }
+                { id: '1', name: 'آيفون 15 برو ماكس', price: 14500, description: 'أحدث هاتف من شركة آبل مع معالج A17 Pro وكاميرا احترافية.', image: 'https://picsum.photos/seed/iphone/600/400' },
+                { id: '2', name: 'ساعة ذكية Ultra 9', price: 450, description: 'ساعة ذكية متطورة تدعم الاتصال وتتبع الصحة بدقة عالية.', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800' }
             ];
             save();
         }
@@ -86,7 +86,7 @@ const UI = {
             <nav class="max-w-7xl mx-auto px-4 w-full flex justify-between items-center">
                 <a href="#/" class="flex items-center gap-2">
                     <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-xl font-black shadow-lg shadow-blue-500/30">H</div>
-                    <span class="text-xl font-black tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">${state.settings.siteName}</span>
+                    <span class="text-xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">${state.settings.siteName}</span>
                 </a>
                 <div class="flex items-center gap-3">
                     <button onclick="document.documentElement.classList.toggle('dark')" class="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 transition-colors">🌓</button>
@@ -97,22 +97,21 @@ const UI = {
     `,
     store: () => `
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
-            <div class="bg-slate-900 text-white py-20 px-4 text-center relative overflow-hidden">
-                <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tighter relative z-10">${state.settings.siteName}</h1>
-                <p class="opacity-50 text-xs font-bold tracking-widest uppercase relative z-10">المتجر المغربي رقم 1 للتوصيل السريع 🇲🇦</p>
+            <div class="bg-slate-900 text-white py-20 px-4 text-center">
+                <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tighter">${state.settings.siteName}</h1>
+                <p class="opacity-50 text-xs font-bold tracking-widest uppercase">المتجر المغربي رقم 1 للتوصيل السريع 🇲🇦</p>
             </div>
             <div class="max-w-7xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-6">
                 ${state.products.map((p: any) => `
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border dark:border-slate-800 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
-                        <div onclick="openProductModal('${p.id}')" class="aspect-[4/5] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 relative cursor-pointer">
-                           <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border dark:border-slate-800 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                        <div onclick="openProductModal('${p.id}')" class="aspect-[4/5] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer">
+                           <img src="${p.image}" class="w-full h-full object-cover">
                         </div>
-                        <div class="p-5 flex flex-col flex-1">
+                        <div class="p-5">
                             <h3 class="font-black text-xs mb-3 line-clamp-1">${p.name}</h3>
                             <div class="text-blue-600 dark:text-blue-400 font-black text-lg mb-5">${p.price} <span class="text-[10px] opacity-60">د.م.</span></div>
                             <div class="flex gap-2">
-                                <button onclick="buyNow('${p.id}')" class="flex-1 bg-slate-900 dark:bg-blue-600 text-white py-3.5 rounded-2xl text-[11px] font-black active:scale-95 transition-all shadow-lg hover:shadow-blue-500/20">طلب سريع 🛒</button>
-                                <button onclick="openProductModal('${p.id}')" class="w-12 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center hover:bg-slate-200 transition-colors">👁️</button>
+                                <button onclick="buyNow('${p.id}')" class="flex-1 bg-slate-900 dark:bg-blue-600 text-white py-3.5 rounded-2xl text-[11px] font-black active:scale-95 transition-all">طلب سريع 🛒</button>
                             </div>
                         </div>
                     </div>
@@ -121,15 +120,15 @@ const UI = {
         </div>
     `,
     productModal: (p: any) => `
-        <div id="modal-overlay" class="fixed inset-0 z-[1000000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+        <div id="modal-overlay" class="fixed inset-0 z-[1000000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white dark:bg-slate-900 w-full max-w-5xl max-h-[90vh] rounded-[3rem] overflow-hidden flex flex-col md:flex-row relative shadow-2xl border dark:border-slate-800">
-                <button onclick="closeProductModal()" class="absolute top-6 right-6 z-50 bg-white dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center text-2xl hover:scale-110 transition-transform">✕</button>
+                <button onclick="closeProductModal()" class="absolute top-6 right-6 z-50 bg-white dark:bg-slate-800 w-12 h-12 rounded-full flex items-center justify-center text-2xl">✕</button>
                 <div class="w-full md:w-3/5 h-[40vh] md:h-auto"><img src="${p.image}" class="w-full h-full object-cover"></div>
                 <div class="w-full md:w-2/5 p-10 overflow-y-auto">
                     <h2 class="text-3xl font-black mb-2">${p.name}</h2>
                     <div class="text-4xl font-black text-blue-600 mb-6">${p.price} د.م.</div>
                     <p class="text-slate-500 text-sm mb-10">${p.description || 'وصف المنتج غير متوفر.'}</p>
-                    <button onclick="buyNow('${p.id}')" class="w-full bg-blue-600 text-white py-6 rounded-[2rem] font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all">اطلب الآن</button>
+                    <button onclick="buyNow('${p.id}')" class="w-full bg-blue-600 text-white py-6 rounded-[2rem] font-black text-xl active:scale-95 transition-all">اطلب الآن</button>
                 </div>
             </div>
         </div>
@@ -147,10 +146,10 @@ const UI = {
                    <div class="w-12 h-12 rounded-xl overflow-hidden"><img src="${state.checkoutItem.image}" class="w-full h-full object-cover"></div>
                    <div><div class="text-[10px] font-black opacity-50 uppercase">${state.checkoutItem.name}</div><div class="text-blue-600 font-black">${state.checkoutItem.price} د.م.</div></div>
                 </div>
-                <form onsubmit="event.preventDefault(); (window as any).processOrder(this);" class="space-y-4">
+                <form id="main-order-form" onsubmit="event.preventDefault(); (window as any).processOrder(this);" class="space-y-4">
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الاسم</label>
-                        <input name="fullname" type="text" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm transition-all">
+                        <input name="fullname" type="text" required placeholder="" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-sm transition-all">
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase mr-1">المدينة</label>
@@ -161,16 +160,16 @@ const UI = {
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-slate-400 uppercase mr-1">الهاتف</label>
-                        <input name="phone" type="tel" required class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none text-right font-black transition-all" dir="ltr">
+                        <input name="phone" type="tel" required placeholder="" class="w-full p-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none text-right font-black transition-all" dir="ltr">
                     </div>
-                    <button id="order-submit-btn" type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all mt-6">تأكيد الشراء ✅</button>
+                    <button id="order-submit-btn" type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-95 transition-all mt-6">تأكيد الشراء الآن ✅</button>
                 </form>
             </div>
         </div>
         `;
     },
     success: () => {
-        const order = state.lastOrder;
+        const order = state.lastOrder || (state.orders.length > 0 ? state.orders[0] : null);
         if (!order) { window.location.hash = '#/'; return '<div>جارِ التوجيه...</div>'; }
         return `
         <div class="max-w-md mx-auto py-24 text-center px-4">
@@ -192,8 +191,7 @@ const UI = {
         return `
             <div class="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-slate-950">
                 <aside class="w-full md:w-72 bg-slate-900 text-white flex md:flex-col p-4 gap-2">
-                    <button onclick="switchTab('orders')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right">📦 إدارة الطلبات</button>
-                    <button onclick="switchTab('products')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right">🛍️ إدارة المنتجات</button>
+                    <button onclick="switchTab('orders')" class="nav-btn p-4 rounded-2xl font-black text-xs text-right hover:bg-white/5 transition-all">📦 إدارة الطلبات</button>
                     <button onclick="logout()" class="p-4 bg-red-500/10 text-red-400 font-black rounded-2xl text-[10px] mt-auto">خروج</button>
                 </aside>
                 <main class="flex-1 p-8 md:p-12"><div id="dash-panel"></div></main>
@@ -204,15 +202,24 @@ const UI = {
 
 (window as any).processOrder = (form: HTMLFormElement) => {
     const submitBtn = document.getElementById('order-submit-btn') as HTMLButtonElement;
-    submitBtn.disabled = true;
-    submitBtn.innerText = "جارِ الحفظ...";
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "جارِ الحفظ...";
+    }
 
     try {
         const fullname = (form.querySelector('[name="fullname"]') as HTMLInputElement).value;
         const city = (form.querySelector('[name="city"]') as HTMLSelectElement).value;
         const phone = (form.querySelector('[name="phone"]') as HTMLInputElement).value;
 
-        if (!fullname || !city || !phone) throw new Error("Missing info");
+        if (!fullname || !city || !phone) {
+            alert("يرجى ملء جميع الحقول");
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "تأكيد الشراء الآن ✅";
+            }
+            return;
+        }
 
         const newOrder = { 
             id: Date.now().toString(), 
@@ -224,16 +231,25 @@ const UI = {
             createdAt: new Date().toISOString() 
         };
         
+        // تحديث الحالة فوراً
         state.orders.unshift(newOrder);
         state.lastOrder = newOrder;
+        
+        // حفظ في LocalStorage بشكل مضمون
         save(); 
 
-        // تأكيد التوجيه لصفحة النجاح
-        window.location.hash = '#/success';
+        // تأخير بسيط جداً لضمان الحفظ ثم الانتقال
+        setTimeout(() => {
+            window.location.hash = '#/success';
+        }, 100);
+
     } catch (e) {
-        alert("يرجى التأكد من ملء جميع الحقول");
-        submitBtn.disabled = false;
-        submitBtn.innerText = "تأكيد الشراء الآن ✅";
+        console.error("Order process error:", e);
+        alert("حدث خطأ، يرجى إعادة المحاولة");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "تأكيد الشراء الآن ✅";
+        }
     }
 };
 
@@ -243,20 +259,33 @@ const UI = {
     if (!panel) return;
 
     if (tab === 'orders') {
+        const ordersHtml = state.orders.map((o: any) => `
+            <tr class="text-sm font-bold border-b dark:border-slate-800">
+                <td class="p-6">${o.name}</td>
+                <td class="p-6 opacity-50">${o.city}</td>
+                <td class="p-6 text-blue-600 font-black" dir="ltr">${o.phone}</td>
+                <td class="p-6">
+                    <div class="text-[10px] opacity-40 mb-1">${o.items[0]}</div>
+                    ${o.total} د.م.
+                </td>
+            </tr>
+        `).join('') || '<tr><td colspan="4" class="p-20 text-center opacity-30 font-black">لا توجد طلبات واردة حالياً</td></tr>';
+
         panel.innerHTML = `
-            <h2 class="text-2xl font-black mb-6">الطلبات الواردة (${state.orders.length})</h2>
-            <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black">إدارة الطلبيات الواردة (${state.orders.length})</h2>
+                <button onclick="location.reload()" class="text-xs font-black bg-blue-600 text-white px-4 py-2 rounded-xl">تحديث القائمة 🔄</button>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm border dark:border-slate-800">
                 <table class="w-full text-right">
-                    <thead class="bg-slate-50 dark:bg-slate-800 text-[10px] font-black opacity-50 uppercase">
+                    <thead class="bg-slate-50 dark:bg-slate-800/50 text-[10px] font-black opacity-50 uppercase">
                         <tr><th class="p-6">الزبون</th><th class="p-6">المدينة</th><th class="p-6">الهاتف</th><th class="p-6">المجموع</th></tr>
                     </thead>
                     <tbody class="divide-y dark:divide-slate-800">
-                        ${state.orders.map((o: any) => `<tr class="text-sm font-bold"><td class="p-6">${o.name}</td><td class="p-6 opacity-50">${o.city}</td><td class="p-6 text-blue-600" dir="ltr">${o.phone}</td><td class="p-6">${o.total} د.م.</td></tr>`).join('') || '<tr><td colspan="4" class="p-20 text-center opacity-30">لا توجد طلبات بعد</td></tr>'}
+                        ${ordersHtml}
                     </tbody>
                 </table>
             </div>`;
-    } else {
-        panel.innerHTML = `<h2 class="text-2xl font-black mb-6">إدارة المنتجات</h2><p class="opacity-50">قيد التطوير...</p>`;
     }
 };
 
